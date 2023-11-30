@@ -1,4 +1,4 @@
-﻿using Inv_Backend_NET.Models;
+﻿using Inventory_Backend_NET.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

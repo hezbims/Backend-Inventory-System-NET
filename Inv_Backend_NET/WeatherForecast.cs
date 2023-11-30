@@ -1,4 +1,4 @@
-namespace Inv_Backend_NET
+namespace Inventory_Backend_NET
 {
     public class WeatherForecast
     {

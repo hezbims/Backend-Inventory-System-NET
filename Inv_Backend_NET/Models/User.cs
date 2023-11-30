@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Inv_Backend_NET.Models
+﻿namespace Inventory_Backend_NET.Models
 {
     public class User
     {

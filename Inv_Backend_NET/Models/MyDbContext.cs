@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Inv_Backend_NET.Models
+namespace Inventory_Backend_NET.Models
 {
     public class MyDbContext : DbContext
     {
@@ -8,9 +8,27 @@ namespace Inv_Backend_NET.Models
         { }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Kategori> Kategoris { get; set; } = null!;
+        public DbSet<Barang> Barangs { get; set; } = null!;
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Barang>()
+                .HasIndex(barang => barang.Nama)
+                .IsUnique();
+            modelBuilder.Entity<Barang>()
+                .HasIndex(barang => barang.KodeBarang)
+                .IsUnique();
+            modelBuilder.Entity<Barang>()
+                .HasIndex(barang => new
+                {
+                    barang.NomorRak,
+                    barang.NomorLaci,
+                    barang.NomorKolom
+                })
+                .IsUnique();
+            
             modelBuilder.Entity<User>()
                 .HasIndex(user => user.Username)
                 .IsUnique();

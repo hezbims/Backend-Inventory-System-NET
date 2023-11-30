@@ -1,4 +1,4 @@
-﻿using Inv_Backend_NET.Models;
+﻿using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

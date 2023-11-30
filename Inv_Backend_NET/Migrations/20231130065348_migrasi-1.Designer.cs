@@ -3,6 +3,7 @@ using Inventory_Backend_NET.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inventory_Backend_NET.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231130065348_migrasi-1")]
+    partial class migrasi1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,7 @@ namespace Inventory_Backend_NET.Migrations
 
                     b.Property<string>("KodeBarang")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("LastMonthStock")
                         .HasColumnType("int");
@@ -47,7 +50,7 @@ namespace Inventory_Backend_NET.Migrations
 
                     b.Property<string>("Nama")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("NomorKolom")
                         .HasColumnType("int");
@@ -61,22 +64,9 @@ namespace Inventory_Backend_NET.Migrations
                     b.Property<int>("UnitPrice")
                         .HasColumnType("int");
 
-                    b.Property<string>("Uom")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("KategoriId");
-
-                    b.HasIndex("KodeBarang")
-                        .IsUnique();
-
-                    b.HasIndex("Nama")
-                        .IsUnique();
-
-                    b.HasIndex("NomorRak", "NomorLaci", "NomorKolom")
-                        .IsUnique();
 
                     b.ToTable("Barangs");
                 });
@@ -123,22 +113,6 @@ namespace Inventory_Backend_NET.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IsAdmin = true,
-                            Password = "123",
-                            Username = "admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IsAdmin = false,
-                            Password = "123",
-                            Username = "hezbi"
-                        });
                 });
 
             modelBuilder.Entity("Inventory_Backend_NET.Models.Barang", b =>
