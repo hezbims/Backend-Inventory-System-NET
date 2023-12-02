@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Inventory_Backend_NET.Models;
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<MyDbContext>(
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication().AddBearerToken();
+builder.Services.AddAuthentication().AddBearerToken(); 
 
 var app = builder.Build();
 
