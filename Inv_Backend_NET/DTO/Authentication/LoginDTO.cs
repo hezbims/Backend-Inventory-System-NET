@@ -5,9 +5,10 @@ namespace Inventory_Backend_NET.DTO.Authentication
 
     public class LoginDTO
     {
-        [JsonPropertyName("username")]
-        public string Username { get; set; }
-        [JsonPropertyName("password")]
-        public string Password { get; set; }
+        [JsonPropertyName("username")] 
+        public string Username { get; set; } = null!;
+
+        [JsonPropertyName("password")] 
+        public string Password { get; set; } = null!;
     }
 }
