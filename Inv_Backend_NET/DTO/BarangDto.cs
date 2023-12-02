@@ -40,15 +40,6 @@ public class BarangDto
     
     [JsonPropertyName("uom")]
     public string Uom { get; set; } = null!;
-    
-    public class KategoriDto
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("nama")]
-        public string Nama { get; set; } = null!;
-    }
 
     public static BarangDto From(Barang barang)
     {
@@ -57,11 +48,7 @@ public class BarangDto
             Id = barang.Id,
             KodeBarang = barang.KodeBarang,
             Nama = barang.Nama,
-            Kategori = new KategoriDto()
-            {
-                Id = barang.Kategori.Id,
-                Nama = barang.Kategori.Nama
-            },
+            Kategori = KategoriDto.From(barang.Kategori),
             MinStock = barang.MinStock,
             NomorRak = barang.NomorRak,
             NomorLaci = barang.NomorLaci,
