@@ -5,11 +5,8 @@ namespace Inventory_Backend_NET.DTO.Authentication;
 
 public class UserDto
 {
-    [JsonPropertyName("id")] public int Id;
-    [JsonPropertyName("username")] public string Username;
-    
-    [JsonPropertyName("token")] 
-    public string? Token { get; set; } = null;
+    [JsonPropertyName("id")] public int Id { get; set; }
+    [JsonPropertyName("username")] public string Username { get; set; }
     
     public UserDto(int id, string username)
     {

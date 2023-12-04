@@ -42,7 +42,7 @@ public class BarangDto
 
     public static BarangDto From(Models.Barang barang)
     {
-        return new BarangDto()
+        return new BarangDto
         {
             Id = barang.Id,
             KodeBarang = barang.KodeBarang,

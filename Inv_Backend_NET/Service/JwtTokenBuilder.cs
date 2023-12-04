@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,7 +16,7 @@ public class JwtTokenBuilder : IJwtTokenBuilder
         _config = config;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateNewToken(User user)
     {
         var securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(
@@ -30,7 +31,7 @@ public class JwtTokenBuilder : IJwtTokenBuilder
         var claims = new[]
         {
             new Claim(type: ClaimTypes.NameIdentifier , value: user.Username),
-            new Claim(type: ClaimTypes.Role , value: user.IsAdmin ? "Admin" : "Non-Admin")
+            new Claim(type: ClaimTypes.Role , value: user.IsAdmin ?  Roles.Admin : Roles.NonAdmin)
         };
 
         var token = new JwtSecurityToken(

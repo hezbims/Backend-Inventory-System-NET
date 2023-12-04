@@ -23,34 +23,44 @@ namespace Inventory_Backend_NET.Controllers.Barang
             [FromQuery] int page
         )
         {
-            var query = _db.Barangs.Where(barang => 
-                EF.Functions.Like(
-                    barang.Nama,
-                    $"%{keyword}%"
-                ) || 
-                EF.Functions.Like(
-                    barang.KodeBarang,
-                    $"%{keyword}%"
-                )
-            );
-
-            if (idKategori != null)
+            try
             {
-                query = query.Where(barang =>
-                    barang.KategoriId == idKategori
+                var query = _db.Barangs.Where(barang =>
+                    EF.Functions.Like(
+                        barang.Nama,
+                        $"%{keyword}%"
+                    ) ||
+                    EF.Functions.Like(
+                        barang.KodeBarang,
+                        $"%{keyword}%"
+                    )
                 );
+
+                if (idKategori != null)
+                {
+                    query = query.Where(barang =>
+                        barang.KategoriId == idKategori
+                    );
+                }
+
+                var result = query
+                    .Skip((page - 1) * MyConstants.PageSize)
+                    .Take(MyConstants.PageSize + 1)
+                    .Include(barang => barang.Kategori)
+                    .ToList()
+                    .Select(barang => BarangDto.From(barang))
+                    .ToList();
+
+
+                return this.Paginate(data: result);
             }
-
-            var result = query
-                .Skip((page - 1) * MyConstants.PageSize)
-                .Take(MyConstants.PageSize + 1)
-                .Include(barang => barang.Kategori)
-                .ToList()
-                .Select(barang => BarangDto.From(barang))
-                .ToList();
-            
-
-            return this.Paginate(data: result);
+            catch (Exception e)
+            {
+                return StatusCode(500, new
+                {
+                    message = e.Message
+                });
+            }
         }
     }
 }

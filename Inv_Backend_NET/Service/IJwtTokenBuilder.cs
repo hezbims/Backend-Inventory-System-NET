@@ -4,5 +4,5 @@ namespace Inventory_Backend_NET.Service;
 
 public interface IJwtTokenBuilder
 {
-    string GenerateToken(User user);
+    string GenerateNewToken(User user);
 }

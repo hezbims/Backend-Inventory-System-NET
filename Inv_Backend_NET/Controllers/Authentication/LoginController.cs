@@ -35,7 +35,8 @@ namespace Inventory_Backend_NET.Controllers.Authentication
                 return Ok(new
                 {
                     message = "Sukses",
-                    token = _jwtTokenBuilder.GenerateToken(currentUser)
+                    token = _jwtTokenBuilder.GenerateNewToken(currentUser),
+                    user = UserDto.From(currentUser)
                 });
             }
         }

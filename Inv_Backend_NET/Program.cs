@@ -3,24 +3,55 @@ using System.Security.Claims;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Seeder.Data;
 using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<MyDbContext>(
     options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServerConnection"))
 );
 
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Masukkan token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,8 +77,8 @@ builder.Services.AddAuthentication(options =>
     });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly" , policy => policy.RequireRole("Admin"));
-    options.AddPolicy("AllUsers" , policy => policy.RequireClaim(ClaimTypes.Role));
+    options.AddPolicy(Policies.AdminOnly , policy => policy.RequireRole(Roles.Admin));
+    options.AddPolicy(Policies.AllUsers , policy => policy.RequireClaim(ClaimTypes.Role));
 });
 
 var app = builder.Build();
