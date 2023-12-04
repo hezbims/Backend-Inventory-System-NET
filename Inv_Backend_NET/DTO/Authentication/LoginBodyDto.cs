@@ -3,7 +3,7 @@
 namespace Inventory_Backend_NET.DTO.Authentication
 {
 
-    public class LoginDTO
+    public class LoginBodyDto
     {
         [JsonPropertyName("username")] 
         public string Username { get; set; } = null!;

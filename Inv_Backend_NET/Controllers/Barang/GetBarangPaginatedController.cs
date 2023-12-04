@@ -1,5 +1,5 @@
 ﻿using Inventory_Backend_NET.Constants;
-using Inventory_Backend_NET.DTO;
+using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Utils;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
-using Inventory_Backend_NET.Models;
 
-namespace Inventory_Backend_NET.DTO;
+namespace Inventory_Backend_NET.DTO.Barang;
 
 public class BarangDto
 {
@@ -41,7 +40,7 @@ public class BarangDto
     [JsonPropertyName("uom")]
     public string Uom { get; set; } = null!;
 
-    public static BarangDto From(Barang barang)
+    public static BarangDto From(Models.Barang barang)
     {
         return new BarangDto()
         {

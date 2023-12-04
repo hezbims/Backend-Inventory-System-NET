@@ -1,13 +1,18 @@
 using System.Globalization;
-using System.Text.Json.Serialization;
+using System.Security.Claims;
+using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Seeder.Data;
+using Inventory_Backend_NET.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<MyDbContext>(
     options =>
@@ -16,7 +21,34 @@ builder.Services.AddDbContext<MyDbContext>(
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication().AddBearerToken(); 
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        var validIssuer = builder.Configuration.GetValue<string>("JwtSettings:Issuer");
+        var issuerKey = builder.Configuration.GetValue<string>("JwtSettings:Key");
+        options.IncludeErrorDetails = true;
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = validIssuer!,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(issuerKey!)    
+            )
+        };
+    });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly" , policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AllUsers" , policy => policy.RequireClaim(ClaimTypes.Role));
+});
 
 var app = builder.Build();
 
@@ -28,9 +60,13 @@ using (var scope = app.Services.CreateScope())
     if (args.Contains("refresh"))
     {
         var allTables = db.Model.GetEntityTypes().Select(e => e.GetTableName()).ToList();
+        var ignoredTables = new[] { "StatusPengajuans"};
         foreach (var table in allTables)
         {
-            db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
+            if (!ignoredTables.Contains(table))
+            {
+                db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
+            }
         }
     }
     
@@ -48,6 +84,7 @@ using (var scope = app.Services.CreateScope())
             var barangs = csv.GetRecords<BarangCsvDto>().ToList();
             for (var i = 1; i <= 10; ++i)
             {
+                Console.WriteLine();
                 db.Kategoris.Add(new Kategori { Nama = $"Kategori {i}" });
             }
             db.SaveChanges();
