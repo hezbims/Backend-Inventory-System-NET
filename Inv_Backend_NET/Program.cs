@@ -1,11 +1,8 @@
-using System.Globalization;
 using System.Security.Claims;
 using System.Text;
-using CsvHelper;
-using CsvHelper.Configuration;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Models;
-using Inventory_Backend_NET.Seeder.Data;
+using Inventory_Backend_NET.Seeder;
 using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -74,12 +71,37 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(issuerKey!)    
             )
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context  =>
+            {
+                context.HandleResponse();
+                context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("{\"message\" : \"Unauthorized\"}");
+            }
+        };
     });
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(Policies.AdminOnly , policy => policy.RequireRole(Roles.Admin));
     options.AddPolicy(Policies.AllUsers , policy => policy.RequireClaim(ClaimTypes.Role));
 });
+
+builder.Services.AddCors(options => 
+    options.AddPolicy(Policies.CorsPolicy , corsBuilder =>
+    {
+        // TODO : nanti ubah kalo udah deployment
+        corsBuilder
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    })
+);
 
 var app = builder.Build();
 
@@ -90,59 +112,11 @@ using (var scope = app.Services.CreateScope())
     
     if (args.Contains("refresh"))
     {
-        var allTables = db.Model.GetEntityTypes().Select(e => e.GetTableName()).ToList();
-        var ignoredTables = new[] { "StatusPengajuans"};
-        foreach (var table in allTables)
-        {
-            if (!ignoredTables.Contains(table))
-            {
-                db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
-            }
-        }
+        db.RefreshDatabase();
     }
-    
     if (args.Contains("test-seeder"))
     {
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            PrepareHeaderForMatch = args => args.Header.ToUpper(),
-        };
-        
-        using (var reader = new StreamReader("Seeder/Data/barang_seeder.csv"))
-        using (var csv = new CsvReader(reader, config))
-        {
-            var rand = new Random(5);
-            var barangs = csv.GetRecords<BarangCsvDto>().ToList();
-            for (var i = 1; i <= 10; ++i)
-            {
-                Console.WriteLine();
-                db.Kategoris.Add(new Kategori { Nama = $"Kategori {i}" });
-            }
-            db.SaveChanges();
-            
-            foreach (var barang in barangs)
-            {
-                var rak = barang.Rak;
-                var namaKategori = $"Kategori {rand.Next() % 10 + 1}";
-                db.Barangs.Add(new Barang
-                {
-                    KodeBarang = $"R{rak.NomorRak}-{rak.NomorLaci}-{rak.NomorKolom}",
-                    Nama = barang.ItemDescription,
-                    Kategori = db.Kategoris.Where(kategori => 
-                        kategori.Nama == namaKategori
-                    ).First(),
-                    MinStock = barang.MinStock,
-                    NomorRak = rak.NomorRak,
-                    NomorLaci = rak.NomorLaci,
-                    NomorKolom = rak.NomorKolom,
-                    CurrentStock = barang.Actual ?? 0,
-                    LastMonthStock = barang.LastMonthStock ?? 0,
-                    UnitPrice = barang.IntUnitPrice,
-                    Uom = barang.Uom
-                });    
-            }
-            db.SaveChanges();
-        }
+        db.TestSeeder();
     } 
 }
 
@@ -156,6 +130,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(Policies.CorsPolicy);
 
 app.UseAuthorization();
 
