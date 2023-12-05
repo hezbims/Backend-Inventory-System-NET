@@ -9,17 +9,22 @@ public class Pengajuan
 {
     public int Id { get; set; }
     public long CreatedAt { get; set; }
-    public Pengaju Pengaju { get; set; } = null!;
+    public Pengaju Pengaju { get; set; }
     public int PengajuId { get; set; }
     public int UrutanHariIni { get; set; }
-    public StatusPengajuan Status { get; set; } = null!;
-    public User User { get; set; } = null!;
+    public StatusPengajuan Status { get; set; }
+    public User User { get; set; }
     public int UserId { get; set; }
 
     public ICollection<BarangAjuan> BarangAjuans { get; set; } = new List<BarangAjuan>();
 
-    
-    public Pengajuan(SqliteCache cache)
+    public Pengajuan(
+        SqliteCache cache,
+        Pengaju pengaju,
+        StatusPengajuan status,
+        User user,
+        ICollection<BarangAjuan> barangAjuans
+    )
     {
         DateTime currentTime = DateTime.Now;
         CreatedAt = ((DateTimeOffset)currentTime).ToUnixTimeMilliseconds();
@@ -32,7 +37,12 @@ public class Pengajuan
 
         UrutanHariIni = urutanPengajuan.UrutanHari++;
         cache.SetString(CacheKeys.UrutanPengajuanHariIni, urutanPengajuan.ToString());
+
+        Pengaju = pengaju;
+        Status = status;
+        User = user;
+        BarangAjuans = barangAjuans;
     }
-    
-    public Pengajuan(){}
+
+    private Pengajuan() { }
 }

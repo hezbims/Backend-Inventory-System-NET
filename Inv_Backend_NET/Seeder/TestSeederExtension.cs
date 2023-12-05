@@ -154,13 +154,13 @@ public static class PengajuanSeederExtension
                 .ToList();
             
             db.Pengajuans.Add(
-                new Pengajuan(sqliteCache)
-                {
-                    Pengaju = pengaju,
-                    Status = status,
-                    User = status.GetRandomUser(users , rand),
-                    BarangAjuans = barangAjuans
-                }
+            new Pengajuan(
+                    cache: sqliteCache,
+                    pengaju: pengaju,
+                    status: status,
+                    user: status.GetRandomUser(users, rand),
+                    barangAjuans: barangAjuans
+                )
             );
         }
     }
