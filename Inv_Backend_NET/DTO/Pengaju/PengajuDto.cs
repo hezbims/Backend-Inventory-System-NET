@@ -4,11 +4,11 @@ namespace Inventory_Backend_NET.DTO.Pengaju;
 
 public class PengajuDto
 {
-    [JsonPropertyName("id")] public int Id;
+    [JsonPropertyName("id")] public int Id { get; set; }
     
-    [JsonPropertyName("nama")] public string Nama;
+    [JsonPropertyName("nama")] public string Nama { get; set; }
 
-    [JsonPropertyName("is_pemasok")] public bool IsPemasok;
+    [JsonPropertyName("is_pemasok")] public bool IsPemasok { get; set; }
 
     public PengajuDto(int id, string nama, bool isPemasok)
     {

@@ -1,4 +1,3 @@
-using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.DTO.Pengajuan;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Utils;
@@ -12,7 +11,7 @@ public class GetPengajuanPaginatedController : ControllerBase
 {
     private MyDbContext _db;
 
-    GetPengajuanPaginatedController(MyDbContext db)
+    public GetPengajuanPaginatedController(MyDbContext db)
     {
         _db = db;
     }
@@ -24,21 +23,21 @@ public class GetPengajuanPaginatedController : ControllerBase
         [FromQuery] int page
     )
     {
-        var query = _db.Pengajuans
+        var result = _db.Pengajuans
             .Include(e => e.User)
-            .Include(e => e.Status)
             .Include(e => e.Pengaju)
             .OrderBy(pengajuan => pengajuan.CreatedAt)
-            .Select(pengajuan => PengajuanPreviewDto.From(pengajuan))
             .Where(pengajuan => EF.Functions.Like(
                     pengajuan.KodeTransaksi,
                     $"%{keyword}%"
                 )
             )
-            .Skip((page - 1) * MyConstants.PageSize)
-            .Take(MyConstants.PageSize + 1);
+            .Paginate(
+                pageNumber: page , 
+                dataMapper: pengajuan => PengajuanPreviewDto.From(pengajuan)
+            );
 
-        return this.Paginate(query.ToList());
+        return Ok(result);
     }
     
 }

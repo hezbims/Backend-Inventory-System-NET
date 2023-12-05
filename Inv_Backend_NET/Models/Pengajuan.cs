@@ -8,10 +8,10 @@ namespace Inventory_Backend_NET.Models;
 public class Pengajuan
 {
     public int Id { get; set; }
+    public string KodeTransaksi { get; set; }
     public long CreatedAt { get; set; }
     public Pengaju Pengaju { get; set; }
     public int PengajuId { get; set; }
-    public int UrutanHariIni { get; set; }
     public StatusPengajuan Status { get; set; }
     public User User { get; set; }
     public int UserId { get; set; }
@@ -29,15 +29,17 @@ public class Pengajuan
         DateTime currentTime = DateTime.Now;
         CreatedAt = ((DateTimeOffset)currentTime).ToUnixTimeMilliseconds();
 
-        var urutanPengajuan = UrutanPengajuanCacheModel.From(cache.GetString(CacheKeys.UrutanPengajuanHariIni));
-        if (!urutanPengajuan.Day.IsToday())
+        var pengajuanCacheModel = PengajuanCacheModel.From(cache.GetString(CacheKeys.UrutanPengajuanHariIni));
+        if (!pengajuanCacheModel.Day.IsToday())
         {
-            urutanPengajuan = new UrutanPengajuanCacheModel();
+            pengajuanCacheModel = new PengajuanCacheModel();
         }
 
-        UrutanHariIni = urutanPengajuan.UrutanHari++;
-        cache.SetString(CacheKeys.UrutanPengajuanHariIni, urutanPengajuan.ToString());
-
+        var tanggalPengajuan = pengajuanCacheModel.Day.ToString("yyyy-MM-dd");
+        var urutan = (pengajuanCacheModel.UrutanHari++).ToString().PadLeft(3 , '0');
+        cache.SetString(CacheKeys.UrutanPengajuanHariIni, pengajuanCacheModel.ToString());
+        
+        KodeTransaksi = $"TRX-{tanggalPengajuan}-{urutan}";
         Pengaju = pengaju;
         Status = status;
         User = user;

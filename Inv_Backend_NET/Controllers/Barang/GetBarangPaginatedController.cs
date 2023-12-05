@@ -1,5 +1,4 @@
-﻿using Inventory_Backend_NET.Constants;
-using Inventory_Backend_NET.DTO.Barang;
+﻿using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -44,15 +43,11 @@ namespace Inventory_Backend_NET.Controllers.Barang
                 }
 
                 var result = query
-                    .Skip((page - 1) * MyConstants.PageSize)
-                    .Take(MyConstants.PageSize + 1)
                     .Include(barang => barang.Kategori)
-                    .ToList()
                     .Select(barang => BarangDto.From(barang))
-                    .ToList();
+                    .Paginate(pageNumber: page);
 
-
-                return this.Paginate(data: result);
+                return Ok(result);
             }
             catch (Exception e)
             {

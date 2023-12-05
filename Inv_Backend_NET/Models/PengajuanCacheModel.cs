@@ -1,11 +1,11 @@
 namespace Inventory_Backend_NET.Models;
 
-public class UrutanPengajuanCacheModel
+public class PengajuanCacheModel
 {
     public int UrutanHari;
     public DateTime Day;
 
-    public UrutanPengajuanCacheModel(
+    public PengajuanCacheModel(
         int urutanHari = 1,
         DateTime? day = null
     )
@@ -14,16 +14,16 @@ public class UrutanPengajuanCacheModel
         Day = day ?? DateTime.Now;
     }
     
-    public static UrutanPengajuanCacheModel From(string? value)
+    public static PengajuanCacheModel From(string? value)
     {
         if (value == null)
         {
-            return new UrutanPengajuanCacheModel();
+            return new PengajuanCacheModel();
         }
 
         var splitValue = value.Split('\t');
 
-        return new UrutanPengajuanCacheModel(
+        return new PengajuanCacheModel(
             urutanHari: int.Parse(splitValue[0]),
             day: DateTime.ParseExact(splitValue[1] , DateFormat  ,  System.Globalization.CultureInfo.InvariantCulture)
         );

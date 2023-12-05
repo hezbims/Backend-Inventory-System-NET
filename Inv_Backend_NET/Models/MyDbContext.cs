@@ -46,6 +46,9 @@ namespace Inventory_Backend_NET.Models
                     e => e.Value,
                     e => StatusPengajuan.From(e)
                 );
+            modelBuilder.Entity<Pengajuan>()
+                .HasIndex(e => e.KodeTransaksi)
+                .IsUnique();
             
             // SETTING PENGAJU
             modelBuilder.Entity<Pengaju>()
