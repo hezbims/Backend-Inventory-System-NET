@@ -101,7 +101,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddCors(options => 
-    options.AddPolicy(Policies.CorsPolicy , corsBuilder =>
+    options.AddDefaultPolicy(corsBuilder =>
     {
         // TODO : nanti ubah kalo udah deployment
         corsBuilder
@@ -139,7 +139,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(Policies.CorsPolicy);
+app.UseCors();
 
 app.UseAuthorization();
 

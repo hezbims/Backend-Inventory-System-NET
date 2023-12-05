@@ -35,7 +35,7 @@ public static class PaginatorExtension
 
         return new
         {
-            result,
+            data = result,
             links = new
             {
                 next

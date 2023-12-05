@@ -35,7 +35,7 @@ namespace Inventory_Backend_NET.Controllers.Barang
                     )
                 );
 
-                if (idKategori != null)
+                if (idKategori != null && idKategori != 0)
                 {
                     query = query.Where(barang =>
                         barang.KategoriId == idKategori
@@ -44,8 +44,10 @@ namespace Inventory_Backend_NET.Controllers.Barang
 
                 var result = query
                     .Include(barang => barang.Kategori)
-                    .Select(barang => BarangDto.From(barang))
-                    .Paginate(pageNumber: page);
+                    .Paginate(
+                        pageNumber: page,
+                        dataMapper: barang => BarangDto.From(barang) 
+                    );
 
                 return Ok(result);
             }
