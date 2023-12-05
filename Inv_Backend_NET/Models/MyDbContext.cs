@@ -39,12 +39,18 @@ namespace Inventory_Backend_NET.Models
                 })
                 .IsUnique();
 
+            // SETTING PENGAJUAN
             modelBuilder.Entity<Pengajuan>()
                 .Property(e => e.Status)
                 .HasConversion(
                     e => e.Value,
                     e => StatusPengajuan.From(e)
                 );
+            
+            // SETTING PENGAJU
+            modelBuilder.Entity<Pengaju>()
+                .HasIndex(e => e.Nama)
+                .IsUnique();
 
 
             modelBuilder.Entity<StatusPengajuan>().HasData(
