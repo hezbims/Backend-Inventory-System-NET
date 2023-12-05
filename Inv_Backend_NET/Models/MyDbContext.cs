@@ -18,6 +18,11 @@ namespace Inventory_Backend_NET.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Ngekonfigurasi Kategori
+            modelBuilder.Entity<Kategori>()
+                .HasIndex(kategori => kategori.Nama)
+                .IsUnique();
+            
             // Ngekonfigurasi Barang
             modelBuilder.Entity<Barang>()
                 .HasIndex(barang => barang.Nama)
@@ -50,22 +55,6 @@ namespace Inventory_Backend_NET.Models
             modelBuilder.Entity<User>()
                 .HasIndex(user => user.Username)
                 .IsUnique();
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    Id = 1,
-                    Username = "admin",
-                    Password = "123",
-                    IsAdmin = true,
-                },
-                new User
-                {
-                    Id = 2,
-                    Username = "hezbi",
-                    Password = "123",
-                    IsAdmin = false,
-                }
-            );
         }
     }
 }

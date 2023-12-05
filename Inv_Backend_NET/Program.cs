@@ -8,12 +8,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NeoSmart.Caching.Sqlite.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddSqliteCache(
+    options =>
+    {
+        options.CachePath = Path.Combine(Environment.CurrentDirectory, "Cache/cache.db");
+    }
+);
+Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "Cache/cache.db"));
 builder.Services.AddControllers();
 builder.Services.AddDbContext<MyDbContext>(
     options =>
@@ -116,7 +124,7 @@ using (var scope = app.Services.CreateScope())
     }
     if (args.Contains("test-seeder"))
     {
-        db.TestSeeder();
+        services.TestSeeder();
     } 
 }
 

@@ -8,5 +8,5 @@ public class BarangAjuan
     public Barang Barang { get; set; } = null!;
     public int BarangId { get; set; }
     public int Quantity { get; set;  }
-    public string Keterangan { get; set; } = null!;
+    public string? Keterangan { get; set; }
 }
