@@ -9,4 +9,17 @@ public class BarangAjuan
     public int BarangId { get; set; }
     public int Quantity { get; set;  }
     public string? Keterangan { get; set; }
+    
+    private BarangAjuan(){}
+
+    public BarangAjuan(
+        Barang barang,
+        int quantity,
+        string? keterangan
+    )
+    {
+        Barang = barang;
+        Quantity = quantity;
+        Keterangan = keterangan;
+    }
 }

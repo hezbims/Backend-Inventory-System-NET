@@ -86,21 +86,19 @@ public static class TestSeederExtension
             var pengajus = new List<Pengaju>();
             for (int i = 1 ; i <= 5; i++)
             {
-                var grup = new Pengaju
-                {
-                    Nama = $"Grup {i}",
-                    IsPemasok = false
-                };
+                var grup = new Pengaju(
+                    nama : $"Grup {i}",
+                    isPemasok : false
+                );
                 pengajus.Add(grup);
                 db.Pengajus.Add(grup);
             }
             for (int i = 1 ; i <= 3; i++)
             {
-                var pemasok = new Pengaju
-                {
-                    Nama = $"Pemasok {i}",
-                    IsPemasok = true
-                };
+                var pemasok = new Pengaju(
+                    nama : $"Pemasok {i}",
+                    isPemasok : true
+                );
                 pengajus.Add(pemasok);
                 db.Pengajus.Add(pemasok);
             }
@@ -145,12 +143,12 @@ public static class PengajuanSeederExtension
                 .OrderBy(_ => Guid.NewGuid()) // acak urutan indexnya
                 .Take(rand.Next(4) + 1) // Ambil 1-5 barang
                 .Select(index => barangs[index]) // ubah dari index ke barang
-                .Select(barang => new BarangAjuan // ubah dari barang ke barang ajuan
-                {
-                    Barang = barang,
-                    Quantity = rand.Next(5) + 1,
-                    Keterangan = rand.Next(2) == 0 ? null : "abc"
-                })
+                .Select(barang => new BarangAjuan(
+                        barang: barang,
+                        quantity: rand.Next(5) + 1,
+                        keterangan: rand.Next(2) == 0 ? null : "abc"
+                    )
+                ) // ubah dari barang ke barang ajuan
                 .ToList();
             
             db.Pengajuans.Add(
