@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Controllers.Barang
 {
+    // TODO : Test kalo current stock yang direturn benar
     [Route("api/barang/all")]
     public class GetBarangPaginatedController : Controller
     {

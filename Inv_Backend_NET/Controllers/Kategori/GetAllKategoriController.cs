@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Inventory_Backend_NET.Controllers.Kategori;
 
 [Route("api/kategori/all")]
-public class GetKategoriController : ControllerBase
+public class GetAllKategoriController : ControllerBase
 {
     private MyDbContext _db;
     
-    public GetKategoriController(MyDbContext db)
+    public GetAllKategoriController(MyDbContext db)
     {
         _db = db;
     }
