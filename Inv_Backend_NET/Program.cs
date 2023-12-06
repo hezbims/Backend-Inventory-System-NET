@@ -124,7 +124,7 @@ using (var scope = app.Services.CreateScope())
     }
     if (args.Contains("test-seeder"))
     {
-        services.TestSeeder();
+        services.TestSeeder(args: args);
     } 
 }
 

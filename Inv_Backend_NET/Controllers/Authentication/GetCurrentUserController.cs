@@ -3,6 +3,7 @@ using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.DTO.Authentication;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Service;
+using Inventory_Backend_NET.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,10 +29,9 @@ public class GetCurrentUserController : ControllerBase
     [HttpGet]
     public IActionResult GetCurrentUser()
     {
-        var username = _httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var user = _db.Users.First(user => user.Username == username);
+        var user = _db.GetCurrentUserFrom(_httpContextAccessor);
         var userDto = UserDto.From(user);
-        Console.WriteLine(userDto.Username);
+        
         return Ok(new
         {
             token = _jwtTokenBuilder.GenerateNewToken(user),

@@ -22,4 +22,15 @@ public class BarangAjuan
         Quantity = quantity;
         Keterangan = keterangan;
     }
+    
+    public BarangAjuan(
+        int barangId,
+        int quantity,
+        string? keterangan
+    )
+    {
+        BarangId = barangId;
+        Quantity = quantity;
+        Keterangan = keterangan;
+    }
 }

@@ -23,7 +23,8 @@ public class Pengajuan
         Pengaju pengaju,
         StatusPengajuan status,
         User user,
-        ICollection<BarangAjuan> barangAjuans
+        ICollection<BarangAjuan> barangAjuans,
+        int? id = null
     )
     {
         DateTime currentTime = DateTime.Now;
@@ -44,6 +45,7 @@ public class Pengajuan
         Status = status;
         User = user;
         BarangAjuans = barangAjuans;
+        Id = id ?? default;
     }
 
     private Pengajuan() { }

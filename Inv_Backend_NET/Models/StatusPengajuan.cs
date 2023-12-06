@@ -34,6 +34,16 @@ public class StatusPengajuan
             default: throw new Exception($"Value {str} tidak ditemukan pada status pengajuan");
         }
     }
+
+    /// <summary>
+    ///  Mendapatkan pengajuan berdasarkan role user yang sedang mengedit atau membuat suatu pengajuan
+    /// </summary>
+    /// <param name="editor"></param>
+    /// <returns></returns>
+    public static StatusPengajuan GetByEditor(User editor)
+    {
+        return editor.IsAdmin ? Diterima : Ditolak;
+    }
 }
 
 

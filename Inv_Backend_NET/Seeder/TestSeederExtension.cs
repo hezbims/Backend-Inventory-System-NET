@@ -9,7 +9,10 @@ namespace Inventory_Backend_NET.Seeder;
 
 public static class TestSeederExtension
 {
-    public static void TestSeeder(this IServiceProvider serviceProvider)
+    public static void TestSeeder(
+        this IServiceProvider serviceProvider,
+        string[] args    
+    )
     {
         var db = serviceProvider.GetRequiredService<MyDbContext>();
         var sqliteCache = serviceProvider.GetRequiredService<SqliteCache>();
@@ -59,6 +62,8 @@ public static class TestSeederExtension
                     }    
                 )
                 .ToList();
+            db.SaveChanges();
+            
 
             var users = new List<User>( new []{
                     new User
@@ -102,6 +107,10 @@ public static class TestSeederExtension
                 pengajus.Add(pemasok);
                 db.Pengajus.Add(pemasok);
             }
+
+            db.SaveChanges();
+            
+            if (args.Contains("no-pengajuan")) { return; }
 
             db.SeedPengajuan(
                 sqliteCache,
