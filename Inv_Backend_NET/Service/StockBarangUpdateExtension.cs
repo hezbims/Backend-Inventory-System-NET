@@ -1,28 +1,39 @@
 using Inventory_Backend_NET.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Service;
 
 public static class StockBarangUpdateExtension
 {
     public static void UpdateStockBarang(
-        this Pengajuan pengajuan,
-        bool isReverse
+        this MyDbContext db,
+        Pengajuan pengajuan,
+        bool isUndo
     )
     {
         var isPemasukan = pengajuan.Pengaju.IsPemasok;
-        if (isReverse)
+        if (isUndo)
         {
             isPemasukan = !isPemasukan;
         }
 
         var multiplier = isPemasukan ? 1 : -1;
 
-        var listBarangAjuanId = pengajuan.BarangAjuans.Select(barangAjuan => barangAjuan.Id);
+        var updatedBarangIds = pengajuan.BarangAjuans
+            .Select(barangAjuan => barangAjuan.BarangId);
 
+        var updatedBarangs = db.Barangs
+            .Where(barang => updatedBarangIds.Contains(barang.Id))
+            .ToList();
+        
         foreach (var barangAjuan in pengajuan.BarangAjuans)
         {
-            barangAjuan.Barang.CurrentStock += barangAjuan.Quantity * multiplier;
+            foreach (var barang in updatedBarangs)
+            {
+                if (barangAjuan.BarangId == barang.Id)
+                {
+                    barang.CurrentStock += barangAjuan.Quantity * multiplier;
+                }
+            }
         }
     }
 }

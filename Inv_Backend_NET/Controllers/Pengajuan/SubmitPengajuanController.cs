@@ -9,7 +9,7 @@ using NeoSmart.Caching.Sqlite;
 
 namespace Inventory_Backend_NET.Controllers.Pengajuan;
 
-[Route("pengajuan/add")]
+[Route("api/pengajuan/add")]
 public class SubmitPengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
@@ -42,6 +42,7 @@ public class SubmitPengajuanController : ControllerBase
             {
                 UndoStockUpdateFromPreviousPengajuan(previousPengajuan);
             }
+
             
             var currentPengajuan = GetCurrentPengajuan(previousPengajuan , requestBody, submitter);
             UpdateStockBarangByCurrentPengajuan(currentPengajuan);
@@ -87,6 +88,7 @@ public class SubmitPengajuanController : ControllerBase
         catch (Exception e)
         {
             transaction.Rollback();
+            Console.WriteLine(e.ToString());
             return StatusCode(
                 500,
                 new
@@ -104,7 +106,6 @@ public class SubmitPengajuanController : ControllerBase
             .Include(pengajuan => pengajuan.User)
             .Include(pengajuan => pengajuan.Pengaju)
             .Include(pengajuan => pengajuan.BarangAjuans)
-            .ThenInclude(barangAjuan => barangAjuan.Barang)
             .FirstOrDefault(
                 pengajuan => pengajuan.Id == requestBody.IdPengajuan
             );
@@ -123,6 +124,7 @@ public class SubmitPengajuanController : ControllerBase
         var currentBarangAjuans = requestBody.BarangAjuans.Select(
             barangAjuanBody => barangAjuanBody.ToBarangAjuan()
         ).ToList();
+
         if (currentBarangAjuans.Count == 0)
         {
             throw new BadHttpRequestException("Tolong ajukan minimal satu barang!");
@@ -156,6 +158,7 @@ public class SubmitPengajuanController : ControllerBase
             barangAjuans: currentBarangAjuans,
             id: previousPengajuan?.Id
         );
+            
         if (previousPengajuan == null)
         {
             _db.Pengajuans.Add(currentPengajuan);
@@ -245,14 +248,20 @@ public class SubmitPengajuanController : ControllerBase
         Models.Pengajuan currentPengajuan    
     )
     {
-        currentPengajuan.UpdateStockBarang(isReverse: false);
+        _db.UpdateStockBarang(
+            pengajuan: currentPengajuan,
+            isUndo: false
+        );
     }
     
     private void UndoStockUpdateFromPreviousPengajuan(
         Models.Pengajuan previousPengajuan    
     )
     {
-        previousPengajuan.UpdateStockBarang(isReverse: true);
+        _db.UpdateStockBarang(
+            pengajuan: previousPengajuan,
+            isUndo: true
+        );
     }
 }
 

@@ -1,6 +1,8 @@
-﻿using Inventory_Backend_NET.DTO.Barang;
+﻿using Inventory_Backend_NET.Constants;
+using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +10,7 @@ namespace Inventory_Backend_NET.Controllers.Barang
 {
     // TODO : Test kalo current stock yang direturn benar
     [Route("api/barang/all")]
+    [Authorize(policy: Policies.AllUsers)]
     public class GetBarangPaginatedController : Controller
     {
         private readonly MyDbContext _db;
