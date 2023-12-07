@@ -166,6 +166,7 @@ public class SubmitPengajuanController : ControllerBase
         else
         {
             _db.BarangAjuans.RemoveRange(previousPengajuan.BarangAjuans);
+            _db.Entry(previousPengajuan).State = EntityState.Detached;
             _db.Pengajuans.Update(currentPengajuan);
         }
 
