@@ -3,7 +3,7 @@ using Inventory_Backend_NET.Models;
 
 namespace Inventory_Backend_NET.Utils;
 
-public static class GetCurrentUserFromRequestExtension
+public static class GetCurrentUserFromHttpRequestExtension
 {
     public static User GetCurrentUserFrom(
         this MyDbContext db,
