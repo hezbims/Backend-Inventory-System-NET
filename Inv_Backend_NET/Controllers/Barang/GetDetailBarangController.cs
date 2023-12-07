@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Controllers.Barang;
 
-[Route("barang/detail")]
+[Route("api/barang/detail")]
 public class GetDetailBarangController : Controller
 {
     private MyDbContext _db;

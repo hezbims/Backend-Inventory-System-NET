@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Controllers.Pengaju;
 
-[Route("pengaju/add")]
+[Route("api/pengaju/add")]
 public class PostPengajuController : ControllerBase
 {
     private readonly MyDbContext _db;
