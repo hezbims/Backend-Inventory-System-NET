@@ -7,8 +7,8 @@ using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using NeoSmart.Caching.Sqlite.AspNetCore;
 
@@ -122,16 +122,17 @@ builder.Services.AddCors(options =>
     })
 );
 
-var spaPath = Path.Combine(
-    Directory.GetParent(
-        Environment.CurrentDirectory
-    )!.Parent!.FullName,
-    "web"
-);
-// builder.Services.AddSpaStaticFiles(options =>
-// {
-//     options.RootPath = spaPath;
-// });
+// var spaPath = Path.Combine(
+//     Directory.GetParent(
+//         Environment.CurrentDirectory
+//     )!.Parent!.FullName,
+//     "web"
+// );
+
+builder.Services.AddSpaStaticFiles(options =>
+{
+    options.RootPath = "web";
+});
 
 var app = builder.Build();
 
@@ -167,18 +168,37 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseStaticFiles();
+// app.UseDefaultFiles();
 
-// app.UseSpaStaticFiles(options: new StaticFileOptions()
-// {
-//     FileProvider = new PhysicalFileProvider(
-//         Path.Combine(spaPath , "assets")
-//     ),
-//     RequestPath = "/assets"
-// });
-// app.UseSpa(spa =>
-// {
-//     spa.Options.SourcePath = spaPath;
-// });
+app.UseSpaStaticFiles(new StaticFileOptions
+{
+    // biar bisa ngeserve file don
+    ServeUnknownFileTypes = true,
+    OnPrepareResponse = ctx =>
+    {
+        // Set cache control headers
+        ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+        ctx.Context.Response.Headers.Append("Expires", "-1");
+    }
+});
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "web";
+    spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            var headers = ctx.Context.Response.GetTypedHeaders();
+            headers.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true,
+                NoStore = true,
+                MustRevalidate = true
+            };
+        }
+    };
+});
+
 
 app.Run();
