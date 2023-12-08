@@ -7,6 +7,7 @@ using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NeoSmart.Caching.Sqlite.AspNetCore;
@@ -121,6 +122,17 @@ builder.Services.AddCors(options =>
     })
 );
 
+var spaPath = Path.Combine(
+    Directory.GetParent(
+        Environment.CurrentDirectory
+    )!.Parent!.FullName,
+    "web"
+);
+// builder.Services.AddSpaStaticFiles(options =>
+// {
+//     options.RootPath = spaPath;
+// });
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -154,5 +166,26 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseStaticFiles(options: new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(spaPath , "assets")
+    ),
+    RequestPath = "/assets"
+});
+Console.WriteLine("spa path : " + Path.Combine(spaPath , "assets"));
+
+// app.UseSpaStaticFiles(options: new StaticFileOptions()
+// {
+//     FileProvider = new PhysicalFileProvider(
+//         Path.Combine(spaPath , "assets")
+//     ),
+//     RequestPath = "/assets"
+// });
+// app.UseSpa(spa =>
+// {
+//     spa.Options.SourcePath = spaPath;
+// });
 
 app.Run();
