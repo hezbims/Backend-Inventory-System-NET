@@ -51,6 +51,7 @@ public class PostFormBarangController : Controller
         }
         catch (Exception e)
         {
+            Console.WriteLine(e);
             return StatusCode(500, new
             {
                 message = e.Message
@@ -108,53 +109,61 @@ public class PostBarangDto
     public string Nama { get; set; } = null!;
     
     [JsonPropertyName("nomor_rak")]
+    [Required]
     [Range(1, 6)]
-    public int NomorRak { get; set; }
+    public int? NomorRak { get; set; }
     
     [JsonPropertyName("nomor_laci")]
+    [Required]
     [Range(1, 30)]
-    public int NomorLaci { get; set; }
+    public int? NomorLaci { get; set; }
     
     [JsonPropertyName("nomor_kolom")]
+    [Required]
     [Range(1, 9)]
-    public int NomorKolom { get; set; }
+    public int? NomorKolom { get; set; }
     
     [JsonPropertyName("stock_sekarang")]
+    [Required]
     [Range(1 , int.MaxValue , ErrorMessage = "current stock harus bernilai >= 1")]
-    public int CurrentStock { get; set; }
+    public int? CurrentStock { get; set; }
     
     [JsonPropertyName("last_month_stock")]
+    [Required]
     [Range(1 , int.MaxValue , ErrorMessage = "last month stock harus bernilai >= 1")]
-    public int LastMonthStock { get; set; }
+    public int? LastMonthStock { get; set; }
     
     [JsonPropertyName("min_stock")]
+    [Required]
     [Range(1 , int.MaxValue , ErrorMessage = "min stock harus bernilai >= 1")]
-    public int MinStock { get; set; }
+    public int? MinStock { get; set; }
     
     [JsonPropertyName("unit_price")]
+    [Required]
     [Range(1 , int.MaxValue , ErrorMessage = "unit price harus bernilai >= 1")]
-    public int UnitPrice { get; set; }
+    public int? UnitPrice { get; set; }
 
     [JsonPropertyName("uom")] 
     [Required] 
     public string Uom { get; set; } = null!;
 
     [JsonPropertyName("kategori_id")] 
+    [Required]
     [Range(1 , int.MaxValue , ErrorMessage = "tolong pilih kategori")]
-    public int KategoriId { get; set; }
+    public int? KategoriId { get; set; }
 
     public Models.Barang ToBarang()
     {
         return new Models.Barang(
             nama: Nama,
-            nomorRak: NomorRak,
-            nomorLaci: NomorLaci,
-            nomorKolom: NomorKolom,
-            kategoriId: KategoriId,
-            currentStock: CurrentStock,
-            lastMonthStock: LastMonthStock,
-            minStock: MinStock,
-            unitPrice: UnitPrice,
+            nomorRak: NomorRak ?? default,
+            nomorLaci: NomorLaci ?? default,
+            nomorKolom: NomorKolom ?? default,
+            kategoriId: KategoriId ?? default,
+            currentStock: CurrentStock ?? default,
+            lastMonthStock: LastMonthStock ?? default,
+            minStock: MinStock ?? default,
+            unitPrice: UnitPrice ?? default,
             uom: Uom,
             id: Id
         );
