@@ -10,13 +10,13 @@ using NeoSmart.Caching.Sqlite;
 namespace Inventory_Backend_NET.Controllers.Pengajuan;
 
 [Route("api/pengajuan/add")]
-public class SubmitPengajuanController : ControllerBase
+public class PostPengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly SqliteCache _cache;
     
-    public SubmitPengajuanController(
+    public PostPengajuanController(
         MyDbContext db,
         IHttpContextAccessor httpContextAccessor,
         SqliteCache cache

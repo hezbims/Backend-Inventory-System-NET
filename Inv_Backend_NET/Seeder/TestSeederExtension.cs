@@ -20,7 +20,7 @@ public static class TestSeederExtension
         
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            PrepareHeaderForMatch = args => args.Header.ToUpper(),
+            PrepareHeaderForMatch = arg => arg.Header.ToUpper(),
         };
         
         using (var reader = new StreamReader("Seeder/Data/barang_seeder.csv"))
@@ -35,6 +35,7 @@ public static class TestSeederExtension
                     return kategori;
                 }
             ).ToList();
+            db.SaveChanges();
             
             var barangs = csv
                 .GetRecords<BarangCsvDto>()
@@ -43,20 +44,18 @@ public static class TestSeederExtension
                     barangCsvDto =>
                     {
                         var rak = barangCsvDto.Rak;
-                        var barang = new Barang
-                        {
-                            KodeBarang = $"R{rak.NomorRak}-{rak.NomorLaci}-{rak.NomorKolom}",
-                            Nama = barangCsvDto.ItemDescription,
-                            Kategori = kategoris[rand.Next() % kategoris.Count()],
-                            MinStock = barangCsvDto.MinStock,
-                            NomorRak = rak.NomorRak,
-                            NomorLaci = rak.NomorLaci,
-                            NomorKolom = rak.NomorKolom,
-                            CurrentStock = barangCsvDto.Actual ?? 0,
-                            LastMonthStock = barangCsvDto.LastMonthStock ?? 0,
-                            UnitPrice = barangCsvDto.IntUnitPrice,
-                            Uom = barangCsvDto.Uom
-                        };
+                        var barang = new Barang(
+                            nama : barangCsvDto.ItemDescription,
+                            kategoriId : kategoris[rand.Next() % kategoris.Count()].Id,
+                            minStock : barangCsvDto.MinStock,
+                            nomorRak : rak.NomorRak,
+                            nomorLaci : rak.NomorLaci,
+                            nomorKolom : rak.NomorKolom,
+                            currentStock : barangCsvDto.Actual ?? 0,
+                            lastMonthStock : barangCsvDto.LastMonthStock ?? 0,
+                            unitPrice : barangCsvDto.IntUnitPrice,
+                            uom : barangCsvDto.Uom
+                        );
                         db.Barangs.Add(barang);
                         return barang;
                     }    

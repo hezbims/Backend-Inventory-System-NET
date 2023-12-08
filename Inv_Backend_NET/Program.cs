@@ -5,6 +5,7 @@ using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Seeder;
 using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -22,7 +23,16 @@ builder.Services.AddSqliteCache(
     }
 );
 Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "Cache/cache.db"));
-builder.Services.AddControllers();
+
+
+builder.Services.AddControllers(options =>
+{
+    // untuk ngegunain JsonPropertyName kalo ada er
+    options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
+    
+    options.MaxModelValidationErrors = 100;
+});
+
 builder.Services.AddDbContext<MyDbContext>(
     options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServerConnection"))
@@ -84,9 +94,9 @@ builder.Services.AddAuthentication(options =>
             OnChallenge = async context  =>
             {
                 context.HandleResponse();
-                context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                context.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-                context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+                context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                context.Response.Headers.Append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("{\"message\" : \"Unauthorized\"}");

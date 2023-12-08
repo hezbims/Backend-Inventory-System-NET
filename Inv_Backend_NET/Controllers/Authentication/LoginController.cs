@@ -1,5 +1,6 @@
-﻿using Inventory_Backend_NET.Models;
+﻿using System.Text.Json.Serialization;
 using Inventory_Backend_NET.DTO.Authentication;
+using Inventory_Backend_NET.Models;
 using Microsoft.AspNetCore.Mvc;
 using Inventory_Backend_NET.Service;
 
@@ -43,4 +44,14 @@ namespace Inventory_Backend_NET.Controllers.Authentication
 
         
     }
+    
+    public class LoginBodyDto
+    {
+        [JsonPropertyName("username")] 
+        public string Username { get; set; } = null!;
+
+        [JsonPropertyName("password")] 
+        public string Password { get; set; } = null!;
+    }
 }
+
