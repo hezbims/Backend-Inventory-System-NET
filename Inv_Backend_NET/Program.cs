@@ -167,14 +167,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseStaticFiles(options: new StaticFileOptions()
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(spaPath , "assets")
-    ),
-    RequestPath = "/assets"
-});
-Console.WriteLine("spa path : " + Path.Combine(spaPath , "assets"));
+app.UseStaticFiles();
 
 // app.UseSpaStaticFiles(options: new StaticFileOptions()
 // {
