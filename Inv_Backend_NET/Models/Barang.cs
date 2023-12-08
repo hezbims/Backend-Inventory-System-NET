@@ -6,6 +6,8 @@ public class Barang
 {
     public int Id { get; set; }
     
+    public long CreatedAt { get; set; }
+    
     [MaxLength(20)]
     public string KodeBarang { get; set; } = null!;
     
@@ -53,5 +55,6 @@ public class Barang
         UnitPrice = unitPrice;
         Uom = uom;
         KodeBarang = $"R{nomorRak}-{nomorLaci}-{nomorKolom}";
+        CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
     }
 }

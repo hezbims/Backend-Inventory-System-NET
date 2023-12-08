@@ -48,6 +48,7 @@ namespace Inventory_Backend_NET.Controllers.Barang
 
                 var result = query
                     .Include(barang => barang.Kategori)
+                    .OrderByDescending(barang => barang.Id)
                     .Paginate(
                         pageNumber: page,
                         dataMapper: barang => BarangDto.From(barang) 

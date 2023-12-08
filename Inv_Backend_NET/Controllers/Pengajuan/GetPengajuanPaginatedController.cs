@@ -32,6 +32,7 @@ public class GetPengajuanPaginatedController : ControllerBase
                     $"%{keyword}%"
                 )
             )
+            .OrderByDescending(pengajuan => pengajuan.Id)
             .Paginate(
                 pageNumber: page , 
                 dataMapper: pengajuan => PengajuanPreviewDto.From(pengajuan)
