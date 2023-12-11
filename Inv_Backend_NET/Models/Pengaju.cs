@@ -1,5 +1,9 @@
+using Inventory_Backend_NET.Database.Configuration;
+using Microsoft.EntityFrameworkCore;
+
 namespace Inventory_Backend_NET.Models;
 
+[EntityTypeConfiguration(typeof(PengajuConfiguration))]
 public class Pengaju
 {
     public int Id { get; set; }

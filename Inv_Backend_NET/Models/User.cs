@@ -1,5 +1,9 @@
-﻿namespace Inventory_Backend_NET.Models
+﻿using Inventory_Backend_NET.Database.Configuration;
+using Microsoft.EntityFrameworkCore;
+
+namespace Inventory_Backend_NET.Models
 {
+    [EntityTypeConfiguration(typeof(UserConfiguration))]
     public class User
     {
         public int Id { get; set; }

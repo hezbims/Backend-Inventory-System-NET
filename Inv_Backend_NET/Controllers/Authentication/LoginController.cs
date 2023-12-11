@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Authentication;
 using Inventory_Backend_NET.Models;
 using Microsoft.AspNetCore.Mvc;

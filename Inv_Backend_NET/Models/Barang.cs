@@ -1,7 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Database.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Models;
 
+[EntityTypeConfiguration(typeof(BarangConfiguration))]
 public class Barang
 {
     public int Id { get; set; }

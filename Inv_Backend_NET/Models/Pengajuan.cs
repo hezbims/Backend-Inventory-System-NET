@@ -1,13 +1,19 @@
+using System.ComponentModel.DataAnnotations;
 using Inventory_Backend_NET.Constants;
+using Inventory_Backend_NET.Database.Configuration;
 using Inventory_Backend_NET.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using NeoSmart.Caching.Sqlite;
 
 namespace Inventory_Backend_NET.Models;
 
+[EntityTypeConfiguration(typeof(PengajuanConfiguration))]
 public class Pengajuan
 {
     public int Id { get; set; }
+    
+    [MaxLength(25)]
     public string KodeTransaksi { get; set; }
     public long CreatedAt { get; set; }
     public Pengaju Pengaju { get; set; }
