@@ -10,6 +10,9 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.SubmitPengajuanTest;
 
+/// <summary>
+/// Mengecek apakah current stock terupdate dengan benar
+/// </summary>
 [Collection(TestConstant.CollectionName)]
 public class StockBarangQuantityTest : IDisposable
 {
@@ -72,17 +75,13 @@ public class StockBarangQuantityTest : IDisposable
         var result = controller.Index(requestBody: pengajuan);
         Assert.IsType<OkObjectResult>(result);
         
-        Assert.NotNull(
-            db.Barangs.Single(barang => 
-                barang.CurrentStock == 18 &&
-                barang.Id == barang1.Id
-            )
+        Assert.Equal(
+            18,
+            db.Barangs.Single(barang => barang.Id == barang1.Id).CurrentStock
         );
-        Assert.NotNull(
-            db.Barangs.Single(barang => 
-                barang.CurrentStock == 16 &&
-                barang.Id == barang2.Id
-            )
+        Assert.Equal(
+            16,
+            db.Barangs.Single(barang => barang.Id == barang2.Id).CurrentStock
         );
     }
 
