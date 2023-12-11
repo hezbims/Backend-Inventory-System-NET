@@ -31,26 +31,28 @@ builder.Services.AddControllers(options =>
     // untuk ngegunain JsonPropertyName kalo ada er
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
     
-    options.MaxModelValidationErrors = 100;
+    options.MaxModelValidationErrors = 100;             
 });
 
 builder.Services.AddDbContext<MyDbContext>(
-    options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServerConnection"))
+    optionsAction: options =>
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString)
+        )
 );
 
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
+    option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme , new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Masukkan token",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
-        Scheme = "Bearer"
+        Scheme = JwtBearerDefaults.AuthenticationScheme
     });
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -107,8 +109,14 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(Policies.AdminOnly , policy => policy.RequireRole(Roles.Admin));
-    options.AddPolicy(Policies.AllUsers , policy => policy.RequireClaim(ClaimTypes.Role));
+    options.AddPolicy(
+        name: MyConstants.Policies.AdminOnly, 
+        configurePolicy: policy => policy.RequireRole(MyConstants.Roles.Admin)
+    );
+    options.AddPolicy(
+        name: MyConstants.Policies.AllUsers, 
+        configurePolicy: policy => policy.RequireClaim(ClaimTypes.Role)
+    );
 });
 
 builder.Services.AddCors(options => 

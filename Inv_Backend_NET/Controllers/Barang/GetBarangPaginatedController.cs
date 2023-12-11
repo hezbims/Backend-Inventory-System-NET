@@ -10,7 +10,7 @@ namespace Inventory_Backend_NET.Controllers.Barang
 {
     // TODO : Test kalo current stock yang direturn benar
     [Route("api/barang/all")]
-    [Authorize(policy: Policies.AllUsers)]
+    [Authorize(policy: MyConstants.Policies.AllUsers)]
     public class GetBarangPaginatedController : Controller
     {
         private readonly MyDbContext _db;

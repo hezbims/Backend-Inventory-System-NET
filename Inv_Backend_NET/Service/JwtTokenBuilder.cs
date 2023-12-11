@@ -31,7 +31,10 @@ public class JwtTokenBuilder : IJwtTokenBuilder
         var claims = new[]
         {
             new Claim(type: ClaimTypes.NameIdentifier , value: user.Username),
-            new Claim(type: ClaimTypes.Role , value: user.IsAdmin ?  Roles.Admin : Roles.NonAdmin)
+            new Claim(
+                type: ClaimTypes.Role , 
+                value: user.IsAdmin ?  MyConstants.Roles.Admin : MyConstants.Roles.NonAdmin
+            )
         };
 
         var token = new JwtSecurityToken(

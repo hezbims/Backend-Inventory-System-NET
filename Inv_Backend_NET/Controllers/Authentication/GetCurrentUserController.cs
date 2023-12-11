@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Inventory_Backend_NET.Controllers.Authentication;
 
 [Route("api/get-current-user")]
-[Authorize(Policy = Policies.AllUsers)]
+[Authorize(Policy = MyConstants.Policies.AllUsers)]
 public class GetCurrentUserController : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

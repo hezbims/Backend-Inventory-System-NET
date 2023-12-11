@@ -30,7 +30,9 @@ public class Pengajuan
         DateTime currentTime = DateTime.Now;
         CreatedAt = ((DateTimeOffset)currentTime).ToUnixTimeMilliseconds();
 
-        var pengajuanCacheModel = PengajuanCacheModel.From(cache.GetString(CacheKeys.UrutanPengajuanHariIni));
+        var pengajuanCacheModel = PengajuanCacheModel.From(
+            cache.GetString(MyConstants.CacheKeys.UrutanPengajuanHariIni)
+        );
         if (!pengajuanCacheModel.Day.IsToday())
         {
             pengajuanCacheModel = new PengajuanCacheModel();
@@ -38,7 +40,7 @@ public class Pengajuan
 
         var tanggalPengajuan = pengajuanCacheModel.Day.ToString("yyyy-MM-dd");
         var urutan = (pengajuanCacheModel.UrutanHari++).ToString().PadLeft(3 , '0');
-        cache.SetString(CacheKeys.UrutanPengajuanHariIni, pengajuanCacheModel.ToString());
+        cache.SetString(MyConstants.CacheKeys.UrutanPengajuanHariIni, pengajuanCacheModel.ToString());
         
         KodeTransaksi = $"TRX-{tanggalPengajuan}-{urutan}";
         Pengaju = pengaju;
