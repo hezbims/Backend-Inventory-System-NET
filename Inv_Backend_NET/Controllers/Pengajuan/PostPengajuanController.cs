@@ -1,26 +1,28 @@
 using System.Text.Json.Serialization;
+using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Service;
 using Inventory_Backend_NET.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using NeoSmart.Caching.Sqlite;
 
 namespace Inventory_Backend_NET.Controllers.Pengajuan;
 
+[Authorize(MyConstants.Policies.AllUsers)]
 [Route("api/pengajuan/add")]
 public class PostPengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly SqliteCache _cache;
+    private readonly IDistributedCache _cache;
     
     public PostPengajuanController(
         MyDbContext db,
         IHttpContextAccessor httpContextAccessor,
-        SqliteCache cache
+        IDistributedCache cache
     )
     {
         _db = db;
@@ -29,7 +31,7 @@ public class PostPengajuanController : ControllerBase
     }
     
     [HttpPost]
-    public IActionResult SubmitPengajuan(
+    public IActionResult Index(
         [FromBody] SubmitPengajuanBody requestBody    
     )
     {

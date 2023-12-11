@@ -5,8 +5,8 @@ public class MyConstants
     public static int PageSize  = 15;
     public class Roles
     {
-        public static string Admin = "Admin";
-        public static string NonAdmin = "NonAdmin";
+        public const string Admin = "Admin";
+        public const string NonAdmin = "NonAdmin";
     }
     public class Policies
     {

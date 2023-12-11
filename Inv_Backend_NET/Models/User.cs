@@ -13,5 +13,15 @@ namespace Inventory_Backend_NET.Models
 
         public ICollection<Pengajuan> Pengajuans { get; set; } = new List<Pengajuan>();
         
+        private User(){}
+
+        public User(string username, string password, bool isAdmin , int? id = null)
+        {
+            Username = username;
+            Password = password;
+            IsAdmin = isAdmin;
+            Id = id ?? default;
+        }
+        
     }
 }

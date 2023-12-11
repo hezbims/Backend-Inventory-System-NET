@@ -66,24 +66,21 @@ public static class TestSeederExtension
             
 
             var users = new List<User>( new []{
-                    new User
-                    {
-                        Username = "admin",
-                        Password = "123",
-                        IsAdmin = true,
-                    },
-                    new User
-                    {
-                        Username = "hezbi",
-                        Password = "123",
-                        IsAdmin = false,
-                    },
-                    new User
-                    {
-                        Username = "hasbi",
-                        Password = "123",
-                        IsAdmin = false,
-                    }
+                    new User(
+                        username : "admin",
+                        password : "123",
+                        isAdmin : true
+                    ),
+                    new User(
+                        username : "hezbi",
+                        password : "123",
+                        isAdmin : false
+                    ),
+                    new User(
+                        username : "hasbi",
+                        password : "123",
+                        isAdmin : false
+                    )
                 }
             );
             foreach (var user in users) { db.Users.Add(user); }

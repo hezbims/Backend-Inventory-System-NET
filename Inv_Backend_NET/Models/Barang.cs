@@ -21,12 +21,17 @@ public class Barang
     public int KategoriId { get; set; }
     
     public int MinStock { get; set; }
+    
     public int NomorRak { get; set;  }
     public int NomorLaci { get; set; }
     public int NomorKolom { get; set; }
     public int CurrentStock { get; set; }
     public int LastMonthStock { get; set;  }
     public int UnitPrice { get; set;  }
+    
+    public const int NomorRakMax = 6;
+    public const int NomorLaciMax = 30;
+    public const int NomorKolomMax = 9;
     
     [MaxLength(20)]
     public string Uom { get; set; } = null!;
@@ -50,6 +55,35 @@ public class Barang
         Id = id ?? default;
         Nama = nama;
         KategoriId = kategoriId;
+        MinStock = minStock;
+        NomorRak = nomorRak;
+        NomorLaci = nomorLaci;
+        NomorKolom = nomorKolom;
+        CurrentStock = currentStock;
+        LastMonthStock = lastMonthStock;
+        UnitPrice = unitPrice;
+        Uom = uom;
+        KodeBarang = $"R{nomorRak}-{nomorLaci}-{nomorKolom}";
+        CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
+    }
+    
+    public Barang(
+        string nama, 
+        Kategori kategori, 
+        int minStock, 
+        int nomorRak, 
+        int nomorLaci, 
+        int nomorKolom, 
+        int currentStock,
+        int lastMonthStock, 
+        int unitPrice, 
+        string uom,
+        int? id = null
+    )
+    {
+        Id = id ?? default;
+        Nama = nama;
+        Kategori = kategori;
         MinStock = minStock;
         NomorRak = nomorRak;
         NomorLaci = nomorLaci;

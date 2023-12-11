@@ -1,10 +1,11 @@
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
+using Inventory_Backend.Tests.TestConfiguration.Mock;
+using Inventory_Backend.Tests.TestConfiguration.Seeder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Inventory_Backend.Tests.TestConfiguration;
+namespace Inventory_Backend.Tests.TestConfiguration.Fixture;
 
 public class MyDbFixture
 {
@@ -21,7 +22,9 @@ public class MyDbFixture
                 {
                     db.Database.EnsureDeleted();
                     db.Database.EnsureCreated();
+                    db.SeedStatusPengajuan();
                 }
+                
                 _isDatabaseInitialized = true;
             }
         }
@@ -30,16 +33,15 @@ public class MyDbFixture
     public MyDbContext CreateContext()
     {
         // Build configuration
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
-            .Build();
+        var configuration = TestConfig.GetTestConfig();
 
         // Set up DbContext with the test connection string
         var options = new DbContextOptionsBuilder<MyDbContext>()
             .UseSqlServer(configuration.GetConnectionString(MyConstants.AppSettingsKey.MyConnectionString))
             .Options;
 
-        return new MyDbContext(options);
+        var db = new MyDbContext(options);
+        db.Database.BeginTransaction();
+        return db;
     }
 }

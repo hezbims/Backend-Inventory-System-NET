@@ -1,26 +1,29 @@
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Inventory_Backend_NET.Seeder;
 
 public static class RefreshDatabaseExtension
 {
-    static string[] _ignoredTables =
-    {
-        "StatusPengajuans"
-    };
+    
     
     public static void RefreshDatabase(this MyDbContext db)
     {
-        var allTables = db.Model.GetEntityTypes().Select(e => e.GetTableName()).ToList();
-        
-        foreach (var table in allTables)
+        IEntityType[] ignoredEntities =
         {
-            if (!_ignoredTables.Contains(table))
-            {
-                db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
-            }
+            db.StatusPengajuans.EntityType
+        };
+        
+        var allEntities = db.Model.GetEntityTypes();
+        var filteredTables = allEntities.Where(
+            entity => !ignoredEntities.Contains(entity)
+        ).Select(entity => entity.GetTableName());
+
+        foreach (var table in filteredTables)
+        {
+            Console.WriteLine(table);
+            db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
         }
     }
 }

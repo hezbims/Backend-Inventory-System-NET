@@ -1,4 +1,5 @@
 using CsvHelper.Configuration.Attributes;
+using Inventory_Backend_NET.Models;
 
 namespace Inventory_Backend_NET.Seeder.Data;
 
@@ -62,4 +63,16 @@ public class Rak
     public int NomorRak { get; set; }
     public int NomorLaci { get; set; }
     public int NomorKolom { get; set; }
+
+    // public static Rak GetRakByUrutan(int urutan)
+    // {
+    //     var rakBound = Barang.NomorKolomMax * Barang.NomorLaciMax;
+    //     var laciBound = Barang.NomorKolomMax;
+    //     
+    //     return new Rak()
+    //     {
+    //         NomorRak = Math.Ceiling((double)urutan / rakBound),
+    //         
+    //     };
+    // }
 }

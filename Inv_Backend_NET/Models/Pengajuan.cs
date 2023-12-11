@@ -25,7 +25,7 @@ public class Pengajuan
     public ICollection<BarangAjuan> BarangAjuans { get; set; } = new List<BarangAjuan>();
 
     public Pengajuan(
-        SqliteCache cache,
+        IDistributedCache cache,
         Pengaju pengaju,
         StatusPengajuan status,
         User user,
