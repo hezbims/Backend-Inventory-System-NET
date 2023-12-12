@@ -11,10 +11,10 @@ using Xunit.Abstractions;
 namespace Inventory_Backend.Tests.SubmitPengajuanTest;
 
 /// <summary>
-/// Mengecek apakah current stock terupdate dengan benar
+/// Mengecek apakah current stock pada tabel barangs terupdate dengan benar setelah nambah pengajuan baru
 /// </summary>
 [Collection(TestConstant.CollectionName)]
-public class StockBarangQuantityTest : IDisposable
+public class AddNewPengajuanStockQuantityTest : IDisposable
 {
     private User Admin { get; }
     private User NonAdmin { get; }
@@ -25,7 +25,7 @@ public class StockBarangQuantityTest : IDisposable
     
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public StockBarangQuantityTest(
+    public AddNewPengajuanStockQuantityTest(
         TransactionalMyDbFixture fixture, ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
@@ -40,7 +40,6 @@ public class StockBarangQuantityTest : IDisposable
         Barangs = db.Barangs.ToList();
         Cache = new MockDistributedCache();
     }
-    
     
     [Fact]
     public void Test_Ketika_Submit_Pengajuan_Baru_Dengan_Pengaju_Tipe_Grup_Berhasil_Maka_Current_Stock_Akan_Berkurang()
@@ -64,13 +63,13 @@ public class StockBarangQuantityTest : IDisposable
             ]
         };
 
-        var userContext = new MockHttpContextAccessor(NonAdmin);
+        var nonAdminContext = new MockHttpContextAccessor(NonAdmin);
         using var db = Fixture.CreateContext();
         
         var controller = new PostPengajuanController(
             db: db,
             cache: Cache,
-            httpContextAccessor: userContext
+            httpContextAccessor: nonAdminContext
         );
         var result = controller.Index(requestBody: pengajuan);
         Assert.IsType<OkObjectResult>(result);

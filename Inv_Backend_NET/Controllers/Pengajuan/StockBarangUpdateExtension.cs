@@ -1,13 +1,12 @@
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
 
-namespace Inventory_Backend_NET.Service;
+namespace Inventory_Backend_NET.Controllers.Pengajuan;
 
 public static class StockBarangUpdateExtension
 {
     public static void UpdateStockBarang(
         this MyDbContext db,
-        Pengajuan pengajuan,
+        Models.Pengajuan pengajuan,
         bool isUndo
     )
     {

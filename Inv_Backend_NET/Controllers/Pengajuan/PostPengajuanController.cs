@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.DTO.Pengajuan;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Service;
 using Inventory_Backend_NET.Utils;
