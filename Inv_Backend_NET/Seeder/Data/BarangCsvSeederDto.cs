@@ -3,7 +3,7 @@ using Inventory_Backend_NET.Models;
 
 namespace Inventory_Backend_NET.Seeder.Data;
 
-public class BarangCsvDto
+public class BarangCsvSeederDto
 {
     [Name("ITEM NO")]
     public string ItemNo { get; set; } = null!;

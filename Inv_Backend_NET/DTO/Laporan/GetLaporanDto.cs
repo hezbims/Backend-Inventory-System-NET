@@ -8,7 +8,7 @@ public class GetLaporanDto
     public string NamaKategori { get; set; }
 
     [JsonPropertyName("barang")] 
-    public List<BarangLaporanDto> Barangs { get; set; }
+    public ICollection<BarangLaporanDto> Barangs { get; set; }
 }
 
 public class BarangLaporanDto

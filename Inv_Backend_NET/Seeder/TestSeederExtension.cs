@@ -39,7 +39,7 @@ public static class TestSeederExtension
             db.SaveChanges();
             
             var barangs = csv
-                .GetRecords<BarangCsvDto>()
+                .GetRecords<BarangCsvSeederDto>()
                 .ToList()
                 .Select(
                     barangCsvDto =>

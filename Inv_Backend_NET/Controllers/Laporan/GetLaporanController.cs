@@ -96,7 +96,6 @@ public class GetLaporanController : ControllerBase
                 NamaKategori = aggregatedBarang.Key,
                 Barangs = aggregatedBarang.ToList()
             };
-            
         
 
         return Ok(new { data = kategoriQuery } );
