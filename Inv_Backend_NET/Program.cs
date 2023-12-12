@@ -2,7 +2,6 @@ using System.Security.Claims;
 using System.Text;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Seeder;
 using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

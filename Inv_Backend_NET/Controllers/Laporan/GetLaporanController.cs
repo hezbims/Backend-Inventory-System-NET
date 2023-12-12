@@ -21,6 +21,9 @@ public class GetLaporanController : ControllerBase
         [FromQuery(Name = "year")] int tahun
     )
     {
+        var unixStartOfMonth = GetUnixStartOfMonth(year: tahun, month: bulan);
+        var unixEndOfMonth = GetUnixEndOfMonth(year: tahun, month: bulan);
+        
         var barangAjuanQuery = 
             from barangAjuan in _db.BarangAjuans
             join pengajuan in _db.Pengajuans
@@ -28,6 +31,8 @@ public class GetLaporanController : ControllerBase
                 equals pengajuan.Id
             join pengaju in _db.Pengajus
                 on pengajuan.PengajuId equals pengaju.Id
+            where pengajuan.CreatedAt >= unixStartOfMonth &&
+                  pengajuan.CreatedAt <= unixEndOfMonth
             select new
             {
                 barangAjuan.BarangId,
@@ -39,8 +44,10 @@ public class GetLaporanController : ControllerBase
         var barangQuery =
             from barang in _db.Barangs
             join barangAjuan in barangAjuanQuery
-            on barang.Id equals barangAjuan.BarangId
-            group barangAjuan by new {
+            on barang.Id equals barangAjuan.BarangId into joinedBarangAjuan
+            
+            from defaultBarangAjuan in joinedBarangAjuan.DefaultIfEmpty()
+            group defaultBarangAjuan by new {
                 barang.Id,
                 barang.NomorRak, 
                 barang.NomorLaci, 
@@ -92,6 +99,26 @@ public class GetLaporanController : ControllerBase
             
         
 
-        return Ok(kategoriQuery);
+        return Ok(new { data = kategoriQuery } );
+    }
+
+    private long GetUnixStartOfMonth(int year, int month)
+    {
+        var beginningOfMonth = new DateTime(
+            year: year, 
+            month: month, 
+            day: 1
+        );
+        return ((DateTimeOffset)beginningOfMonth).ToUnixTimeMilliseconds();
+    }
+    private long GetUnixEndOfMonth(int year, int month)
+    {
+        var endOfMonth = new DateTime(
+            year: year,
+            month: month,
+            day: DateTime.DaysInMonth(year: year, month: month)
+        );
+        endOfMonth = endOfMonth.AddDays(1).AddTicks(-1);
+        return ((DateTimeOffset)endOfMonth).ToUnixTimeMilliseconds();
     }
 }
