@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.UseCases.Barang;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Controllers.Barang;
@@ -10,6 +10,8 @@ namespace Inventory_Backend_NET.Controllers.Barang;
 public class PostFormBarangController : Controller
 {
     private readonly MyDbContext _db;
+    private readonly ValidateBarangPropertyAvailability _propertyAvailabilityValidator = 
+        new ValidateBarangPropertyAvailability();
     
     public PostFormBarangController(MyDbContext db)
     {
@@ -21,7 +23,25 @@ public class PostFormBarangController : Controller
     {
         try
         {
-            ValidateLocationAvailability(requestBody);
+            _propertyAvailabilityValidator.Execute(
+                id: requestBody.Id,
+                db: _db,
+                predicate: barang => 
+                    barang.NomorRak == requestBody.NomorRak &&
+                    barang.NomorLaci == requestBody.NomorLaci &&
+                    barang.NomorKolom == requestBody.NomorKolom,
+                key : "nomor_rak",
+                errorMessage: "Lokasi pada rak, laci, dan kolom ini sudah terpakai",
+                modelState: ModelState
+            );
+            _propertyAvailabilityValidator.Execute(
+                id: requestBody.Id,
+                db: _db,
+                predicate: barang => barang.KodeBarang == requestBody.KodeBarang,
+                key: "kode_barang",
+                errorMessage: "Kode barang ini sudah terpakai",
+                modelState: ModelState
+            );
 
             if (!ModelState.IsValid)
             {
@@ -59,45 +79,6 @@ public class PostFormBarangController : Controller
             });
         }
     }
-
-    /// <summary>
-    ///  Memvalidasi apakah lokasi yang dipilih sudah digunakan oleh barang lain atau belum
-    /// </summary>
-    /// <param name="requestBody"></param>
-    void ValidateLocationAvailability(PostBarangDto requestBody)
-    {
-        var barangInCurrentLocation = _db.Barangs
-            .FirstOrDefault(
-                barang =>
-                    barang.NomorRak == requestBody.NomorRak &&
-                    barang.NomorLaci == requestBody.NomorLaci &&
-                    barang.NomorKolom == requestBody.NomorKolom
-            );
-
-        var errorKey = "nomor_rak";
-        var errorMessage = "Lokasi pada rak, laci, dan kolom ini sudah terpakai";
-        
-        if (requestBody.Id == null)
-        {
-            if (barangInCurrentLocation != null)
-            {
-                ModelState.AddModelError(
-                    key: errorKey, 
-                    errorMessage: errorMessage
-                );
-            }
-        }
-        else
-        {
-            if (barangInCurrentLocation?.Id != requestBody.Id)
-            {
-                ModelState.AddModelError(
-                    key: errorKey,
-                    errorMessage: errorMessage
-                );
-            }
-        }
-    }
 }
 
 public class PostBarangDto
@@ -108,6 +89,10 @@ public class PostBarangDto
     [JsonPropertyName("nama")] 
     [Required] 
     public string Nama { get; set; } = null!;
+
+    [JsonPropertyName("kode_barang")]
+    [Required]
+    public string KodeBarang { get; set; } = null!;
     
     [JsonPropertyName("nomor_rak")]
     [Required]
@@ -157,6 +142,7 @@ public class PostBarangDto
     {
         return new Models.Barang(
             nama: Nama,
+            kodeBarang: KodeBarang,
             nomorRak: NomorRak ?? default,
             nomorLaci: NomorLaci ?? default,
             nomorKolom: NomorKolom ?? default,

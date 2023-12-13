@@ -3,9 +3,11 @@ using System.Text.Json.Serialization;
 using CsvHelper.Configuration.Attributes;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Service;
+using Inventory_Backend_NET.UseCases;
+using Inventory_Backend_NET.UseCases.Barang;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory_Backend_NET.Controllers.Barang.PostBarangByCsv;
+namespace Inventory_Backend_NET.Controllers.Barang;
 
 
 [Route("api/barang/submit-csv")]
@@ -28,7 +30,8 @@ public class PostBarangByCsvController : ControllerBase
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ErrorModel("File CSV tidak ditemukan"));
+                var errors = ModelState.First().Value!.Errors.Select(e => e.ErrorMessage).ToArray();
+                return BadRequest(new ErrorModel(errors));
             }
 
             using (var streamReader = new StreamReader(uploadModel.Csv!.OpenReadStream()))
@@ -89,7 +92,8 @@ public class PostBarangByCsvController : ControllerBase
     public class CsvUploadModel
     {
         [JsonPropertyName("csv")]
-        [Required]
+        [Required(ErrorMessage = "Tolong pilih file anda")]
+        [AllowedFileExtensions(new []{ ".csv" })]
         public IFormFile? Csv { get; init; }
     }
 

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +39,7 @@ public class Barang
 
     public Barang(
         string nama, 
+        string kodeBarang,
         int kategoriId, 
         int minStock, 
         int nomorRak, 
@@ -63,7 +63,7 @@ public class Barang
         LastMonthStock = lastMonthStock;
         UnitPrice = unitPrice;
         Uom = uom;
-        KodeBarang = $"R{nomorRak}-{nomorLaci}-{nomorKolom}";
+        KodeBarang = kodeBarang;
         CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
     }
     

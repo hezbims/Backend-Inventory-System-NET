@@ -47,6 +47,7 @@ public static class TestSeederExtension
                         var rak = barangCsvDto.Rak;
                         var barang = new Barang(
                             nama : barangCsvDto.ItemDescription,
+                            kodeBarang: $"R{rak.NomorRak}-{rak.NomorLaci}-{rak.NomorKolom}",
                             kategoriId : kategoris[rand.Next() % kategoris.Count()].Id,
                             minStock : barangCsvDto.MinStock,
                             nomorRak : rak.NomorRak,

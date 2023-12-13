@@ -144,26 +144,26 @@ builder.Services.AddSpaStaticFiles(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<MyDbContext>();
-    
-    if (args.Contains("refresh"))
-    {
-        db.RefreshDatabase();
-    }
-    if (args.Contains("test-seeder"))
-    {
-        services.TestSeeder(args: args);
-    } 
-}
-
-if (args.Length > 0) { return; }
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var db = services.GetRequiredService<MyDbContext>();
+    
+        if (args.Contains("refresh"))
+        {
+            db.RefreshDatabase();
+        }
+        if (args.Contains("test-seeder"))
+        {
+            services.TestSeeder(args: args);
+        }
+    }
+
+    if (args.Length > 0) { return; }
+    
     app.UseSwagger();
     app.UseSwaggerUI();
 }
