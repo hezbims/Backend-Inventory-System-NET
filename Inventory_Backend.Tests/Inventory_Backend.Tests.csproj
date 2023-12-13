@@ -50,4 +50,10 @@
     <Folder Include="TestAssets\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestAssets\without_header.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

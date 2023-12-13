@@ -13,7 +13,7 @@ public static class Barang20WithQuantity20
             index =>
             {
                 var kategori = new Kategori(
-                    nama: $"Kategori-{index}"
+                    nama: $"NamaKategori-{index}"
                 );
                 db.Add(kategori);
                 return kategori;

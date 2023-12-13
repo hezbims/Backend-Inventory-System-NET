@@ -5,7 +5,7 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Service;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory_Backend_NET.Controllers.Barang;
+namespace Inventory_Backend_NET.Controllers.Barang.PostBarangByCsv;
 
 
 [Route("api/barang/submit-csv")]
@@ -28,38 +28,46 @@ public class PostBarangByCsvController : ControllerBase
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { message = "File CSV tidak ditemukan" });
+                return BadRequest(new ErrorModel("File CSV tidak ditemukan"));
             }
 
             using (var streamReader = new StreamReader(uploadModel.Csv!.OpenReadStream()))
             using (var csvReader = MyCsvReader.From(streamReader))
             {
-                var results = csvReader
+                var headerError = csvReader.ValidateHeader();
+                if (headerError != null)
+                {
+                    return BadRequest(new ErrorModel(headerError));
+                }
+                
+                var rows = csvReader
                     .GetRecords<CsvBarangDto>()!
                     .ToList();
-                foreach (var barangRow in results)
+                
+                
+                foreach (var barangRow in rows)
                 {
                     var currentKategori = _db.Kategoris.FirstOrDefault(
-                        kategori => kategori.Nama == barangRow.Kategori
+                        kategori => kategori.Nama == barangRow.NamaKategori
                     );
                     if (currentKategori == null)
                     {
-                        currentKategori = new Models.Kategori(nama: barangRow.Kategori);
+                        currentKategori = new Models.Kategori(nama: barangRow.NamaKategori!);
                         _db.Add(currentKategori);
                     }
                     
                     
                     _db.Barangs.Add(new Models.Barang(
-                        nama: barangRow.NamaBarang,
+                        nama: barangRow.NamaBarang!,
                         kategori: currentKategori,
-                        minStock: barangRow.MinStock,
-                        nomorRak: barangRow.NomorRak,
-                        nomorLaci: barangRow.NomorLaci,
-                        nomorKolom: barangRow.NomorKolom,
-                        currentStock: barangRow.CurrentStock,
-                        lastMonthStock: barangRow.LastMonthStock,
-                        unitPrice: barangRow.UnitPrice,
-                        uom: barangRow.Uom
+                        minStock: barangRow.MinStock ?? default,
+                        nomorRak: barangRow.NomorRak ?? default,
+                        nomorLaci: barangRow.NomorLaci ?? default,
+                        nomorKolom: barangRow.NomorKolom ?? default,
+                        currentStock: barangRow.CurrentStock ?? default,
+                        lastMonthStock: barangRow.LastMonthStock ?? default,
+                        unitPrice: barangRow.UnitPrice ?? default,
+                        uom: barangRow.Uom!
                     ));
                     _db.SaveChanges();
                 }
@@ -73,12 +81,10 @@ public class PostBarangByCsvController : ControllerBase
         {
             Console.WriteLine(e);
             transaction.Rollback();
-            return StatusCode(500, new
-            {
-                message = e.Message
-            });
+            return StatusCode(500, new ErrorModel(e.Message));
         }
     }
+    
 
     public class CsvUploadModel
     {
@@ -90,36 +96,52 @@ public class PostBarangByCsvController : ControllerBase
     public class CsvBarangDto
     {
         [Name("KODE BARANG")] 
-        public string KodeBarang { get; init; } = null!;
+        public string? KodeBarang { get; init; }
         
         [Name("NAMA BARANG")]
-        public string NamaBarang { get; init; } = null!;
+        public string? NamaBarang { get; init; }
         
         [Name("KATEGORI")]
-        public string Kategori { get; init; } = null!;
+        public string? NamaKategori { get; init; }
         
         [Name("NOMOR RAK")]
-        public int NomorRak { get; init; }
+        public int? NomorRak { get; init; }
         
         [Name("NOMOR LACI")]
-        public int NomorLaci { get; init; }
+        public int? NomorLaci { get; init; }
         
         [Name("NOMOR KOLOM")]
-        public int NomorKolom { get; init; }
+        public int? NomorKolom { get; init; }
         
         [Name("CURRENT STOCK")]
-        public int CurrentStock { get; init; }
+        public int? CurrentStock { get; init; }
         
         [Name("MIN. STOCK")]
-        public int MinStock { get; init; }
+        public int? MinStock { get; init; }
         
         [Name("LAST MONTH STOCK")]
-        public int LastMonthStock { get; init; }
+        public int? LastMonthStock { get; init; }
         
         [Name("UNIT PRICE")]
-        public int UnitPrice { get; init; }
+        public int? UnitPrice { get; init; }
         
         [Name("UOM")]
-        public string Uom { get; init; }
+        public string? Uom { get; init; }
+    }
+
+    public class ErrorModel
+    {
+        [JsonPropertyName("errors")]
+        public string[] Errors { get; init; }
+
+        public ErrorModel(string error)
+        {
+            Errors = new[] { error };
+        }
+
+        public ErrorModel(string[] errors)
+        {
+            Errors = errors;
+        }
     }
 }

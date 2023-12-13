@@ -31,7 +31,7 @@ public static class TestSeederExtension
 
             var kategoris = Enumerable.Range(1, 10).Select(i =>
                 {
-                    var kategori = new Kategori(nama : $"Kategori {i}");
+                    var kategori = new Kategori(nama : $"NamaKategori {i}");
                     db.Kategoris.Add(kategori);
                     return kategori;
                 }

@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <Folder Include="Cache\" />
+    <Folder Include="DTO\CommonWrapper\" />
+    <Folder Include="UseCases\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

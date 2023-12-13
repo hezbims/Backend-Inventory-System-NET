@@ -8,7 +8,7 @@ public class KategoriConfiguration : IEntityTypeConfiguration<Kategori>
 {
     public void Configure(EntityTypeBuilder<Kategori> builder)
     {
-        // Ngekonfigurasi Kategori
+        // Ngekonfigurasi NamaKategori
         builder
             .HasIndex(kategori => kategori.Nama)
             .IsUnique();

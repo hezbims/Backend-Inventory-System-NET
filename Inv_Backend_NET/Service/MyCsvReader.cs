@@ -1,7 +1,7 @@
 using System.Globalization;
-using System.Transactions;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Service;
 
@@ -22,5 +22,42 @@ public class MyCsvReader : CsvReader
 
         var csvReader = new MyCsvReader(streamReader, config);
         return csvReader;
+    }
+
+    public string? ValidateHeader()
+    {
+        var expectedHeaders = new[]
+        {
+            "KODE BARANG",
+            "NAMA BARANG",
+            "KATEGORI",
+            "NOMOR RAK",
+            "NOMOR LACI",
+            "NOMOR KOLOM",
+            "CURRENT STOCK",
+            "MIN. STOCK",
+            "LAST MONTH STOCK",
+            "UNIT PRICE",
+            "UOM"
+        };
+
+        Read();
+        ReadHeader();
+        var currentHeaders = Context.Reader.HeaderRecord?.Select(
+            header => header.ToUpper()    
+        ).ToList();
+
+        var missingHeaders = expectedHeaders.Where(
+            expectedHeader =>
+                currentHeaders?.Contains(expectedHeader) != true
+        ).ToList();
+
+        if (missingHeaders.IsNullOrEmpty())
+        {
+            return null;
+        }
+
+        var errors =  $"Header '{string.Join(", " , missingHeaders)}' tidak ditemukan dalam CSV";
+        return errors;
     }
 }
