@@ -39,17 +39,21 @@ public class BarangCsvSeederDto
         }
     }
 
-    private static int _counter = 1;
+    private static int _counter;
 
     public RakDto Rak
     {
         get
         {
-            var kodeRak = ItemNo.Remove(0, 1).Split('-');
+            int nomorRak = _counter / 27 % 6 + 1;
+            int nomorLaci = _counter / 9 % 30 + 1;
+            int nomorKolom = _counter % 9 + 1;
+            _counter++;
+            
             return new RakDto(
-                nomorRak : int.Parse(kodeRak[0]),
-                nomorLaci : int.Parse(kodeRak[1]),
-                nomorKolom : _counter++
+                nomorRak : nomorRak,
+                nomorLaci : nomorLaci,
+                nomorKolom : nomorKolom
             );
         }
     }
