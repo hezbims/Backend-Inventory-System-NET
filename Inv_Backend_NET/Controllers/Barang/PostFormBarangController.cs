@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.UseCases.Barang;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +11,15 @@ namespace Inventory_Backend_NET.Controllers.Barang;
 public class PostFormBarangController : Controller
 {
     private readonly MyDbContext _db;
-    private readonly ValidateBarangPropertyAvailability _propertyAvailabilityValidator = 
-        new ValidateBarangPropertyAvailability();
+    private readonly ValidateBarangPropertyAvailabilityUseCase _propertyAvailabilityValidator;
     
     public PostFormBarangController(MyDbContext db)
     {
         _db = db;
+        _propertyAvailabilityValidator = new ValidateBarangPropertyAvailabilityUseCase(
+            db: db, 
+            getModelState : () => ModelState
+        );
     }
     
     [HttpPost]
@@ -23,34 +27,39 @@ public class PostFormBarangController : Controller
     {
         try
         {
-            _propertyAvailabilityValidator.Execute(
-                id: requestBody.Id,
-                db: _db,
-                predicate: barang => 
-                    barang.NomorRak == requestBody.NomorRak &&
-                    barang.NomorLaci == requestBody.NomorLaci &&
-                    barang.NomorKolom == requestBody.NomorKolom,
-                key : "nomor_rak",
-                errorMessage: "Lokasi pada rak, laci, dan kolom ini sudah terpakai",
-                modelState: ModelState
-            );
-            _propertyAvailabilityValidator.Execute(
-                id: requestBody.Id,
-                db: _db,
-                predicate: barang => barang.KodeBarang == requestBody.KodeBarang,
-                key: "kode_barang",
-                errorMessage: "Kode barang ini sudah terpakai",
-                modelState: ModelState
+            _propertyAvailabilityValidator.ValidatePropertyAvailability(
+                barangId: requestBody.Id,
+                namaProperty: new ValidationProperty<string>(
+                    property: requestBody.Nama , 
+                    errorKey: "nama" , 
+                    errorMessage: "Nama sudah terpakai"
+                ),
+                rakProperty: new ValidationProperty<RakDto>(
+                    property: new RakDto(
+                        nomorRak: requestBody.NomorRak ?? default, 
+                        nomorLaci: requestBody.NomorLaci ?? default,
+                        nomorKolom: requestBody.NomorKolom ?? default
+                    ),
+                    errorKey: "nomor_rak",
+                    errorMessage:"Lokasi pada rak, laci, dan kolom ini sudah terpakai"
+                ),
+                kodeBarangProperty: new ValidationProperty<string>(
+                    property: requestBody.KodeBarang,
+                    errorKey: "kode_barang",
+                    errorMessage: "Kode barang ini sudah terpakai"
+                )
             );
 
+            
             if (!ModelState.IsValid)
             {
+                Console.WriteLine(ModelState);
                 var errors = ModelState
                     .Where(x => x.Value?.Errors.Any() ?? false)
                     .ToDictionary(
                         kvp => kvp.Key,
                         kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    ); 
+                    );
                 return BadRequest(new { errors });
             }
 
@@ -63,6 +72,7 @@ public class PostFormBarangController : Controller
             {
                 _db.Barangs.Update(barangModel);
             }
+
             _db.SaveChanges();
 
             return Ok(new
@@ -78,6 +88,7 @@ public class PostFormBarangController : Controller
                 message = e.Message
             });
         }
+        
     }
 }
 

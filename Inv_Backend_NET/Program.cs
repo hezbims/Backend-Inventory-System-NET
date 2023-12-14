@@ -23,7 +23,6 @@ builder.Services.AddSqliteCache(
         options.CachePath = Path.Combine(Environment.CurrentDirectory, "Cache/cache.db");
     }
 );
-Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "Cache/cache.db"));
 
 
 builder.Services.AddControllers(options =>
