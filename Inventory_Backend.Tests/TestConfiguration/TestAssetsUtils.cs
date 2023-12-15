@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Inventory_Backend.Tests.TestAssets;
+namespace Inventory_Backend.Tests.TestConfiguration;
 
 // Utilities untuk ngambil file dari assets
 public class TestAssetsUtils

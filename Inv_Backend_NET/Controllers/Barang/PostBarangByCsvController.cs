@@ -66,7 +66,7 @@ public class PostBarangByCsvController : ControllerBase
                 
                 foreach (var (barangRow , index) in rows.Select((value , i) => (value , i)))
                 {
-                    var targetUpdateBarang = true ? 
+                    var targetUpdateBarang = uploadModel.OverWriteByKodeBarang == true ? 
                         _db.Barangs.FirstOrDefault(
                             barang => barang.KodeBarang == barangRow.KodeBarang    
                         ) : null;
@@ -161,12 +161,12 @@ public class PostBarangByCsvController : ControllerBase
             namaProperty: new ValidationProperty<string>(
                 property: newBarang.Nama,
                 errorKey: "nama",
-                errorMessage: "Nama terdeteksi berduplikat!" 
+                errorMessage: "Nama barang terdeteksi berduplikat" 
             ),
             kodeBarangProperty: new ValidationProperty<string>(
                 property: newBarang.KodeBarang,
                 errorKey: "kode_barang",
-                errorMessage: "kode terdeteksi berduplikat"
+                errorMessage: "Kode barang terdeteksi berduplikat"
             ),
             rakProperty: new ValidationProperty<RakDto>(
                 property: new RakDto(

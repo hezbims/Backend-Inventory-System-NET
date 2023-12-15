@@ -1,5 +1,5 @@
 using Inventory_Backend_NET.Controllers.Barang;
-using Inventory_Backend.Tests.TestAssets;
+using Inventory_Backend.Tests.TestConfiguration;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
 using Microsoft.AspNetCore.Mvc;
