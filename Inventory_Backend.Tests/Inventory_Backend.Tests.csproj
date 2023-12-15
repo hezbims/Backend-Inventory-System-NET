@@ -56,10 +56,13 @@
     <None Update="TestAssets\invalid_field.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestAssets\dua_barang_sama.csv">
+    <None Update="TestAssets\dua_barang_sama_success_overwrite.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestAssets\try_overwrite_but_conflict_with_database.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestAssets\dua_barang_sama_gagal_overwrite.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

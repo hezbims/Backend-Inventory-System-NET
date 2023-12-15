@@ -8,6 +8,7 @@ using Inventory_Backend_NET.Service;
 using Inventory_Backend_NET.UseCases;
 using Inventory_Backend_NET.UseCases.Barang;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StreamReader = System.IO.StreamReader;
 
@@ -67,7 +68,7 @@ public class PostBarangByCsvController : ControllerBase
                 foreach (var (barangRow , index) in rows.Select((value , i) => (value , i)))
                 {
                     var targetUpdateBarang = uploadModel.OverWriteByKodeBarang == true ? 
-                        _db.Barangs.FirstOrDefault(
+                        _db.Barangs.AsNoTracking().FirstOrDefault(
                             barang => barang.KodeBarang == barangRow.KodeBarang    
                         ) : null;
                     var targetKategori = _db.Kategoris.FirstOrDefault(
@@ -120,11 +121,13 @@ public class PostBarangByCsvController : ControllerBase
                         _db.Add(targetKategori);
                     }
 
-                    if (targetUpdateBarang == null)
+                    if (targetUpdateBarang != null)
                         _db.Barangs.Update(newBarang);
                     else 
                         _db.Barangs.Add(newBarang);
+                    
                     _db.SaveChanges();
+                    _db.ChangeTracker.Clear();
                 }
 
                 if (!ModelState.IsValid)

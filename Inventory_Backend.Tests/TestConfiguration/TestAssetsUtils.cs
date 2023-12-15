@@ -17,4 +17,9 @@ public class TestAssetsUtils
         );
         return formFile;
     }
+
+    public static IFormFile GetDuaBarangSamaCsv()
+    {
+        return GetFormFile("dua_barang_sama_success_overwrite.csv", jsonKey: "csv");
+    }
 }

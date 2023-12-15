@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Barang;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.UseCases.Barang;
 
@@ -22,7 +23,7 @@ public class ValidateBarangPropertyAvailabilityUseCase
         string errorMessage
     )
     {
-        var availableBarang = _db.Barangs.FirstOrDefault(finder);
+        var availableBarang = _db.Barangs.AsNoTracking().FirstOrDefault(finder);
         if (availableBarang == null) { return null; }
 
         var detailErrorMessage = $"{errorMessage} (barang={availableBarang.Nama})";

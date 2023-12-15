@@ -18,10 +18,10 @@ public class UniqueConstraintViolationTest : IDisposable
     }
 
     [Fact]
-    public void Test_Kode_Barang_Nama_Dan_Lokasi_Konflik_Di_Csv_Yang_Sama()
+    public void Test_Non_Overwrite_Kode_Barang_Nama_Dan_Lokasi_Konflik_Di_Csv_Yang_Sama()
     {
         var formFile = TestAssetsUtils.GetFormFile(
-            filename: "dua_barang_sama.csv" , 
+            filename: "dua_barang_sama_gagal_overwrite.csv" , 
             jsonKey: "csv"
         );
 
