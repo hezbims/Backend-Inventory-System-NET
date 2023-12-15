@@ -10,15 +10,15 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.CollectionName)]
+[Collection(TestConstant.WithDbCollection)]
 public class InvalidCsvHeaderTest : IDisposable
 {
-    private readonly TransactionalMyDbFixture _fixture;
+    private readonly MyDbFixture _fixture;
     private readonly ITestOutputHelper _logger;
     public User Admin;
     
     public InvalidCsvHeaderTest(
-        TransactionalMyDbFixture fixture,
+        MyDbFixture fixture,
         ITestOutputHelper logger
     )
     {

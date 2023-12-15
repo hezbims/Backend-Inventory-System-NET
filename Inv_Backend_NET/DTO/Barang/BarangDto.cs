@@ -40,7 +40,9 @@ public class BarangDto
     [JsonPropertyName("uom")]
     public string Uom { get; set; }
 
-    private BarangDto(){}
+    private BarangDto()
+    {
+    }
 
     public BarangDto(
         int id, 

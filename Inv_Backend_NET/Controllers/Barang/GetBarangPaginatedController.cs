@@ -1,8 +1,8 @@
 ﻿using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.DTO;
 using Inventory_Backend_NET.DTO.Barang;
-using Inventory_Backend_NET.Models;
-using Inventory_Backend_NET.Utils;
+using Inventory_Backend_NET.Extension;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -50,9 +50,9 @@ namespace Inventory_Backend_NET.Controllers.Barang
                 var result = query
                     .Include(barang => barang.Kategori)
                     .OrderByDescending(barang => barang.Id)
-                    .Paginate(
-                        pageNumber: page,
-                        dataMapper: barang => BarangDto.From(barang) 
+                    .Paginate(pageNumber: page)
+                    .MapTo(mapper: barang => 
+                        BarangDto.From(barang) 
                     );
 
                 return Ok(result);

@@ -13,7 +13,7 @@ namespace Inventory_Backend.Tests.SubmitPengajuanTest;
 /// <summary>
 /// Mengecek apakah current stock pada tabel barangs terupdate dengan benar setelah nambah pengajuan baru
 /// </summary>
-[Collection(TestConstant.CollectionName)]
+[Collection(TestConstant.WithDbCollection)]
 public class AddNewPengajuanStockQuantityTest : IDisposable
 {
     private User Admin { get; }
@@ -21,12 +21,12 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
     private IDistributedCache Cache { get;  }
     private Pengaju Grup { get; }
     private ICollection<Barang> Barangs { get; }
-    public TransactionalMyDbFixture Fixture { get; }
+    public MyDbFixture Fixture { get; }
     
     private readonly ITestOutputHelper _testOutputHelper;
 
     public AddNewPengajuanStockQuantityTest(
-        TransactionalMyDbFixture fixture, ITestOutputHelper testOutputHelper)
+        MyDbFixture fixture, ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
         _testOutputHelper = testOutputHelper;

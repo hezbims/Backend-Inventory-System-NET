@@ -10,13 +10,13 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.CollectionName)]
+[Collection(TestConstant.WithDbCollection)]
 public class PostTemplateCsvTest : IDisposable
 {
-    public readonly TransactionalMyDbFixture Fixture;
+    public readonly MyDbFixture Fixture;
     public readonly ITestOutputHelper Logger;
     public PostTemplateCsvTest(
-        TransactionalMyDbFixture fixture,
+        MyDbFixture fixture,
         ITestOutputHelper logger
     )
     {

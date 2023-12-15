@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.CollectionName)]
+[Collection(TestConstant.WithDbCollection)]
 public class BerhasilOverwriteTest : IDisposable
 {
-    private readonly TransactionalMyDbFixture _fixture;
+    private readonly MyDbFixture _fixture;
     public BerhasilOverwriteTest(
-        TransactionalMyDbFixture fixture    
+        MyDbFixture fixture    
     )
     {
         _fixture = fixture;

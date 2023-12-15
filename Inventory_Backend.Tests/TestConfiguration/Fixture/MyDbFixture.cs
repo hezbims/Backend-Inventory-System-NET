@@ -1,5 +1,6 @@
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Seeder;
 using Inventory_Backend.Tests.TestConfiguration.Mock;
 using Inventory_Backend.Tests.TestConfiguration.Seeder;
 using Microsoft.EntityFrameworkCore;
@@ -9,27 +10,23 @@ namespace Inventory_Backend.Tests.TestConfiguration.Fixture;
 
 public class MyDbFixture
 {
-    private bool _isDatabaseInitialized;
-    private static readonly object Lock = new();
-
     public MyDbFixture()
     {
-        lock (Lock)
-        {
-            if (!_isDatabaseInitialized)
-            {
-                using (var db = CreateContext())
-                {
-                    db.Database.EnsureDeleted();
-                    db.Database.EnsureCreated();
-                    db.SeedStatusPengajuan();
-                }
-                
-                _isDatabaseInitialized = true;
-            }
-        }
+        using var context = CreateContext();
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        
+        Cleanup();
+        context.SeedStatusPengajuan();
     }
 
+    public void Cleanup()
+    {
+        using var context = CreateContext();
+        
+        context.RefreshDatabase();
+    }
+    
     public MyDbContext CreateContext()
     {
         // Build configuration
@@ -40,8 +37,6 @@ public class MyDbFixture
             .UseSqlServer(configuration.GetConnectionString(MyConstants.AppSettingsKey.MyConnectionString))
             .Options;
 
-        var db = new MyDbContext(options);
-        db.Database.BeginTransaction();
-        return db;
+        return new MyDbContext(options);
     }
 }

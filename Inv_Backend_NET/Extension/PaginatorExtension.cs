@@ -1,31 +1,22 @@
+using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Constants;
 
-namespace Inventory_Backend_NET.Utils;
+namespace Inventory_Backend_NET.Extension;
 
 public static class PaginatorExtension
 {
-    public static object Paginate<T>(
+    public static PaginatedResult<T> Paginate<T>(
         this IQueryable<T> query,
-        int pageNumber,
-        Func<T , object>? dataMapper = null
+        int pageNumber
     )
     {
         var data = query
             .Skip((pageNumber - 1) * MyConstants.PageSize)
             .Take(MyConstants.PageSize + 1)
             .ToList();
-
-        object result;
-        if (dataMapper != null)
-        {
-            result = data.Select(dataMapper).ToList();
-        }
-        else
-        {
-            result = data;
-        }
         
-        int totalData = data.Count();
+        
+        int totalData = data.Count;
         bool? next = null;
         if (totalData > MyConstants.PageSize)
         {
@@ -33,13 +24,48 @@ public static class PaginatorExtension
             next = true;
         }
 
-        return new
+        return new PaginatedResult<T>(
+            data: data,
+            hasNext: next
+        );
+    }
+}
+
+public class PaginatedResult<T>
+{
+    [JsonPropertyName("data")] 
+    public List<T> Data { get; set; }
+
+    [JsonPropertyName("links")] 
+    public LinkInfo Links{ get; init; }
+
+    public class LinkInfo
+    {
+        [JsonPropertyName("next")] 
+        public bool? HasNext { get; init; }
+
+        public LinkInfo(bool? hasNext)
         {
-            data = result,
-            links = new
-            {
-                next
-            }
-        };
+            HasNext = hasNext;
+        }
+    }
+    
+    public PaginatedResult(
+        List<T> data,
+        bool? hasNext
+    )
+    {
+        Data = data;
+        Links = new LinkInfo(hasNext: hasNext);
+    }
+    
+    public PaginatedResult<TO> MapTo<TO>(
+        Func<T , TO> mapper    
+    )
+    {
+        return new PaginatedResult<TO>(
+            data : Data.Select(mapper).ToList(),
+            hasNext: Links.HasNext
+        );
     }
 }

@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.CollectionName)]
+[Collection(TestConstant.WithDbCollection)]
 public class InvalidFieldTest : IDisposable
 {
-    private readonly TransactionalMyDbFixture _fixture;
-    public InvalidFieldTest(TransactionalMyDbFixture fixture)
+    private readonly MyDbFixture _fixture;
+    public InvalidFieldTest(MyDbFixture fixture)
     {
         _fixture = fixture;
     }
