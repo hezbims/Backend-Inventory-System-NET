@@ -192,13 +192,13 @@ public class PostBarangByCsvController : ControllerBase
         for (var i = 0 ; i < rows.Count ; i++)
         {
             var errorRow = new List<string>();
-            if (rows[i].KodeBarang == null) 
+            if (rows[i].KodeBarang.IsNullOrEmpty()) 
                 errorRow.Add("Kode Barang tidak boleh kosong");
             
-            if (rows[i].NamaBarang == null) 
+            if (rows[i].NamaBarang.IsNullOrEmpty()) 
                 errorRow.Add("Nama Barang tidak boleh kosong");
             
-            if (rows[i].NamaKategori == null) 
+            if (rows[i].NamaKategori.IsNullOrEmpty()) 
                 errorRow.Add("Kategori tidak boleh kosong");
             
             if (!(rows[i].NomorRak >= 1 && rows[i].NomorRak <= Models.Barang.MaxNomorRak)) 
@@ -220,9 +220,9 @@ public class PostBarangByCsvController : ControllerBase
                 errorRow.Add("Last Month Stock tidak valid");
             
             if (!(rows[i].UnitPrice >= 1)) 
-                errorRow.Add("Unit Price tidak boleh kosong");
+                errorRow.Add("Unit Price tidak valid");
             
-            if (rows[i].Uom == null) 
+            if (rows[i].Uom.IsNullOrEmpty()) 
                 errorRow.Add("UOM tidak boleh kosong");
 
             if (!errorRow.IsNullOrEmpty())
