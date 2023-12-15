@@ -45,7 +45,7 @@ public class BarangCsvSeederDto
     {
         get
         {
-            int nomorRak = _counter / 27 % 6 + 1;
+            int nomorRak = _counter / 270 % 6 + 1;
             int nomorLaci = _counter / 9 % 30 + 1;
             int nomorKolom = _counter % 9 + 1;
             _counter++;

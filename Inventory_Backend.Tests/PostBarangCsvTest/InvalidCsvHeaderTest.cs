@@ -47,7 +47,7 @@ public class InvalidCsvHeaderTest : IDisposable
                 fileName: csvFile.Name
             )
         });
-        _logger.WriteLine((result.Value as PostBarangByCsvController.ErrorModel).Errors.First());
+        _logger.WriteLine((result.Value as PostBarangByCsvController.ErrorModel)!.Errors["HEADER"].First());
 
         var value = result.Value! as PostBarangByCsvController.ErrorModel;
         
@@ -55,7 +55,7 @@ public class InvalidCsvHeaderTest : IDisposable
             "Header 'KODE BARANG, NAMA BARANG, KATEGORI, NOMOR RAK, NOMOR LACI, " +
             "NOMOR KOLOM, CURRENT STOCK, MIN. STOCK, LAST MONTH STOCK, UNIT PRICE, UOM" +
             "' tidak ditemukan dalam CSV",
-            value!.Errors.First()
+            value!.Errors["HEADER"].First()
         );
     }
 

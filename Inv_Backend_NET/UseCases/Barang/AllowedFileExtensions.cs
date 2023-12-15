@@ -20,7 +20,8 @@ public class AllowedFileExtensions : ValidationAttribute
         ValidationContext validationContext
     )
     {
-        var file = validationContext.ObjectInstance as IFormFile;
+        
+        var file = value as IFormFile;
         if (file != null)
         {
             var extension = Path.GetExtension(file.FileName);

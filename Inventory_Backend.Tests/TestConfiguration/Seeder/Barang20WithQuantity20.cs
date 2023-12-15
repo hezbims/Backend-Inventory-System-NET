@@ -25,6 +25,7 @@ public static class Barang20WithQuantity20
             {
                 var barang = new Barang(
                     nama: $"Barang-{i}",
+                    kodeBarang: i.ToString(),
                     kategori: kategoris[i % kategoris.Count],
                     minStock: 0,
                     nomorRak: 1,

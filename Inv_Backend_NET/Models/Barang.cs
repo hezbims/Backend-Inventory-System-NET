@@ -20,7 +20,6 @@ public class Barang
     public int KategoriId { get; set; }
     
     public int MinStock { get; set; }
-    
     public int NomorRak { get; set;  }
     public int NomorLaci { get; set; }
     public int NomorKolom { get; set; }
@@ -70,6 +69,7 @@ public class Barang
     public Barang(
         string nama, 
         Kategori kategori, 
+        string kodeBarang,
         int minStock, 
         int nomorRak, 
         int nomorLaci, 
@@ -92,7 +92,13 @@ public class Barang
         LastMonthStock = lastMonthStock;
         UnitPrice = unitPrice;
         Uom = uom;
+        KodeBarang = kodeBarang;
         KodeBarang = $"R{nomorRak}-{nomorLaci}-{nomorKolom}";
         CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
     }
+    
+    public const int MaxNomorRak = 6;
+    public const int MaxNomorLaci = 30;
+    public const int MaxNomorKolom = 9;
+
 }

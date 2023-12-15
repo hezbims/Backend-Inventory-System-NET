@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Barang;
+using Inventory_Backend_NET.UseCases;
 using Inventory_Backend_NET.UseCases.Barang;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +17,7 @@ public class PostFormBarangController : Controller
     public PostFormBarangController(MyDbContext db)
     {
         _db = db;
-        _propertyAvailabilityValidator = new ValidateBarangPropertyAvailabilityUseCase(
-            db: db, 
-            getModelState : () => ModelState
-        );
+        _propertyAvailabilityValidator = new ValidateBarangPropertyAvailabilityUseCase(db: db);
     }
     
     [HttpPost]
@@ -27,7 +25,7 @@ public class PostFormBarangController : Controller
     {
         try
         {
-            _propertyAvailabilityValidator.ValidatePropertyAvailability(
+            var validationDictionary = _propertyAvailabilityValidator.ValidatePropertyAvailability(
                 barangId: requestBody.Id,
                 namaProperty: new ValidationProperty<string>(
                     property: requestBody.Nama , 
@@ -49,17 +47,13 @@ public class PostFormBarangController : Controller
                     errorMessage: "Kode barang ini sudah terpakai"
                 )
             );
+            foreach (var keyValuePair in validationDictionary)
+                ModelState.AddModelError(keyValuePair.Key , keyValuePair.Value);
 
             
             if (!ModelState.IsValid)
             {
-                Console.WriteLine(ModelState);
-                var errors = ModelState
-                    .Where(x => x.Value?.Errors.Any() ?? false)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
+                var errors = ModelState.ToMinimalDictionary();
                 return BadRequest(new { errors });
             }
 
