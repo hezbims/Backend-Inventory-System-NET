@@ -42,7 +42,7 @@ public class StatusPengajuan
     /// <returns></returns>
     public static StatusPengajuan GetByEditor(User editor)
     {
-        return editor.IsAdmin ? Diterima : Ditolak;
+        return editor.IsAdmin ? Diterima : Menunggu;
     }
 }
 

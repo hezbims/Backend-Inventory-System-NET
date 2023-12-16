@@ -17,7 +17,7 @@ public class UpsertCurrentPengajuanUseCase
         _cache = cache;
     }
     
-    public Pengajuan Exec(
+    public Pengajuan By(
         Pengajuan? previousPengajuan,
         SubmitPengajuanBody requestBody,
         User submitter

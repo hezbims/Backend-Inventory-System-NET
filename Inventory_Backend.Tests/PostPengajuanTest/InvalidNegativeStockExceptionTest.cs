@@ -12,7 +12,7 @@ using NeoSmart.Caching.Sqlite;
 namespace Inventory_Backend.Tests.PostPengajuanTest;
 
 [Collection(TestConstant.WithDbCollection)]
-public class InvalidNegativeStockResultTest : IDisposable
+public class InvalidNegativeStockExceptionTest : IDisposable
 {
     private readonly MyDbFixture _fixture;
     private readonly IHttpContextAccessor _adminContext;
@@ -20,7 +20,7 @@ public class InvalidNegativeStockResultTest : IDisposable
     private readonly Pengaju _grup;
     private readonly Barang _barang;
     
-    public InvalidNegativeStockResultTest(MyDbFixture fixture)
+    public InvalidNegativeStockExceptionTest(MyDbFixture fixture)
     {
         _fixture = fixture;
 

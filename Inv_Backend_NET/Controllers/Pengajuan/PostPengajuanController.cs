@@ -51,7 +51,7 @@ public class PostPengajuanController : ControllerBase
                 var submitter = _db.GetCurrentUserFrom(_httpContextAccessor)!;
 
                 var previousPengajuan = GetPreviousPengajuan(requestBody);
-                var currentPengajuan = _updateOrInsertNewPengajuan.Exec(
+                var currentPengajuan = _updateOrInsertNewPengajuan.By(
                     previousPengajuan, 
                     requestBody, 
                     submitter
@@ -66,16 +66,11 @@ public class PostPengajuanController : ControllerBase
                 if (tipeEvent != null)
                 {
                     if (tipeEvent == PengajuanEvent.UserNotifAdmin)
-                    {
                         foreach (var admin in _db.Users.Where(user => user.IsAdmin))
-                        {
                             _cache.SetString(admin.Username, "1");
-                        }
-                    }
+                    
                     else
-                    {
                         _cache.SetString(currentPengajuan.User.Username, "1");
-                    }
                 }
 
                 transaction.Commit();
