@@ -4,6 +4,7 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.UseCases;
 using Inventory_Backend_NET.UseCases.Barang;
+using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Controllers.Barang;

@@ -141,11 +141,18 @@ public static class PengajuanSeederExtension
             StatusPengajuan.Ditolak,
             StatusPengajuan.Menunggu
         };
+        var grups = pengajus.Where(pengaju => !pengaju.IsPemasok).ToArray();
         
         for (int i = 0; i < totalPengajuan; ++i)
         {
-            var pengaju = pengajus[rand.Next(pengajus.Count)];
+            
             var status = listStatus[rand.Next(listStatus.Length)];
+            var user = status.GetRandomUser(users, rand);
+            
+            var pengaju = user.IsAdmin ? 
+                pengajus[rand.Next(pengajus.Count)] :
+                grups[rand.Next(grups.Length)];
+            
             var barangAjuans = Enumerable.Range(0 , barangs.Count)
                 .OrderBy(_ => Guid.NewGuid()) // acak urutan indexnya
                 .Take(rand.Next(4) + 1) // Ambil 1-5 barang
@@ -163,7 +170,7 @@ public static class PengajuanSeederExtension
                     cache: sqliteCache,
                     pengaju: pengaju,
                     status: status,
-                    user: status.GetRandomUser(users, rand),
+                    user: user,
                     barangAjuans: barangAjuans
                 )
             );

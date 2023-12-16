@@ -2,11 +2,11 @@ using System.Security.Claims;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Models;
 
-namespace Inventory_Backend_NET.Utils;
+namespace Inventory_Backend_NET.Extension;
 
 public static class GetCurrentUserFromHttpRequestExtension
 {
-    public static User GetCurrentUserFrom(
+    public static User? GetCurrentUserFrom(
         this MyDbContext db,
         IHttpContextAccessor httpContextAccessor
     )
@@ -17,7 +17,7 @@ public static class GetCurrentUserFromHttpRequestExtension
             .FindFirstValue(
                 ClaimTypes.NameIdentifier
             );
-        var user = db.Users.Single(user => user.Username == username);
+        var user = db.Users.FirstOrDefault(user => user.Username == username);
         return user;
     }
 }

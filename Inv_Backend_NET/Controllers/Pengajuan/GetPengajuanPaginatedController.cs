@@ -1,7 +1,6 @@
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Pengajuan;
 using Inventory_Backend_NET.Extension;
-using Inventory_Backend_NET.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,38 +28,47 @@ public class GetPengajuanPaginatedController : ControllerBase
         [FromQuery] int page
     )
     {
-        var user = _db.GetCurrentUserFrom(_httpContext);
-        
-        var query = _db.Pengajuans
-            .Include(e => e.User)
-            .Include(e => e.Pengaju)
-            .OrderBy(pengajuan => pengajuan.CreatedAt)
-            .Where(pengajuan => EF.Functions.Like(
-                    pengajuan.KodeTransaksi,
-                    $"%{keyword}%"
-                )
-            );
-
-        if (!user.IsAdmin)
+        try
         {
-            query = query.Where(
-                pengajuan => pengajuan.UserId == user.Id
-            );
+            var user = _db.GetCurrentUserFrom(_httpContext)!;
+
+            var query = _db.Pengajuans
+                .Include(e => e.User)
+                .Include(e => e.Pengaju)
+                .OrderBy(pengajuan => pengajuan.CreatedAt)
+                .Where(pengajuan => EF.Functions.Like(
+                        pengajuan.KodeTransaksi,
+                        $"%{keyword}%"
+                    )
+                );
+
+            if (!user.IsAdmin)
+            {
+                query = query.Where(
+                    pengajuan => pengajuan.UserId == user.Id
+                );
+            }
+
+            if (idPengaju != null)
+            {
+                query = query.Where(
+                    pengajuan => pengajuan.PengajuId == idPengaju
+                );
+            }
+
+            var result = query
+                .OrderByDescending(pengajuan => pengajuan.Id)
+                .Paginate(pageNumber: page)
+                .MapTo(mapper: pengajuan => PengajuanPreviewDto.From(pengajuan));
+
+
+            return Ok(result);
         }
-        if (idPengaju != null)
+        catch (Exception e)
         {
-            query = query.Where(
-                pengajuan => pengajuan.PengajuId == idPengaju
-            );
+            Console.WriteLine(e);
+            return StatusCode(500, new { message = "Internal Server Error" });
         }
-
-        var result = query
-            .OrderByDescending(pengajuan => pengajuan.Id)
-            .Paginate(pageNumber: page)
-            .MapTo(mapper: pengajuan => PengajuanPreviewDto.From(pengajuan));
-
-
-        return Ok(result);
     }
     
 }

@@ -7,6 +7,7 @@ using Inventory_Backend_NET.DTO.Barang;
 using Inventory_Backend_NET.Service;
 using Inventory_Backend_NET.UseCases;
 using Inventory_Backend_NET.UseCases.Barang;
+using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

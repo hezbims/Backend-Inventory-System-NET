@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.DTO.Authentication;
+using Inventory_Backend_NET.Extension;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.Service;
 using Inventory_Backend_NET.Utils;

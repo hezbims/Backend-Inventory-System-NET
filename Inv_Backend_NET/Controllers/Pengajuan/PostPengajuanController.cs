@@ -1,10 +1,11 @@
+using System.Data;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.DTO.Pengajuan;
+using Inventory_Backend_NET.Extension;
 using Inventory_Backend_NET.Models;
-using Inventory_Backend_NET.Service;
-using Inventory_Backend_NET.Utils;
+using Inventory_Backend_NET.UseCases.Common;
+using Inventory_Backend_NET.UseCases.PostPengajuan;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,9 @@ public class PostPengajuanController : ControllerBase
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDistributedCache _cache;
+    private readonly UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
+    private readonly UpdateStockUseCase _updateStock;
+    private readonly GetEventTypeUseCase _getEventType;
     
     public PostPengajuanController(
         MyDbContext db,
@@ -29,6 +33,10 @@ public class PostPengajuanController : ControllerBase
         _db = db;
         _httpContextAccessor = httpContextAccessor;
         _cache = cache;
+        
+        _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(db: db, cache: _cache);
+        _updateStock = new UpdateStockUseCase(db: db);
+        _getEventType = new GetEventTypeUseCase();
     }
     
     [HttpPost]
@@ -36,72 +44,66 @@ public class PostPengajuanController : ControllerBase
         [FromBody] SubmitPengajuanBody requestBody    
     )
     {
-        using var transaction = _db.Database.BeginTransaction();
-        try
+        using (var transaction = _db.Database.BeginTransaction(IsolationLevel.Serializable))
         {
-            var submitter = _db.GetCurrentUserFrom(_httpContextAccessor);
-            
-            var previousPengajuan = GetPreviousPengajuan(requestBody);
-            if (previousPengajuan != null)
+            try
             {
-                UndoStockUpdateFromPreviousPengajuan(previousPengajuan);
-            }
+                var submitter = _db.GetCurrentUserFrom(_httpContextAccessor)!;
 
-            
-            var currentPengajuan = GetCurrentPengajuan(previousPengajuan , requestBody, submitter);
-            UpdateStockBarangByCurrentPengajuan(currentPengajuan);
+                var previousPengajuan = GetPreviousPengajuan(requestBody);
+                var currentPengajuan = _updateOrInsertNewPengajuan.Exec(
+                    previousPengajuan, 
+                    requestBody, 
+                    submitter
+                );
+                
+                _updateStock.By(
+                    previousPengajuan: previousPengajuan,
+                    currentPengajuan: currentPengajuan
+                );
 
-            _db.SaveChanges();
-            
-            CheckStockValidityAfterStockUpdate(
-                previousPengajuan : previousPengajuan,
-                currentPengajuan : currentPengajuan
-            );
-            
-            
-            var tipeEvent = GetSubmitPengajuanEvent(previousPengajuan , submitter);
-            if (tipeEvent != null)
-            {
-                if (tipeEvent == PengajuanEvent.UserNotifAdmin)
+                var tipeEvent = _getEventType.Exec(previousPengajuan, submitter);
+                if (tipeEvent != null)
                 {
-                    foreach (var admin in _db.Users.Where(user => user.IsAdmin))
+                    if (tipeEvent == PengajuanEvent.UserNotifAdmin)
                     {
-                        _cache.SetString(admin.Username , "1");
+                        foreach (var admin in _db.Users.Where(user => user.IsAdmin))
+                        {
+                            _cache.SetString(admin.Username, "1");
+                        }
+                    }
+                    else
+                    {
+                        _cache.SetString(currentPengajuan.User.Username, "1");
                     }
                 }
-                else
+
+                transaction.Commit();
+                return Ok(new
                 {
-                    _cache.SetString(currentPengajuan.User.Username , "1");
-                }
+                    message = "Sukses"
+                });
             }
-            
-            transaction.Commit();
-            return Ok(new
+            catch (BadHttpRequestException e)
             {
-                message = "Sukses"
-            });
-        }
-        catch (BadHttpRequestException e)
-        {
-            transaction.Rollback();
-            return BadRequest(new
-            {
-                message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            transaction.Rollback();
-            Console.WriteLine(e.ToString());
-            return StatusCode(
-                500,
-                new
+                return BadRequest(new
                 {
                     message = e.Message
-                }
-            );
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        message = e.Message
+                    }
+                );
+            }
         }
-        
+
     }
     
     private Models.Pengajuan? GetPreviousPengajuan(SubmitPengajuanBody requestBody)
@@ -115,159 +117,7 @@ public class PostPengajuanController : ControllerBase
             );
         return previousPengajuan;
     }
-
-    private Models.Pengajuan GetCurrentPengajuan(
-        Models.Pengajuan? previousPengajuan,
-        SubmitPengajuanBody requestBody,
-        User submitter
-    )
-    {
-        var currentPengaju = _db.Pengajus.Single(pengaju => pengaju.Id == requestBody.IdPengaju);
-
         
-        var currentBarangAjuans = requestBody.BarangAjuans.Select(
-            barangAjuanBody => barangAjuanBody.ToBarangAjuan()
-        ).ToList();
-
-        if (currentBarangAjuans.Count == 0)
-        {
-            throw new BadHttpRequestException("Tolong ajukan minimal satu barang!");
-        }
-
-        
-        User pemilikPengajuan = previousPengajuan?.User ?? submitter;
-
-        
-        StatusPengajuan statusPengajuan;
-
-        int totalQuantityOfCurrentPengajuan = requestBody.BarangAjuans.Sum(barangAjuan => barangAjuan.Quantity);
-        if (previousPengajuan == null && totalQuantityOfCurrentPengajuan == 0)
-        {
-            throw new BadHttpRequestException("Tidak boleh mengajukan dengan total quantity 0");
-        }
-        if (previousPengajuan != null && totalQuantityOfCurrentPengajuan == 0)
-        {
-            statusPengajuan = StatusPengajuan.Ditolak;
-        }
-        else
-        {
-            statusPengajuan = StatusPengajuan.GetByEditor(submitter);
-        }
-
-        Models.Pengajuan currentPengajuan = new Models.Pengajuan(
-            cache: _cache,
-            pengaju: currentPengaju,
-            status: statusPengajuan,
-            user: pemilikPengajuan,
-            barangAjuans: currentBarangAjuans,
-            id: previousPengajuan?.Id
-        );
-            
-        if (previousPengajuan == null)
-        {
-            _db.Pengajuans.Add(currentPengajuan);
-        }
-        else
-        {
-            _db.BarangAjuans.RemoveRange(previousPengajuan.BarangAjuans);
-            _db.Entry(previousPengajuan).State = EntityState.Detached;
-            _db.Pengajuans.Update(currentPengajuan);
-        }
-
-        return currentPengajuan;
-    }
-
-    private PengajuanEvent? GetSubmitPengajuanEvent(
-        Models.Pengajuan? previousPengajuan,
-        User submitter        
-    )
-    {
-        // Kalo sekarang ini lagi ngebuat pengajuan baru
-        if (previousPengajuan == null)
-        {
-            if (!submitter.IsAdmin)
-            {
-                return PengajuanEvent.UserNotifAdmin;
-            }
-        }
-        // Kalo lagi ngedit pengajuan sebelumnya
-        else
-        {
-            // Kalo yang mensubmit sekarang bukan admin
-            if (!submitter.IsAdmin) 
-            {
-                // Non-Admin enggak bisa ngedit pengajuan yang bukan miliknya
-                if (previousPengajuan.User.Id != submitter.Id)
-                {
-                    throw new BadHttpRequestException(
-                        "Pengajuan ini bukan milik anda"
-                    );
-                }
-
-                // Non-Admin enggak bisa ngedit pengajuan yang udah ditolak atau diterima
-                if (previousPengajuan.Status.Value != StatusPengajuan.MenungguValue)
-                {
-                    throw new BadHttpRequestException(
-                        "Pengajuan yang sudah dikonfirmasi tidak dapat diedit"
-                    );
-                }
-
-                return PengajuanEvent.UserNotifAdmin;
-            }
-            else if (previousPengajuan.Status.Value == StatusPengajuan.MenungguValue)
-            {
-                return PengajuanEvent.AdminNotifUser;
-            }
-        }
-
-        return null;
-    }
-
-    private void CheckStockValidityAfterStockUpdate(
-        Models.Pengajuan? previousPengajuan,
-        Models.Pengajuan currentPengajuan
-    )
-    {
-        var previousModifiedBarangId =
-            previousPengajuan?.BarangAjuans.Select(barangAjuan => barangAjuan.Id).ToList() ?? new List<int>();
-        var currentModifiedBarangId =
-            currentPengajuan.BarangAjuans.Select(barangAjuan => barangAjuan.Id).ToList();
-            
-        var allModifiedBarangId = new List<int>();
-        allModifiedBarangId.AddRange(previousModifiedBarangId);
-        allModifiedBarangId.AddRange(currentModifiedBarangId);
-
-        var modifiedBarangs = _db.Barangs.Where(barang => allModifiedBarangId.Contains(barang.Id));
-        var invalidBarang = modifiedBarangs.FirstOrDefault(barang => barang.CurrentStock < 0);
-        if (invalidBarang != null)
-        {
-            throw new BadHttpRequestException(
-                message: "Pengajuan tidak valid :\n" +
-                         $"quantity dari barang {invalidBarang.Nama}," +
-                         $"menjadi {invalidBarang.CurrentStock}"
-            );
-        }
-    }
-
-    private void UpdateStockBarangByCurrentPengajuan(
-        Models.Pengajuan currentPengajuan    
-    )
-    {
-        _db.UpdateStockBarang(
-            pengajuan: currentPengajuan,
-            isUndo: false
-        );
-    }
-    
-    private void UndoStockUpdateFromPreviousPengajuan(
-        Models.Pengajuan previousPengajuan    
-    )
-    {
-        _db.UpdateStockBarang(
-            pengajuan: previousPengajuan,
-            isUndo: true
-        );
-    }
 }
 
 
@@ -307,7 +157,7 @@ public class BarangAjuanBody
     }
 }
 
-enum PengajuanEvent
+public enum PengajuanEvent
 {
     AdminNotifUser , UserNotifAdmin
 }

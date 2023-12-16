@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Xunit.Abstractions;
 
-namespace Inventory_Backend.Tests.SubmitPengajuanTest;
+namespace Inventory_Backend.Tests.PostPengajuanTest;
 
 /// <summary>
 /// Mengecek apakah current stock pada tabel barangs terupdate dengan benar setelah nambah pengajuan baru

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Inventory_Backend_NET.UseCases;
+namespace Inventory_Backend_NET.UseCases.Common;
 
 public static class TransformModelStateErrorUseCase
 {
