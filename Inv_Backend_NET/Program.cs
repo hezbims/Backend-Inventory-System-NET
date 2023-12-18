@@ -152,13 +152,12 @@ if (app.Environment.IsDevelopment())
         var db = services.GetRequiredService<MyDbContext>();
     
         if (args.Contains("refresh"))
-        {
             db.RefreshDatabase();
-        }
-        if (args.Contains("test-seeder"))
-        {
+
+        if (args.Contains("user-only"))
+            services.SeedUser();
+        else if (args.Contains("test-seeder"))
             services.TestSeeder(args: args);
-        }
     }
 
     if (args.Length > 0) { return; }

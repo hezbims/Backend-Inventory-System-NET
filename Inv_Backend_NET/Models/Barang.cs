@@ -93,7 +93,6 @@ public class Barang
         UnitPrice = unitPrice;
         Uom = uom;
         KodeBarang = kodeBarang;
-        KodeBarang = $"R{nomorRak}-{nomorLaci}-{nomorKolom}";
         CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
     }
     

@@ -65,26 +65,7 @@ public static class TestSeederExtension
                 .ToList();
             db.SaveChanges();
             
-
-            var users = new List<User>( new []{
-                    new User(
-                        username : "admin",
-                        password : "123",
-                        isAdmin : true
-                    ),
-                    new User(
-                        username : "hezbi",
-                        password : "123",
-                        isAdmin : false
-                    ),
-                    new User(
-                        username : "hasbi",
-                        password : "123",
-                        isAdmin : false
-                    )
-                }
-            );
-            foreach (var user in users) { db.Users.Add(user); }
+            var users = serviceProvider.SeedUser();
 
             var pengajus = new List<Pengaju>();
             for (int i = 1 ; i <= 5; i++)

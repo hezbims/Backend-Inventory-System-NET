@@ -37,7 +37,7 @@ public class PostBarangByCsvController : ControllerBase
         [FromForm] CsvUploadModel uploadModel    
     )
     {
-        using var transaction = _db.Database.BeginTransaction();
+        using var transaction = _db.Database.BeginTransaction(IsolationLevel.ReadUncommitted);
         try
         {
             if (!ModelState.IsValid)
@@ -75,6 +75,7 @@ public class PostBarangByCsvController : ControllerBase
                     var targetKategori = _db.Kategoris.FirstOrDefault(
                         kategori => kategori.Nama == barangRow.NamaKategori
                     );
+                    var y = _db.Barangs.AsNoTracking().ToList();
                     if (targetKategori == null)
                     {
                         targetKategori = new Models.Kategori(nama: barangRow.NamaKategori!);
@@ -160,6 +161,7 @@ public class PostBarangByCsvController : ControllerBase
         int currentIndex
     )
     {
+        Console.WriteLine($"IDDDDDDDDDD : {newBarang.Id}");
         var errorDict = _barangPropertyValidator.ValidatePropertyAvailability(
             barangId: newBarang.Id,
             namaProperty: new ValidationProperty<string>(
