@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Controllers.Pengaju;
@@ -21,8 +22,18 @@ public class PostPengajuController : ControllerBase
     {
         try
         {
+            var existedPengaju = _db.Pengajus.FirstOrDefault(pengaju => pengaju.Nama == requestBody.Nama);
+            if (existedPengaju != null)
+                ModelState.AddModelError("nama" , "Pengaju ini sudah ada dalam database!");
+
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    errors = ModelState.ToMinimalDictionary()
+                });
+            
             _db.Pengajus.Add(new Models.Pengaju(
-                    nama: requestBody.Nama,
+                    nama: requestBody.Nama!,
                     isPemasok: requestBody.IsPemasok
                 )
             );
@@ -45,9 +56,11 @@ public class PostPengajuController : ControllerBase
     public class PostNewPengajuDto
     {
         [JsonPropertyName("is_pemasok")]
+        [Required]
         public bool IsPemasok { get; set; }
         
         [JsonPropertyName("nama")]
-        public string Nama { get; set; }
+        [Required]
+        public string? Nama { get; set; }
     }
 }
