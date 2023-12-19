@@ -15,7 +15,9 @@ with open(netEnvFilePath, "w") as netEnv:
     netEnv.writelines(f"APP_URL=http://{currentIpAddress}:9999")
     
 webEnvFilePath = os.path.join("Inv_Backend_NET" , "web" , "assets" , "env_file")
-print(webEnvFilePath)
 with open(webEnvFilePath , "w") as webEnv:
-    webEnv.write(f"API_URL=http://{currentIpAddress}:5154/api\n")
-    webEnv.write(f"WEBSOCKET_URL=ws://{currentIpAddress}:5154/ws\n")
+    webEnv.write(f"API_URL=http://{currentIpAddress}:9999/api\n")
+    webEnv.write(f"WEBSOCKET_URL=ws://{currentIpAddress}:9999/ws\n")
+
+os.chdir("Inv_Backend_NET")
+os.system("dotnet run")
