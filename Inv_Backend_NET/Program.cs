@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using dotenv.net;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Seeder;
@@ -14,7 +15,7 @@ using NeoSmart.Caching.Sqlite.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSqliteCache(
@@ -208,5 +209,6 @@ app.UseSpa(spa =>
     };
 });
 
-
-app.Run();
+DotEnv.Load();
+var env = DotEnv.Read();
+app.Run(env["APP_URL"]);

@@ -17,16 +17,16 @@ public class GetCurrentUserController : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly MyDbContext _db;
-    private readonly IJwtTokenBuilder _jwtTokenBuilder;
+    private readonly IJwtTokenService _jwtTokenService;
     public GetCurrentUserController(
         IHttpContextAccessor httpContextAccessor,
         MyDbContext db,
-        IJwtTokenBuilder jwtTokenBuilder
+        IJwtTokenService jwtTokenService
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _db = db;
-        _jwtTokenBuilder = jwtTokenBuilder;
+        _jwtTokenService = jwtTokenService;
     }
     [HttpGet]
     public IActionResult GetCurrentUser()
@@ -36,7 +36,7 @@ public class GetCurrentUserController : ControllerBase
         
         return Ok(new
         {
-            token = _jwtTokenBuilder.GenerateNewToken(user),
+            token = _jwtTokenService.GenerateNewToken(user),
             user = userDto
         });
     }

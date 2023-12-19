@@ -11,13 +11,13 @@ namespace Inventory_Backend_NET.Controllers.Authentication
     public class LoginController : Controller
     {
         private readonly MyDbContext _db;
-        private readonly IJwtTokenBuilder _jwtTokenBuilder;
+        private readonly IJwtTokenService _jwtTokenService;
         public LoginController(
             MyDbContext db,
-            IJwtTokenBuilder jwtTokenBuilder
+            IJwtTokenService jwtTokenService
         ){
             _db = db;
-            _jwtTokenBuilder = jwtTokenBuilder;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpPost]
@@ -37,7 +37,7 @@ namespace Inventory_Backend_NET.Controllers.Authentication
                 return Ok(new
                 {
                     message = "Sukses",
-                    token = _jwtTokenBuilder.GenerateNewToken(currentUser),
+                    token = _jwtTokenService.GenerateNewToken(currentUser),
                     user = UserDto.From(currentUser)
                 });
             }

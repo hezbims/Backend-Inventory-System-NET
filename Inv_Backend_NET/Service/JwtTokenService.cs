@@ -7,13 +7,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Service;
 
-public class JwtTokenBuilder : IJwtTokenBuilder
+public class JwtTokenService : IJwtTokenService
 {
-    readonly IConfiguration _config;
+    private readonly IConfiguration _config;
+    private readonly JwtSecurityTokenHandler _tokenHandler;
 
-    public JwtTokenBuilder(IConfiguration config)
+    public JwtTokenService(IConfiguration config)
     {
         _config = config;
+        _tokenHandler = new JwtSecurityTokenHandler();
     }
 
     public string GenerateNewToken(User user)
@@ -45,8 +47,14 @@ public class JwtTokenBuilder : IJwtTokenBuilder
             signingCredentials: credentials
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return _tokenHandler.WriteToken(token);
     }
-    
+
+    public string GetUsernameFromJwt(string jwt)
+    {
+        var decodedJwt = _tokenHandler.ReadJwtToken(jwt);
+        var usernameClaim = decodedJwt.Claims.Single(claim => claim.Type == ClaimTypes.NameIdentifier);
+        return usernameClaim.Value;
+    }
     
 }
