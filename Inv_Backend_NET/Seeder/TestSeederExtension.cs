@@ -124,6 +124,7 @@ public static class PengajuanSeederExtension
         };
         var grups = pengajus.Where(pengaju => !pengaju.IsPemasok).ToArray();
         
+        var timeProvider = TimeProvider.System;
         for (int i = 0; i < totalPengajuan; ++i)
         {
             
@@ -152,7 +153,8 @@ public static class PengajuanSeederExtension
                     pengaju: pengaju,
                     status: status,
                     user: user,
-                    barangAjuans: barangAjuans
+                    barangAjuans: barangAjuans,
+                    timeProvider: timeProvider
                 )
             );
         }

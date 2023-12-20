@@ -10,11 +10,17 @@ public class UpsertCurrentPengajuanUseCase
 {
     private readonly MyDbContext _db;
     private readonly IDistributedCache _cache;
+    private readonly TimeProvider _timeProvider;
 
-    public UpsertCurrentPengajuanUseCase(MyDbContext db, IDistributedCache cache)
+    public UpsertCurrentPengajuanUseCase(
+        MyDbContext db, 
+        IDistributedCache cache,
+        TimeProvider timeProvider
+    )
     {
         _db = db;
         _cache = cache;
+        _timeProvider = timeProvider;
     }
     
     public Pengajuan By(
@@ -55,7 +61,8 @@ public class UpsertCurrentPengajuanUseCase
             status: statusPengajuan,
             user: pemilikPengajuan,
             barangAjuans: currentBarangAjuans,
-            id: previousPengajuan?.Id
+            id: previousPengajuan?.Id,
+            timeProvider: _timeProvider
         );
             
         if (previousPengajuan == null)

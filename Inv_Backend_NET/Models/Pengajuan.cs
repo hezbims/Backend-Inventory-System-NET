@@ -33,21 +33,23 @@ public class Pengajuan
         StatusPengajuan status,
         User user,
         ICollection<BarangAjuan> barangAjuans,
+        TimeProvider timeProvider,
         long? createdAt = null,
         int? id = null
     )
     {
-        var now = DateTime.Now;
+
+        var now = timeProvider.GetLocalNow();
         if (createdAt == null)
-            createdAt = ((DateTimeOffset)now).ToUnixTimeMilliseconds();
+            createdAt = timeProvider.GetLocalNow().ToUnixTimeMilliseconds();
 
         WaktuPengajuan = createdAt ?? throw new NoNullAllowedException("createdAt null");
 
         var tanggalPengajuan = now.ToString("yyyy-MM-dd");
-        var tipePengajuan = pengaju.IsPemasok ? "In" : "Out";
+        var tipePengajuan = pengaju.IsPemasok ? "IN" : "OUT";
         
         // mendapatkan urutan untuk pengajuan ini dari cache
-        var urutanHariIni = cache.GetIntValue(MyConstants.CacheKeys.UrutanPengajuanHariIni) + 1;
+        var urutanHariIni = cache.GetIntValue(tanggalPengajuan) + 1;
         var kodeUrutan = urutanHariIni.ToString().PadLeft(3 , '0');
         
         KodeTransaksi = $"TRX-{tipePengajuan}-{tanggalPengajuan}-{kodeUrutan}";

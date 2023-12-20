@@ -38,7 +38,8 @@ public class EditPengajuanStockQuantityTest : IDisposable
             {
                 new BarangAjuan(barang: _barangs[0] , quantity: 2, keterangan: "hai"),
                 new BarangAjuan(barang: _barangs[1], quantity: 3, keterangan: null)
-            }
+            },
+            timeProvider: TimeProvider.System
         ));
         db.SaveChanges();
     }
@@ -49,7 +50,12 @@ public class EditPengajuanStockQuantityTest : IDisposable
         using var db = _fixture.CreateContext();
 
         var adminContext = new MockHttpContextAccessor(_admin);
-        var controller = new PostPengajuanController(db, adminContext, _cache);
+        var controller = new PostPengajuanController(
+            db: db, 
+            httpContextAccessor: adminContext, 
+            cache: _cache,
+            timeProvider: TimeProvider.System
+        );
 
         var pemasok = db.Pengajus.Single(pengaju => pengaju.IsPemasok);
         var pengajuan = db.Pengajuans.Single();

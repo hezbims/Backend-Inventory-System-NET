@@ -63,7 +63,7 @@ public class Barang
         UnitPrice = unitPrice;
         Uom = uom;
         KodeBarang = kodeBarang;
-        CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
+        CreatedAt = TimeProvider.System.GetLocalNow().ToUnixTimeMilliseconds();
     }
     
     public Barang(
@@ -93,7 +93,7 @@ public class Barang
         UnitPrice = unitPrice;
         Uom = uom;
         KodeBarang = kodeBarang;
-        CreatedAt = ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
+        CreatedAt = TimeProvider.System.GetLocalNow().ToUnixTimeMilliseconds();
     }
     
     public const int MaxNomorRak = 6;

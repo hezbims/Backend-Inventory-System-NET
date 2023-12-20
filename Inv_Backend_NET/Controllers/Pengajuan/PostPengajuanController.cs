@@ -24,20 +24,27 @@ public class PostPengajuanController : ControllerBase
     private readonly UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
     private readonly UpdateStockUseCase _updateStock;
     private readonly GetEventTypeUseCase _getEventType;
+    private readonly TimeProvider _timeProvider;
     
     public PostPengajuanController(
         MyDbContext db,
         IHttpContextAccessor httpContextAccessor,
-        IDistributedCache cache
+        IDistributedCache cache,
+        TimeProvider timeProvider
     )
     {
         _db = db;
         _httpContextAccessor = httpContextAccessor;
         _cache = cache;
         
-        _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(db: db, cache: _cache);
+        _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(
+            db: db, 
+            cache: _cache,
+            timeProvider: timeProvider
+        );
         _updateStock = new UpdateStockUseCase(db: db);
         _getEventType = new GetEventTypeUseCase();
+        _timeProvider = timeProvider;
     }
     
     [HttpPost]
@@ -75,7 +82,7 @@ public class PostPengajuanController : ControllerBase
                 }
 
                 if (requestBody.IdPengajuan == null)
-                    _cache.IncrementCache(MyConstants.CacheKeys.UrutanPengajuanHariIni);                 
+                    _cache.IncrementCache(_timeProvider.GetLocalNow().ToString("yyyy-MM-dd"));                 
 
                 transaction.Commit();
                 return Ok(new

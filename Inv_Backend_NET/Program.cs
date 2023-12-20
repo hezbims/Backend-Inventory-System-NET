@@ -33,6 +33,8 @@ builder.Services.AddSqliteCache(
     }
 );
 
+builder.Services.AddSingleton(TimeProvider.System);
+
 
 builder.Services.AddControllers(options =>
 {

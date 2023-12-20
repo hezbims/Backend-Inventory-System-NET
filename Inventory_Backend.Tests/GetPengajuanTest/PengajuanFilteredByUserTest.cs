@@ -27,6 +27,8 @@ public class PengajuanFilteredByUserTest : IDisposable
         var barangs = db.SeedBarang20WithQuantity20();
         var cache = new SqliteCache(options: new SqliteCacheOptions());
         cache.Clear();
+
+        var timeProvider = TimeProvider.System;
         db.Pengajuans.Add(new Pengajuan(
             cache: cache,
             pengaju: new Pengaju(nama: "grup-1" , isPemasok: false),
@@ -35,7 +37,8 @@ public class PengajuanFilteredByUserTest : IDisposable
             barangAjuans: new List<BarangAjuan>(new []
             {
                 new BarangAjuan(barangId: barangs.First().Id , quantity: 1, keterangan: null)
-            })
+            }),
+            timeProvider: timeProvider
         ));
         db.Pengajuans.Add(new Pengajuan(
             cache: cache,
@@ -45,7 +48,8 @@ public class PengajuanFilteredByUserTest : IDisposable
             barangAjuans: new List<BarangAjuan>(new []
             {
                 new BarangAjuan(barangId: barangs.First().Id , quantity: 1, keterangan: null)
-            })
+            }),
+            timeProvider: timeProvider
         ));
         db.SaveChanges();
     }

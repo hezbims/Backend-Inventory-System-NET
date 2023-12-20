@@ -41,7 +41,8 @@ public class TestStatusBuatPengajuanBaru : IDisposable
         var controller = new PostPengajuanController(
             db: db, 
             httpContextAccessor: adminContext, 
-            cache: _cache
+            cache: _cache,
+            timeProvider: TimeProvider.System
         );
 
         var actionResult = controller.Index(new SubmitPengajuanBody
@@ -70,7 +71,12 @@ public class TestStatusBuatPengajuanBaru : IDisposable
         using var db = _fixture.CreateContext();
 
         var nonAdminContext = new MockHttpContextAccessor(_nonAdmin);
-        var controller = new PostPengajuanController(db, nonAdminContext, _cache);
+        var controller = new PostPengajuanController(
+            db: db, 
+            httpContextAccessor: nonAdminContext, 
+            cache: _cache,
+            timeProvider: TimeProvider.System
+        );
         
         var actionResult = controller.Index(new SubmitPengajuanBody
         {

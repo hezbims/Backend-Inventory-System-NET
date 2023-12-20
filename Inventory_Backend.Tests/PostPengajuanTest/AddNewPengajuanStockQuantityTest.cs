@@ -66,7 +66,8 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
         var controller = new PostPengajuanController(
             db: db,
             cache: Cache,
-            httpContextAccessor: nonAdminContext
+            httpContextAccessor: nonAdminContext,
+            timeProvider: TimeProvider.System
         );
         var result = controller.Index(requestBody: pengajuan);
         Assert.IsType<OkObjectResult>(result);

@@ -45,7 +45,8 @@ public class InvalidNegativeStockExceptionTest : IDisposable
         var controller = new PostPengajuanController(
             db: db,
             cache: _cache,
-            httpContextAccessor: _adminContext
+            httpContextAccessor: _adminContext,
+            timeProvider: TimeProvider.System
         );
 
 
