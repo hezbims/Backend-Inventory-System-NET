@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Controllers.Pengajuan;
 
@@ -56,6 +57,11 @@ public class PostPengajuanController : ControllerBase
         {
             try
             {
+                if (requestBody.BarangAjuans.IsNullOrEmpty())
+                    throw new BadHttpRequestException("Tolong ajukan minimal satu barang");
+                if (requestBody.IdPengaju == default)
+                    throw new BadHttpRequestException("Tolong pilih pengaju");
+                
                 var submitter = _db.GetCurrentUserFrom(_httpContextAccessor)!;
 
                 var previousPengajuan = GetPreviousPengajuan(requestBody);
@@ -139,7 +145,7 @@ public class SubmitPengajuanBody
     public int IdPengaju { get; set; }
     
     [JsonPropertyName("list_barang_ajuan")]
-    public ICollection<BarangAjuanBody> BarangAjuans { get; set; }
+    public ICollection<BarangAjuanBody>? BarangAjuans { get; set; }
 }
 
 public class BarangAjuanBody

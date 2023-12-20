@@ -88,8 +88,6 @@ public class KeesokanHariTest : IDisposable
         });
         Assert.IsType<OkObjectResult>(todayActionResult);
         Assert.IsType<OkObjectResult>(tomorrowActionResult);
-
-        var x = db.Pengajuans.ToArray();
         
         Assert.Single(db.Pengajuans.Where(pengajuan => 
             pengajuan.KodeTransaksi == "TRX-OUT-2000-01-01-001"
