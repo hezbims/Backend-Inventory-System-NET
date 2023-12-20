@@ -35,7 +35,7 @@ public class GetPengajuanPaginatedController : ControllerBase
             var query = _db.Pengajuans
                 .Include(e => e.User)
                 .Include(e => e.Pengaju)
-                .OrderBy(pengajuan => pengajuan.CreatedAt)
+                .OrderBy(pengajuan => pengajuan.WaktuPengajuan)
                 .Where(pengajuan => EF.Functions.Like(
                         pengajuan.KodeTransaksi,
                         $"%{keyword}%"

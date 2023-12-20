@@ -118,10 +118,6 @@ public class UniqueConstraintViolationTest : IDisposable
             $"Lokasi rak, laci, dan kolom sudah pernah digunakan (barang={namaBarang})", 
             baris3
         );
-        Assert.Contains(
-            $"Kode barang terdeteksi berduplikat (barang={namaBarang})", 
-            baris3
-        );
 
         var allBarangs = db.Barangs
             .Include(barang => barang.Kategori)

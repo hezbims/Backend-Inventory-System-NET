@@ -40,7 +40,7 @@ public class DetailPengajuanDto
     {
         return new DetailPengajuanDto(
             id: pengajuan.Id,
-            createdAt: pengajuan.CreatedAt,
+            createdAt: pengajuan.WaktuPengajuan,
             pengaju: PengajuDto.From(pengajuan.Pengaju),
             status: pengajuan.Status.Value,
             barangAjuans: pengajuan.BarangAjuans.Select(

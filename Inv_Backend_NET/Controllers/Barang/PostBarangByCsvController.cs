@@ -161,7 +161,6 @@ public class PostBarangByCsvController : ControllerBase
         int currentIndex
     )
     {
-        Console.WriteLine($"IDDDDDDDDDD : {newBarang.Id}");
         var errorDict = _barangPropertyValidator.ValidatePropertyAvailability(
             barangId: newBarang.Id,
             namaProperty: new ValidationProperty<string>(

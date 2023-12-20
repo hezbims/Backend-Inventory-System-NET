@@ -14,14 +14,11 @@ namespace Inventory_Backend.Tests.PostBarangCsvTest;
 public class PostTemplateCsvTest : IDisposable
 {
     public readonly MyDbFixture Fixture;
-    public readonly ITestOutputHelper Logger;
     public PostTemplateCsvTest(
-        MyDbFixture fixture,
-        ITestOutputHelper logger
+        MyDbFixture fixture
     )
     {
         Fixture = fixture;
-        Logger = logger;
     }
 
     [Fact]

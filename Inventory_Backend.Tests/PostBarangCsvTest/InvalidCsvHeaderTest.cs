@@ -14,16 +14,13 @@ namespace Inventory_Backend.Tests.PostBarangCsvTest;
 public class InvalidCsvHeaderTest : IDisposable
 {
     private readonly MyDbFixture _fixture;
-    private readonly ITestOutputHelper _logger;
     public User Admin;
     
     public InvalidCsvHeaderTest(
-        MyDbFixture fixture,
-        ITestOutputHelper logger
+        MyDbFixture fixture
     )
     {
         _fixture = fixture;
-        _logger = logger;
         var db = _fixture.CreateContext();
         (Admin, _, _) = db.SeedThreeUser();
     }
@@ -47,7 +44,6 @@ public class InvalidCsvHeaderTest : IDisposable
                 fileName: csvFile.Name
             )
         });
-        _logger.WriteLine((result.Value as PostBarangByCsvController.ErrorModel)!.Errors["HEADER"].First());
 
         var value = result.Value! as PostBarangByCsvController.ErrorModel;
         

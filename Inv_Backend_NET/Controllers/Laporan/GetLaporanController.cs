@@ -31,8 +31,8 @@ public class GetLaporanController : ControllerBase
                 equals pengajuan.Id
             join pengaju in _db.Pengajus
                 on pengajuan.PengajuId equals pengaju.Id
-            where pengajuan.CreatedAt >= unixStartOfMonth &&
-                  pengajuan.CreatedAt <= unixEndOfMonth
+            where pengajuan.WaktuPengajuan >= unixStartOfMonth &&
+                  pengajuan.WaktuPengajuan <= unixEndOfMonth
             select new
             {
                 barangAjuan.BarangId,

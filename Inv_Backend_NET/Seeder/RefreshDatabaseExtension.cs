@@ -22,7 +22,6 @@ public static class RefreshDatabaseExtension
 
         foreach (var table in filteredTables)
         {
-            Console.WriteLine(table);
             db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
         }
     }

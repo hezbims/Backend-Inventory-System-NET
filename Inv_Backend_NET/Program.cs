@@ -18,6 +18,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddHttpContextAccessor();
 
+// Alasan kenapa kok pakai sqlite cache :
+// Sqlite Cache disini fungsinya untuk mentrack urutan hari dari pengajuan yang dibuat (3 digit terakhir dari kode transaksi, lihat model pengajuan)
+//
+// kenapa kok enggak pakai memory cache?
+// karena kalo enggak sengaja server mati, memory cache bakalan terhapus datanya
+//
+// kenapa field urutan dari pengajuan, enggak di berdasarkan query dari database SQL Server? (berdasarkan pengajuan-pengajuan sebelumnya)
+// karena kalo di query dari database, hasilnya bakal salah, kalo ada pengajuan ditengah-tengah yang kehapus
 builder.Services.AddSqliteCache(
     options =>
     {
@@ -147,21 +155,31 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    var containKeyword = false;
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
         var db = services.GetRequiredService<MyDbContext>();
-    
+
         if (args.Contains("refresh"))
+        {
             db.RefreshDatabase();
+            containKeyword = true;
+        }
 
         if (args.Contains("user-only"))
+        {
             services.SeedUser();
+            containKeyword = true;
+        }
         else if (args.Contains("test-seeder"))
+        {
             services.TestSeeder(args: args);
+            containKeyword = true;
+        }
     }
 
-    if (args.Length > 0) { return; }
+    if (containKeyword) { return; }
     
     app.UseSwagger();
     app.UseSwaggerUI();

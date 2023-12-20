@@ -6,7 +6,6 @@ using Inventory_Backend.Tests.TestConfiguration.Mock;
 using Inventory_Backend.Tests.TestConfiguration.Seeder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostPengajuanTest;
 
@@ -23,13 +22,11 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
     private ICollection<Barang> Barangs { get; }
     public MyDbFixture Fixture { get; }
     
-    private readonly ITestOutputHelper _testOutputHelper;
-
     public AddNewPengajuanStockQuantityTest(
-        MyDbFixture fixture, ITestOutputHelper testOutputHelper)
+        MyDbFixture fixture
+    )
     {
         Fixture = fixture;
-        _testOutputHelper = testOutputHelper;
 
         using var db = fixture.CreateContext();
         (Admin , NonAdmin , _) = db.SeedThreeUser();

@@ -5,6 +5,13 @@ namespace Inventory_Backend.Tests.TestConfiguration.Seeder;
 
 public static class SeedThreeUserExtension
 {
+    /// <summary>
+    /// Mengseed tiga user, yaitu admin, non-admin1, dan non-admin2
+    /// </summary>
+    /// <param name="db"></param>
+    /// <returns>
+    /// Mereturn admin, non-admin1, dan non-admin2 (Tanpa id)
+    /// </returns>
     public static (User, User, User) SeedThreeUser(this MyDbContext db)
     {
         var admin = new User(username: "admin", password: "123", isAdmin: true);

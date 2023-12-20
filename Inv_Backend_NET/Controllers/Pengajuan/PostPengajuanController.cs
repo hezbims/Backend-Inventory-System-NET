@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Extension;
+using Inventory_Backend_NET.Extension.SqliteCache;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.UseCases.Common;
 using Inventory_Backend_NET.UseCases.PostPengajuan;
@@ -73,6 +74,9 @@ public class PostPengajuanController : ControllerBase
                         _cache.SetString(currentPengajuan.User.Username, "1");
                 }
 
+                if (requestBody.IdPengajuan == null)
+                    _cache.IncrementCache(MyConstants.CacheKeys.UrutanPengajuanHariIni);                 
+
                 transaction.Commit();
                 return Ok(new
                 {
@@ -88,7 +92,7 @@ public class PostPengajuanController : ControllerBase
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine(e);
                 return StatusCode(
                     500,
                     new
