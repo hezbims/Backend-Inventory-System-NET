@@ -42,6 +42,6 @@ public static class Barang20WithQuantity20
         ).ToList();
 
         db.SaveChanges();
-        return barangs;
+        return db.Barangs.ToList();
     }
 }
