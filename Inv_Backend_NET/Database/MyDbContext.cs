@@ -15,6 +15,8 @@ namespace Inventory_Backend_NET.Database
         public DbSet<Pengaju> Pengajus { get; set; } = null!;
         public DbSet<BarangAjuan> BarangAjuans { get; set; } = null!;
         public DbSet<StatusPengajuan> StatusPengajuans { get; set; } = null!;
+
+        public DbSet<TotalPengajuanByTanggal> TotalPengajuanByTanggals { get; set; } = null!;
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

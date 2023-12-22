@@ -30,7 +30,7 @@ public class EditPengajuanStockQuantityTest : IDisposable
         _barangs = db.SeedBarang20WithQuantity20();
 
         db.Pengajuans.Add(new Pengajuan(
-            cache: _cache,
+            db: db,
             pengaju: grup,
             status: StatusPengajuan.Diterima, 
             user: _admin,

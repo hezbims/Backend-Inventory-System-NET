@@ -149,12 +149,12 @@ public static class PengajuanSeederExtension
             
             db.Pengajuans.Add(
             new Pengajuan(
-                    cache: sqliteCache,
-                    pengaju: pengaju,
-                    status: status,
-                    user: user,
-                    barangAjuans: barangAjuans,
-                    timeProvider: timeProvider
+                db: db,
+                pengaju: pengaju,
+                status: status,
+                user: user,
+                barangAjuans: barangAjuans,
+                timeProvider: timeProvider
                 )
             );
         }

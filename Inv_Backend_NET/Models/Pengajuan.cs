@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using Inventory_Backend_NET.Constants;
+using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Configuration;
-using Inventory_Backend_NET.Extension.SqliteCache;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace Inventory_Backend_NET.Models;
 
@@ -28,7 +26,7 @@ public class Pengajuan
     public ICollection<BarangAjuan> BarangAjuans { get; set; } = new List<BarangAjuan>();
 
     public Pengajuan(
-        IDistributedCache cache,
+        MyDbContext db,
         Pengaju pengaju,
         StatusPengajuan status,
         User user,
@@ -49,7 +47,11 @@ public class Pengajuan
         var tipePengajuan = pengaju.IsPemasok ? "IN" : "OUT";
         
         // mendapatkan urutan untuk pengajuan ini dari cache
-        var urutanHariIni = cache.GetIntValue(tanggalPengajuan) + 1;
+        var urutanHariIni = (db.TotalPengajuanByTanggals
+            .FirstOrDefault(
+                t => t.Tanggal == tanggalPengajuan
+            )?.Total ?? 0) + 1;
+        
         var kodeUrutan = urutanHariIni.ToString().PadLeft(3 , '0');
         
         KodeTransaksi = $"TRX-{tipePengajuan}-{tanggalPengajuan}-{kodeUrutan}";

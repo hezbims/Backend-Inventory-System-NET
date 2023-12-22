@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Constants;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Extension;
-using Inventory_Backend_NET.Extension.SqliteCache;
 using Inventory_Backend_NET.Models;
 using Inventory_Backend_NET.UseCases.Common;
 using Inventory_Backend_NET.UseCases.PostPengajuan;
@@ -40,7 +39,6 @@ public class PostPengajuanController : ControllerBase
         
         _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(
             db: db, 
-            cache: _cache,
             timeProvider: timeProvider
         );
         _updateStock = new UpdateStockUseCase(db: db);
@@ -88,7 +86,26 @@ public class PostPengajuanController : ControllerBase
                 }
 
                 if (requestBody.IdPengajuan == null)
-                    _cache.IncrementCache(_timeProvider.GetLocalNow().ToString("yyyy-MM-dd"));                 
+                {
+                    var currentTanggal = _timeProvider.GetLocalNow().ToString("yyyy-MM-dd");
+
+                    var totalPengajuanByTanggal = _db
+                        .TotalPengajuanByTanggals
+                        .FirstOrDefault(x => x.Tanggal == currentTanggal);
+
+                    if (totalPengajuanByTanggal == null)
+                    {
+                        totalPengajuanByTanggal = new TotalPengajuanByTanggal
+                        {
+                            Tanggal = currentTanggal,
+                            Total = 0
+                        };
+                        _db.Add(totalPengajuanByTanggal);
+                    }
+                    totalPengajuanByTanggal.Total += 1;
+                    
+                    _db.SaveChanges();
+                }
 
                 transaction.Commit();
                 return Ok(new

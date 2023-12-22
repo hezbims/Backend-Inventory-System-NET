@@ -30,7 +30,7 @@ public class QuantityStockTest : IDisposable
         var cache = new SqliteCache(new SqliteCacheOptions());
 
         _pengajuan = new Pengajuan(
-            cache: cache,
+            db: db,
             pengaju: new Pengaju(nama: "pengaju", isPemasok: true),
             status: StatusPengajuan.Diterima,
             user: _admin,

@@ -30,7 +30,7 @@ public class PengajuanFilteredByUserTest : IDisposable
 
         var timeProvider = TimeProvider.System;
         db.Pengajuans.Add(new Pengajuan(
-            cache: cache,
+            db: db,
             pengaju: new Pengaju(nama: "grup-1" , isPemasok: false),
             status: StatusPengajuan.Diterima,
             user: _nonAdmin,
@@ -41,7 +41,7 @@ public class PengajuanFilteredByUserTest : IDisposable
             timeProvider: timeProvider
         ));
         db.Pengajuans.Add(new Pengajuan(
-            cache: cache,
+            db: db,
             pengaju: new Pengaju(nama: "permasok-1" , isPemasok: true),
             status: StatusPengajuan.Diterima,
             user: _admin,
@@ -101,7 +101,7 @@ public class PengajuanFilteredByUserTest : IDisposable
         var okResult = (actionResult as OkObjectResult)!;
         var data = (okResult.Value as PaginatedResult<PengajuanPreviewDto>)!.Data;
 
-        Assert.Equal(1 , data.Count);
+        Assert.Single(data);
         Assert.Single(data.Where(
             pengajuan => pengajuan.User.IsAdmin == false    
         ));
