@@ -38,7 +38,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddControllers(options =>
 {
-    // untuk ngegunain JsonPropertyName kalo ada er
+    // untuk ngegunain JsonPropertyName kalo ada error
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
     
     options.MaxModelValidationErrors = 100;             
@@ -154,7 +154,6 @@ builder.Services.AddSpaStaticFiles(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     var containKeyword = false;
