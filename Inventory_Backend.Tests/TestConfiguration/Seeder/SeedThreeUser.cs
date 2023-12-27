@@ -19,7 +19,10 @@ public static class SeedThreeUserExtension
         var user2 = new User(username: "user2", password: "123", isAdmin: false);
         db.Users.AddRange([admin , user1 , user2]);
         db.SaveChanges();
+
+        admin = db.Users.Single(user => user.IsAdmin);
+        var nonAdmins = db.Users.Where(user => !user.IsAdmin).ToArray();
         
-        return (admin, user1, user2);
+        return (admin, nonAdmins[0], nonAdmins[1]);
     }
 }

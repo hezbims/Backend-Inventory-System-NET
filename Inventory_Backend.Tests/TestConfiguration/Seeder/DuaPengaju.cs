@@ -12,6 +12,11 @@ public static class DuaPengajuExtension
         var pemasok = new Pengaju(nama: "pemasok", isPemasok: true);
         db.Pengajus.AddRange(grup , pemasok);
         db.SaveChanges();
-        return (pemasok, grup);
+        
+        
+        return (
+            db.Pengajus.Single(pengaju => pengaju.IsPemasok), 
+            db.Pengajus.Single(pengaju => !pengaju.IsPemasok)
+        );
     }
 }

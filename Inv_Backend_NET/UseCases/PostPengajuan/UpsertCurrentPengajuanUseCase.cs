@@ -58,7 +58,8 @@ public class UpsertCurrentPengajuanUseCase
             user: pemilikPengajuan,
             barangAjuans: currentBarangAjuans,
             id: previousPengajuan?.Id,
-            timeProvider: _timeProvider
+            timeProvider: _timeProvider,
+            createdAt: previousPengajuan?.WaktuPengajuan
         );
             
         if (previousPengajuan == null)
@@ -69,6 +70,8 @@ public class UpsertCurrentPengajuanUseCase
         {
             _db.BarangAjuans.RemoveRange(previousPengajuan.BarangAjuans);
             _db.Entry(previousPengajuan).State = EntityState.Detached;
+
+            currentPengajuan.KodeTransaksi = previousPengajuan.KodeTransaksi;
             _db.Pengajuans.Update(currentPengajuan);
         }
 

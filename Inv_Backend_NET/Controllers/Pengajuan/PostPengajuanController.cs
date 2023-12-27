@@ -98,12 +98,16 @@ public class PostPengajuanController : ControllerBase
                         totalPengajuanByTanggal = new TotalPengajuanByTanggal
                         {
                             Tanggal = currentTanggal,
-                            Total = 0
+                            Total = 1
                         };
                         _db.Add(totalPengajuanByTanggal);
                     }
-                    totalPengajuanByTanggal.Total += 1;
-                    
+                    else
+                    {
+                        totalPengajuanByTanggal.Total += 1;
+                        _db.Update(totalPengajuanByTanggal);
+                    }
+
                     _db.SaveChanges();
                 }
 
