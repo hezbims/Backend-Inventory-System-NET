@@ -28,8 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Cache\" />
-    <Folder Include="Controllers\TestingOnly\" />
-    <Folder Include="DTO\CommonWrapper\" />
+    <Folder Include="Fitur\Barang\GetTemplateBarangCsv\_Logic\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

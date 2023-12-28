@@ -1,7 +1,6 @@
 using System.Security.Claims;
-using Inventory_Backend_NET.Constants;
-using Inventory_Backend_NET.Models;
-using Inventory_Backend_NET.Service;
+using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur._Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace Inventory_Backend.Tests.TestConfiguration.Mock;

@@ -1,4 +1,4 @@
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
 using Inventory_Backend.Tests.TestConfiguration.Seeder;
 using Moq;

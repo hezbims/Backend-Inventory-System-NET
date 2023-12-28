@@ -1,5 +1,5 @@
 using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.Database.Models;
 
 namespace Inventory_Backend.Tests.TestConfiguration.Seeder;
 

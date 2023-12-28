@@ -1,5 +1,5 @@
 using CsvHelper.Configuration.Attributes;
-using Inventory_Backend_NET.DTO.Barang;
+using Inventory_Backend_NET.Fitur.Barang._Logic;
 
 namespace Inventory_Backend_NET.Seeder.Data;
 

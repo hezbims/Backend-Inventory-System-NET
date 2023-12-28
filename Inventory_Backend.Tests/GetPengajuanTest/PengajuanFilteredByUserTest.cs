@@ -1,7 +1,7 @@
-using Inventory_Backend_NET.Controllers.Pengajuan;
-using Inventory_Backend_NET.DTO.Pengajuan;
-using Inventory_Backend_NET.Extension;
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur._Logic.Extension;
+using Inventory_Backend_NET.Fitur.Pengajuan.GetPengajuanPaginated;
+using Inventory_Backend_NET.Fitur.Pengajuan.GetPengajuanPaginated._Dto.Response;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
 using Inventory_Backend.Tests.TestConfiguration.Mock;

@@ -1,4 +1,4 @@
-using Inventory_Backend_NET.Controllers.Pengajuan;
+using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
 using Inventory_Backend.Tests.TestConfiguration.Mock;

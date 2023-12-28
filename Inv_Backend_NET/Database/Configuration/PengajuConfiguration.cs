@@ -1,4 +1,4 @@
-using Inventory_Backend_NET.Models;
+using Inventory_Backend_NET.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
