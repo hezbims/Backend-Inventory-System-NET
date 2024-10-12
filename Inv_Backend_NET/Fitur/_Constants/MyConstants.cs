@@ -23,4 +23,6 @@ public class MyConstants
     {
         public const string MyConnectionString = "SQLServerConnection";
     }
+    
+    public static string DateFormat = "yyyy-MM-dd";
 }

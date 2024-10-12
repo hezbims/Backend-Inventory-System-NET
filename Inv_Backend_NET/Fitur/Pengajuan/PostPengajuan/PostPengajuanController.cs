@@ -30,17 +30,15 @@ public class PostPengajuanController : ControllerBase
         MyDbContext db,
         IHttpContextAccessor httpContextAccessor,
         IDistributedCache cache,
-        TimeProvider timeProvider
+        TimeProvider timeProvider,
+        UpsertCurrentPengajuanUseCase updateOrInsertNewPengajuan
     )
     {
         _db = db;
         _httpContextAccessor = httpContextAccessor;
         _cache = cache;
         
-        _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(
-            db: db, 
-            timeProvider: timeProvider
-        );
+        _updateOrInsertNewPengajuan  = updateOrInsertNewPengajuan;
         _updateStock = new UpdateStockUseCase(db: db);
         _getPengajuanEventType = new GetPengajuanEventTypeUseCase();
         _timeProvider = timeProvider;

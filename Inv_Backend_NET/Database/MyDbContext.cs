@@ -1,4 +1,5 @@
-﻿using Inventory_Backend_NET.Database.Models;
+﻿using Inventory_Backend_NET.Database.Interceptor;
+using Inventory_Backend_NET.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Database
@@ -26,6 +27,12 @@ namespace Inventory_Backend_NET.Database
                 StatusPengajuan.Menunggu,
                 StatusPengajuan.Ditolak
             );
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.AddInterceptors(new CreateNewPengajuanInterceptor());
+            base.OnConfiguring(optionsBuilder);
         }
     }
 }

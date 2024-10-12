@@ -3,13 +3,18 @@ using Inventory_Backend_NET.Database.Models;
 
 namespace Inventory_Backend_NET.Seeder;
 
-public static class UserOnlySeederExtension
+/// <summary>
+/// Seeder yang akan mengisi database dengan 1 orang admin dan 2 orang user biasa
+/// </summary>
+public class ThreeUserSeeder
 {
-    public static List<User> SeedUser(
-        this IServiceProvider serviceProvider 
-    )
+    private readonly MyDbContext _db;
+    public ThreeUserSeeder(MyDbContext db)
     {
-        var db = serviceProvider.GetRequiredService<MyDbContext>();
+        _db = db;
+    }
+    public List<User> Run()
+    {
         var users = new List<User>( new []{
                 new User(
                     username : "admin",
@@ -28,8 +33,8 @@ public static class UserOnlySeederExtension
                 )
             }
         );
-        db.Users.AddRange(users);
-        db.SaveChanges();
+        _db.Users.AddRange(users);
+        _db.SaveChanges();
         return users;
     }
 }

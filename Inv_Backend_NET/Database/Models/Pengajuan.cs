@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 using Inventory_Backend_NET.Database.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,35 +24,17 @@ public class Pengajuan
     public ICollection<BarangAjuan> BarangAjuans { get; set; } = new List<BarangAjuan>();
 
     public Pengajuan(
-        MyDbContext db,
         Pengaju pengaju,
         StatusPengajuan status,
         User user,
         ICollection<BarangAjuan> barangAjuans,
-        TimeProvider timeProvider,
-        long? createdAt = null,
+        long createdAt,
+        String kodeTransaksi,
         int? id = null
     )
     {
-
-        var now = timeProvider.GetLocalNow();
-        if (createdAt == null)
-            createdAt = timeProvider.GetLocalNow().ToUnixTimeMilliseconds();
-
-        WaktuPengajuan = createdAt ?? throw new NoNullAllowedException("createdAt null");
-
-        var tanggalPengajuan = now.ToString("yyyy-MM-dd");
-        var tipePengajuan = pengaju.IsPemasok ? "IN" : "OUT";
-        
-        // mendapatkan urutan untuk pengajuan ini dari cache
-        var urutanHariIni = (db.TotalPengajuanByTanggals
-            .FirstOrDefault(
-                t => t.Tanggal == tanggalPengajuan
-            )?.Total ?? 0) + 1;
-        
-        var kodeUrutan = urutanHariIni.ToString().PadLeft(3 , '0');
-        
-        KodeTransaksi = $"TRX-{tipePengajuan}-{tanggalPengajuan}-{kodeUrutan}";
+        WaktuPengajuan = createdAt;
+        KodeTransaksi = kodeTransaksi;
         Pengaju = pengaju;
         Status = status;
         User = user;

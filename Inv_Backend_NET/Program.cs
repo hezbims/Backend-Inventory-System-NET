@@ -53,6 +53,8 @@ builder.Services.AddDbContext<MyDbContext>(
 
 
 builder.Services.AddEndpointsApiExplorer();
+
+// Agar bisa ngemasukin JWT Bearer di Swagger
 builder.Services.AddSwaggerGen(option =>
 {
     option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme , new OpenApiSecurityScheme
@@ -156,7 +158,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    var containKeyword = false;
+    var containsSeederKeyword = false;
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
@@ -165,22 +167,22 @@ if (app.Environment.IsDevelopment())
         if (args.Contains("refresh"))
         {
             db.RefreshDatabase();
-            containKeyword = true;
+            containsSeederKeyword = true;
         }
 
         if (args.Contains("user-only"))
         {
-            services.SeedUser();
-            containKeyword = true;
+            new ThreeUserSeeder(db: db).Run();
+            containsSeederKeyword = true;
         }
         else if (args.Contains("test-seeder"))
         {
-            services.TestSeeder(args: args);
-            containKeyword = true;
+            new CompleteTestSeeder(serviceProvider: services, cliArgs: args).Run();
+            containsSeederKeyword = true;
         }
     }
 
-    if (containKeyword) { return; }
+    if (containsSeederKeyword) { return; }
     
     app.UseSwagger();
     app.UseSwaggerUI();

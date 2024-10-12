@@ -1,5 +1,6 @@
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._Logic;
@@ -8,14 +9,17 @@ public class UpsertCurrentPengajuanUseCase
 {
     private readonly MyDbContext _db;
     private readonly TimeProvider _timeProvider;
+    private readonly GetKodeTransaksiPengajuanUseCase _getKodeTransaksiPengajuan;
 
     public UpsertCurrentPengajuanUseCase(
         MyDbContext db, 
-        TimeProvider timeProvider
+        TimeProvider timeProvider,
+        GetKodeTransaksiPengajuanUseCase getKodeTransaksiPengajuan
     )
     {
         _db = db;
         _timeProvider = timeProvider;
+        _getKodeTransaksiPengajuan = getKodeTransaksiPengajuan;
     }
     
     public Database.Models.Pengajuan By(
@@ -50,15 +54,21 @@ public class UpsertCurrentPengajuanUseCase
         else
             statusPengajuan = StatusPengajuan.GetByEditor(submitter);
 
+        var createdAt =
+            previousPengajuan?.WaktuPengajuan ??
+            _timeProvider.GetLocalNow().ToUnixTimeMilliseconds();
+        
         Database.Models.Pengajuan currentPengajuan = new Database.Models.Pengajuan(
-            db: _db,
             pengaju: currentPengaju,
             status: statusPengajuan,
             user: pemilikPengajuan,
             barangAjuans: currentBarangAjuans,
             id: previousPengajuan?.Id,
-            timeProvider: _timeProvider,
-            createdAt: previousPengajuan?.WaktuPengajuan
+            createdAt: createdAt,
+            kodeTransaksi: _getKodeTransaksiPengajuan.Run(
+                dateCreatedAt: DateTimeOffset.FromUnixTimeMilliseconds(createdAt),
+                pengaju: currentPengaju
+            )
         );
             
         if (previousPengajuan == null)
