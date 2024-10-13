@@ -1,4 +1,5 @@
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -22,7 +23,10 @@ public static class RefreshDatabaseExtension
 
         foreach (var table in filteredTables)
         {
-            db.Database.ExecuteSqlRaw($"DELETE FROM {table}");
+            var query = $"DELETE FROM {table}";
+            db.Database.ExecuteSqlRaw(query);
         }
+        
+        db.SaveChanges();
     }
 }
