@@ -16,7 +16,7 @@ public class DeletePengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly UpdateStockUseCase _updateStock;
+    private readonly UpdatePengajuanUseCase _updateStock;
     
     public DeletePengajuanController(
         MyDbContext db,
@@ -25,7 +25,7 @@ public class DeletePengajuanController : ControllerBase
     {
         _db = db;
         _httpContextAccessor = httpContextAccessor;
-        _updateStock = new UpdateStockUseCase(db);
+        _updateStock = new UpdatePengajuanUseCase(db);
     }
 
     [HttpDelete]

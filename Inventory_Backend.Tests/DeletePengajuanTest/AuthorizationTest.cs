@@ -4,7 +4,7 @@ using Inventory_Backend.Tests.TestConfiguration.Fixture;
 namespace Inventory_Backend.Tests.DeletePengajuanTest;
 
 // Ngecek apakah pengajuan berhak didelete oleh user atau tidak
-[Collection(TestConstant.WithDbCollection)]
+[Collection(TestConstant.UnitTestWithDbCollection)]
 public class AuthorizationTest : IDisposable
 {
     private readonly MyDbFixture _fixture;

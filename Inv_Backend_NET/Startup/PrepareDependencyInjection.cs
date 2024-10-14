@@ -1,6 +1,8 @@
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Database.Interceptor;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Services;
+using Inventory_Backend_NET.Fitur.Logging;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using NeoSmart.Caching.Sqlite.AspNetCore;
@@ -30,6 +32,7 @@ public static class PrepareDependencyInjection
         );
 
         builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddSingleton<IMyLogger>(new MyDevLogger());
 
 
         builder.Services.AddControllers(options =>
@@ -39,12 +42,16 @@ public static class PrepareDependencyInjection
     
             options.MaxModelValidationErrors = 100;             
         });
-
+        
         builder.Services.AddDbContext<MyDbContext>(
-            optionsAction: options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString)
-                )
+            optionsAction: (serviceProvider , options) =>
+                options
+                    .UseSqlServer(
+                        builder.Configuration
+                            .GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString))
+                    .AddInterceptors(
+                        new CreateNewPengajuanInterceptor(
+                            timeProvider: serviceProvider.GetRequiredService<TimeProvider>()))
         );
 
         return builder;

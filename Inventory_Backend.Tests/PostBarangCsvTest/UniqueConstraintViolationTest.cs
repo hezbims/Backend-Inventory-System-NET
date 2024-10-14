@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.WithDbCollection)]
+[Collection(TestConstant.UnitTestWithDbCollection)]
 public class UniqueConstraintViolationTest : IDisposable
 {
     private readonly MyDbFixture _fixture;

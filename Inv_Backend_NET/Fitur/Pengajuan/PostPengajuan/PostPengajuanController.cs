@@ -4,12 +4,13 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
+using Inventory_Backend_NET.Fitur.Logging;
+using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
 using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._Logic;
 using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan;
@@ -20,27 +21,25 @@ public class PostPengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IDistributedCache _cache;
-    private readonly UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
-    private readonly UpdateStockUseCase _updateStock;
-    private readonly GetPengajuanEventTypeUseCase _getPengajuanEventType;
+    private readonly _Logic.UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
+    private readonly UpdatePengajuanUseCase _updateStock;
     private readonly TimeProvider _timeProvider;
+    private readonly IMyLogger _logger;
     
     public PostPengajuanController(
         MyDbContext db,
         IHttpContextAccessor httpContextAccessor,
-        IDistributedCache cache,
         TimeProvider timeProvider,
-        UpsertCurrentPengajuanUseCase updateOrInsertNewPengajuan
+        IMyLogger logger
     )
     {
+        _logger = logger;
         _db = db;
         _httpContextAccessor = httpContextAccessor;
-        _cache = cache;
         
-        _updateOrInsertNewPengajuan  = updateOrInsertNewPengajuan;
-        _updateStock = new UpdateStockUseCase(db: db);
-        _getPengajuanEventType = new GetPengajuanEventTypeUseCase();
+        _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(
+            db: db, timeProvider: timeProvider);
+        _updateStock = new UpdatePengajuanUseCase(db: db);
         _timeProvider = timeProvider;
     }
     
@@ -72,16 +71,17 @@ public class PostPengajuanController : ControllerBase
                     currentPengajuan: currentPengajuan
                 );
 
-                var tipeEvent = _getPengajuanEventType.Exec(previousPengajuan, submitter);
-                if (tipeEvent != null)
-                {
-                    if (tipeEvent == PengajuanEvent.UserNotifAdmin)
-                        foreach (var admin in _db.Users.Where(user => user.IsAdmin))
-                            _cache.SetString(admin.Username, "1");
-                    
-                    else
-                        _cache.SetString(currentPengajuan.User.Username, "1");
-                }
+                // var tipeEvent = _getPengajuanEventType.Exec(previousPengajuan, submitter);
+                // TODO: ganti dengan interceptor yang naikin versi tabel
+                // if (tipeEvent != null)
+                // {
+                //     if (tipeEvent == PengajuanEvent.UserNotifAdmin)
+                //         foreach (var admin in _db.Users.Where(user => user.IsAdmin))
+                //             _cache.SetString(admin.Username, "1");
+                //     
+                //     else
+                //         _cache.SetString(currentPengajuan.User.Username, "1");
+                // }
 
                 if (requestBody.IdPengajuan == null)
                 {
@@ -124,7 +124,7 @@ public class PostPengajuanController : ControllerBase
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.WriteLine($"QQQ Post pengajuan error : {e.Message}");
                 return StatusCode(
                     500,
                     new

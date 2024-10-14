@@ -3,11 +3,11 @@ using Inventory_Backend_NET.Database.Models;
 
 namespace Inventory_Backend_NET.UseCases.Common;
 
-public class UpdateStockUseCase
+public class UpdatePengajuanUseCase
 {
     private readonly MyDbContext _db;
 
-    public UpdateStockUseCase(MyDbContext db)
+    public UpdatePengajuanUseCase(MyDbContext db)
     {
         _db = db;
     }

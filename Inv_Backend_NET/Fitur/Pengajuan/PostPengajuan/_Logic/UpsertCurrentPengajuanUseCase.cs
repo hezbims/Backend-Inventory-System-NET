@@ -13,13 +13,12 @@ public class UpsertCurrentPengajuanUseCase
 
     public UpsertCurrentPengajuanUseCase(
         MyDbContext db, 
-        TimeProvider timeProvider,
-        GetKodeTransaksiPengajuanUseCase getKodeTransaksiPengajuan
+        TimeProvider timeProvider
     )
     {
         _db = db;
         _timeProvider = timeProvider;
-        _getKodeTransaksiPengajuan = getKodeTransaksiPengajuan;
+        _getKodeTransaksiPengajuan = new GetKodeTransaksiPengajuanUseCase(db: db);
     }
     
     public Database.Models.Pengajuan By(

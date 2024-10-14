@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.WithDbCollection)]
+[Collection(TestConstant.UnitTestWithDbCollection)]
 public class PostTemplateCsvTest : IDisposable
 {
     public readonly MyDbFixture Fixture;

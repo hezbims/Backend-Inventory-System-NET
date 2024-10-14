@@ -78,7 +78,6 @@ public class RandomPengajuanSeeder
                     createdAt: dateCreatedAt.ToUnixTimeMilliseconds()
                 )
             );
-            Console.WriteLine("Coba save pengajuan QQQ");
             _db.SaveChanges();
         }
     }

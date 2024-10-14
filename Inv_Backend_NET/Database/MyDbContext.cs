@@ -28,11 +28,5 @@ namespace Inventory_Backend_NET.Database
                 StatusPengajuan.Ditolak
             );
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.AddInterceptors(new CreateNewPengajuanInterceptor());
-            base.OnConfiguring(optionsBuilder);
-        }
     }
 }

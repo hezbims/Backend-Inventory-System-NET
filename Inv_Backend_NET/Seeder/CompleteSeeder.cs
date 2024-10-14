@@ -16,7 +16,7 @@ namespace Inventory_Backend_NET.Seeder;
 ///     <li>37 pengajuan random baru</li>
 /// </ul>
 /// </summary>
-public class CompleteTestSeeder
+public class CompleteSeeder
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly string[] _cliArgs;
@@ -28,7 +28,7 @@ public class CompleteTestSeeder
     private readonly TenPengajuSeeder _tenPengajuSeeder;
     private readonly RandomPengajuanSeeder _randomPengajuanSeeder;
 
-    public CompleteTestSeeder(
+    public CompleteSeeder(
         IServiceProvider serviceProvider,
         string[] cliArgs
     )
@@ -50,7 +50,7 @@ public class CompleteTestSeeder
         var sqliteCache = _serviceProvider.GetRequiredService<SqliteCache>();
         sqliteCache.Clear();
 
-        using var transaction = _db.Database.BeginTransaction();
+        // using var transaction = _db.Database.BeginTransaction();
 
         var listKategori = _tenKategoriSeeder.Run();
         _threeUserSeeder.Run();
@@ -62,6 +62,6 @@ public class CompleteTestSeeder
             _randomPengajuanSeeder.Run(rand: rand, totalPengajuan: 37);
         }
         
-        transaction.Commit();
+        // transaction.Commit();
     }
 }

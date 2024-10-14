@@ -11,6 +11,11 @@ namespace Inventory_Backend_NET.Database.Interceptor;
 /// </summary>
 public class CreateNewPengajuanInterceptor : SaveChangesInterceptor
 {
+    private readonly TimeProvider _timeProvider; 
+    public CreateNewPengajuanInterceptor(TimeProvider timeProvider)
+    {
+        _timeProvider = timeProvider;
+    }
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         MyDbContext? db = eventData.Context as MyDbContext;
@@ -28,9 +33,11 @@ public class CreateNewPengajuanInterceptor : SaveChangesInterceptor
             throw new Exception("Pengajuan tidak boleh bulk insert");
         
         var pengajuan = insertedPengajuan.Single();
-        var tanggalPengajuan = DateTimeOffset
-            .FromUnixTimeMilliseconds(pengajuan.WaktuPengajuan)
-            .ToString(MyConstants.DateFormat);
+        var tanggalPengajuan = TimeZoneInfo.ConvertTime(
+                DateTimeOffset.FromUnixTimeMilliseconds(pengajuan.WaktuPengajuan),
+                _timeProvider.LocalTimeZone
+            ).ToString(MyConstants.DateFormat);
+        
         var totalPengajuanByTanggal = db.TotalPengajuanByTanggals.FirstOrDefault(
             tanggal => tanggal.Tanggal == tanggalPengajuan
         );

@@ -9,7 +9,7 @@ public class TestConfig
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("appsettings.Test.json", optional: false, reloadOnChange: false)
             .Build();
         return configuration;
     }

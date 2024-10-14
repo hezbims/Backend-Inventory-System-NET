@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend.Tests.PostBarangCsvTest;
 
-[Collection(TestConstant.WithDbCollection)]
+[Collection(TestConstant.UnitTestWithDbCollection)]
 public class InvalidFieldTest : IDisposable
 {
     private readonly MyDbFixture _fixture;

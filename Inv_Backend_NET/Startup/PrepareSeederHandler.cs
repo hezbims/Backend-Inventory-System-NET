@@ -35,7 +35,7 @@ public static class PrepareSeederHandler
         }
         else if (args.Contains("test-seeder"))
         {
-            new CompleteTestSeeder(serviceProvider: services, cliArgs: args).Run();
+            new CompleteSeeder(serviceProvider: services, cliArgs: args).Run();
             containsSeederKeyword = true;
         }
         
