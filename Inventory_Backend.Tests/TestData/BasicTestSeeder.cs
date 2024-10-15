@@ -3,7 +3,16 @@ using Inventory_Backend_NET.Seeder;
 
 namespace Inventory_Backend.Tests.TestData;
 
-public class BasicTestSeeder
+/// <summary>
+/// Seeder yang akan mengisi database dengan :
+/// <ul>
+/// <li>5 Barang</li>
+/// <li>10 Kategori</li>
+/// <li>3 User</li>
+/// <li>10 Pengaju (5 Grup, 5 Pemasok)</li>
+/// </ul>
+/// </summary>
+public class BasicTestSeeder : IDisposable
 {
     private readonly MyDbContext _db;
     private readonly FiveBarangSeeder _fiveBarangSeeder;
@@ -29,5 +38,10 @@ public class BasicTestSeeder
         _fiveBarangSeeder.Run();
         
         transaction.Commit();
+    }
+
+    public void Dispose()
+    {
+        _db.Dispose();
     }
 }

@@ -5,7 +5,6 @@ using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
 using Inventory_Backend_NET.Fitur.Logging;
-using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
 using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._Logic;
 using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +20,7 @@ public class PostPengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly _Logic.UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
+    private readonly UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
     private readonly UpdatePengajuanUseCase _updateStock;
     private readonly TimeProvider _timeProvider;
     private readonly IMyLogger _logger;

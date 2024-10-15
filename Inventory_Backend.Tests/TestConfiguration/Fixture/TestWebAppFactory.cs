@@ -1,5 +1,8 @@
+using System.Net.Http.Headers;
 using Inventory_Backend_NET;
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Seeder;
 using Inventory_Backend.Tests.TestConfiguration.Logging;
@@ -11,14 +14,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.TestConfiguration.Fixture;
 
 public class TestWebAppFactory : WebApplicationFactory<Program>
 {
-    public ITestOutputHelper? Logger { get; set; }
     private IConfiguration? _configuration;
     public IConfiguration Configuration
     {
@@ -31,11 +32,6 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
         var testConfiguration = TestConfig.GetTestConfig();
         builder
             .UseConfiguration(testConfiguration)
-            .ConfigureLogging(loggingBuilder =>
-            {
-                if (Logger != null)
-                    loggingBuilder.AddFilter(level => level == LogLevel.Error).AddXUnit(Logger);
-            })
             .ConfigureAppConfiguration(configurationBuilder =>
             {
                 configurationBuilder.AddConfiguration(testConfiguration);
@@ -44,18 +40,13 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
             .ConfigureTestServices(services =>
             {
                 services.AddSingleton<TimeProvider>(new TestTimeProvider());
-                if (Logger != null)
-                {
-                    Logger.WriteLine("QQQ Logger added");
-                    services.AddSingleton<IMyLogger>(new MyTestLogger(logger: Logger!));
-                }
 
                 services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     options.TokenValidationParameters.ValidateLifetime = false;
                     options.Events.OnAuthenticationFailed = context =>
                     {
-                        Logger?.WriteLine($"QQQ Test Auth Fail {context.Exception.Message}");
+                        Console.WriteLine($"QQQ Test Auth Fail {context.Exception.Message}");
                         return Task.CompletedTask;
                     };
                 });
@@ -63,6 +54,34 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
                 RefreshDatabase(services);
             });
         
+    }
+
+    public HttpClient GetAuthorizedClient(bool isAdmin)
+    {
+        return GetAuthorizedClient(user => user.IsAdmin == isAdmin);
+    }
+
+    public HttpClient GetAuthorizedClient(int userId)
+    {
+        return GetAuthorizedClient(user => user.Id == userId);
+    }
+
+    private HttpClient GetAuthorizedClient(Func<User, bool> condition)
+    {
+        using var scope = Server.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+        var jwtService = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+        
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer", 
+            jwtService.GenerateNewToken(db.Users.First(condition)));
+        return client;
+    }
+
+    public void ConfigureLoggingToTestOutput(ITestOutputHelper testOutputHelper)
+    {
+        Console.SetOut(new TestOutputWriter(testOutputHelper));
     }
 
     public void RefreshDatabase(IServiceCollection services)
@@ -86,5 +105,4 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
         var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
         return db;
     } 
-        
 }

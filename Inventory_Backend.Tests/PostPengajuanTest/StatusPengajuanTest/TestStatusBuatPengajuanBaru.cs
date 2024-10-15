@@ -33,7 +33,6 @@ public class TestStatusBuatPengajuanBaru : IDisposable
     {
         _logger = logger;
         _webApp = webApp;
-        _webApp.Logger = logger;
         _client = webApp.CreateClient();
 
         using (var scope = _webApp.Services.CreateScope())
