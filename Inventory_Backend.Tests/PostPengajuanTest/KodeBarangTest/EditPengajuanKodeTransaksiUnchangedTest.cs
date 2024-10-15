@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -36,7 +37,7 @@ public class EditPengajuanKodeTransaksiUnchangedTest : IDisposable
             .Include(pengajuan => pengajuan.User)
             .Include(pengajuan => pengajuan.BarangAjuans)
             .AsSplitQuery()
-            .First();
+            .First(pengajuan => pengajuan.Status == StatusPengajuan.Menunggu);
         
         var client = _webApp.GetAuthorizedClient(userId: oldPengajuan.User.Id);
         var response = await client.PostAsJsonAsync(

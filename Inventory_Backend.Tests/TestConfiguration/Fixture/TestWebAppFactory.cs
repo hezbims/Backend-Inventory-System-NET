@@ -3,7 +3,6 @@ using Inventory_Backend_NET;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Logic.Services;
-using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Seeder;
 using Inventory_Backend.Tests.TestConfiguration.Logging;
 using Inventory_Backend.Tests.TestConfiguration.Mock;
@@ -39,7 +38,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
             })
             .ConfigureTestServices(services =>
             {
-                services.AddSingleton<TimeProvider>(new TestTimeProvider());
+                services.AddSingleton<TimeProvider>(TestTimeProvider.Instance);
 
                 services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
@@ -95,6 +94,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
 
     public void Cleanup()
     {
+        TestTimeProvider.Instance.Reset();
         using var context = GetDbContext();
         context.RefreshDatabase();
     }

@@ -27,10 +27,9 @@ public class CompleteTestSeeder : IDisposable
             StatusPengajuan.Ditolak,
             StatusPengajuan.Menunggu
         };
-
-        var timeProvider = new TestTimeProvider();
+        
         var getKodeTransaksi = new GetKodeTransaksiPengajuanUseCase(db: _db);
-        var createdAt = timeProvider.GetUtcNow();
+        var createdAt = TestTimeProvider.Instance.GetUtcNow();
         foreach (var statusPengajuan in statusPengajuanEntries)
         {
             _db.Pengajuans.Add(
