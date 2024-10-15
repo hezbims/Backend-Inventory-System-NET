@@ -23,6 +23,7 @@ public class TestStatusBuatPengajuanBaru : IDisposable
     private readonly Pengaju _grup;
     private readonly Barang _barang;
     private readonly string _adminToken;
+    private readonly string _nonAdminToken;
     private readonly ITestOutputHelper _logger;
     
     public TestStatusBuatPengajuanBaru(
@@ -44,6 +45,7 @@ public class TestStatusBuatPengajuanBaru : IDisposable
             _grup = db.Pengajus.First(pengaju => !pengaju.IsPemasok);
             _barang = db.Barangs.First();
             _adminToken = scope.GetJwt(isAdmin: true);
+            _nonAdminToken = scope.GetJwt(isAdmin: false);
         }
     }
 
@@ -78,70 +80,32 @@ public class TestStatusBuatPengajuanBaru : IDisposable
             .Satisfy(pengajuan => pengajuan.Status == StatusPengajuan.Diterima);
     }
 
-    // [Fact]
-    // public void Test_Kalau_Admin_Yang_Buat_Pengajuan_Baru_Maka_Statusnya_Diterima()
-    // {
-    //     using var db = _fixture.CreateContext();
-    //
-    //     var adminContext = new MockHttpContextAccessor(_admin);
-    //     var controller = new PostPengajuanController(
-    //         db: db, 
-    //         httpContextAccessor: adminContext, 
-    //         cache: _cache,
-    //         timeProvider: TimeProvider.System
-    //     );
-    //
-    //     var actionResult = controller.Index(new SubmitPengajuanBody
-    //     {
-    //         BarangAjuans = new List<BarangAjuanBody>()
-    //         {
-    //             new BarangAjuanBody
-    //             {
-    //                 IdBarang = _barangs.First().Id,
-    //                 Keterangan = null,
-    //                 Quantity = 1
-    //             }
-    //         },
-    //         IdPengaju = _grup.Id
-    //     });
-    //
-    //     Assert.IsType<OkObjectResult>(actionResult);
-    //
-    //     var pengajuan = db.Pengajuans.Single();
-    //     Assert.Equal(StatusPengajuan.DiterimaValue , pengajuan.Status.Value);
-    // }
+    [Fact]
+    public async Task Test_Kalau_Non_Admin_Buat_Pengajuan_Baru_Maka_Statusnya_Menunggu()
+    {
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer" , _nonAdminToken);
 
-    // [Fact]
-    // public void Test_Kalau_Non_Admin_Buat_Pengajuan_Baru_Maka_Statusnya_Menunggu()
-    // {
-    //     using var db = _fixture.CreateContext();
-    //
-    //     var nonAdminContext = new MockHttpContextAccessor(_nonAdmin);
-    //     var controller = new PostPengajuanController(
-    //         db: db, 
-    //         httpContextAccessor: nonAdminContext, 
-    //         cache: _cache,
-    //         timeProvider: TimeProvider.System
-    //     );
-    //     
-    //     var actionResult = controller.Index(new SubmitPengajuanBody
-    //     {
-    //         BarangAjuans = new List<BarangAjuanBody>
-    //         {
-    //             new BarangAjuanBody
-    //             {
-    //                 IdBarang = _barangs.First().Id,
-    //                 Keterangan = null,
-    //                 Quantity = 1
-    //             }
-    //         },
-    //         IdPengaju = _grup.Id
-    //     });
-    //
-    //     Assert.IsType<OkObjectResult>(actionResult);
-    //     var pengajuan = db.Pengajuans.Single();
-    //     Assert.Equal(StatusPengajuan.MenungguValue , pengajuan.Status.Value);
-    // }
+        var response = await _client.PostAsJsonAsync(
+            "/api/pengajuan/add",
+            new CreatePengajuanRequest
+            {
+                IdPegaju = _grup.Id,
+                ListBarangAjuan = new List<BarangAjuanRequest>
+                {
+                    new BarangAjuanRequest
+                    {
+                        IdBarang = _barang.Id,
+                        Quantity = 1,
+                        Keterangan = ""
+                    }
+                }
+            });
+        
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
+        await using var db = _webApp.GetDbContext();
+        db.Pengajuans.Should().ContainSingle().And.Satisfy(pengajuan => pengajuan.Status == StatusPengajuan.Menunggu);
+    }
 
     public void Dispose()
     {
