@@ -1,4 +1,5 @@
 using Inventory_Backend_NET.Database;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Seeder;
 
 namespace Inventory_Backend.Tests.TestData;
@@ -29,7 +30,7 @@ public class BasicTestSeeder : IDisposable
         _tenPengajuSeeder = new TenPengajuSeeder(db);
     }
     
-    public void Run()
+    public BasicTestData Run()
     {
         using var transaction = _db.Database.BeginTransaction();
         _tenKategoriSeeder.Run();
@@ -38,6 +39,8 @@ public class BasicTestSeeder : IDisposable
         _fiveBarangSeeder.Run();
         
         transaction.Commit();
+
+        return BasicTestData.CreateFrom(db: _db);
     }
 
     public void Dispose()
@@ -45,3 +48,24 @@ public class BasicTestSeeder : IDisposable
         _db.Dispose();
     }
 }
+
+public record BasicTestData
+{
+    public required User Admin { get; init; }
+    public required User NonAdmin { get; init; }
+    public required List<Barang> ListBarang { get; init; }
+    public required Pengaju Grup { get; init; }
+    public required Pengaju Pemasok { get; init; }
+
+    public static BasicTestData CreateFrom(MyDbContext db)
+    {
+        return new BasicTestData
+        {
+            Admin = db.Users.First(user => user.IsAdmin),
+            NonAdmin = db.Users.First(user => !user.IsAdmin),
+            ListBarang = db.Barangs.ToList(),
+            Grup = db.Pengajus.First(pengaju => !pengaju.IsPemasok),
+            Pemasok = db.Pengajus.First(pengaju => pengaju.IsPemasok)
+        };
+    }
+} 
