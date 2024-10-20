@@ -29,7 +29,7 @@ public class EditPengajuanStockQuantityTest : IDisposable
     [Fact]
     public async Task Test_Admin_Terima_Pengajuan_Maka_Stock_Terupdate_Dengan_Benar()
     {
-        var adminClient = _webApp.GetAuthorizedClient(userId: _testData.NonAdmin.Id);
+        var adminClient = _webApp.GetAuthorizedClient(userId: _testData.Admin.Id);
 
         var previousPengajuan = _testData.ListPengajuan[2];
         var response = await adminClient.PostAsJsonAsync(
@@ -61,6 +61,41 @@ public class EditPengajuanStockQuantityTest : IDisposable
         for (int i = 0; i < expectedQuantities.Count; i++)
         {
             newBarang[i].CurrentStock.Should().Be(expectedQuantities[i]);
+        }
+    }
+
+    [Fact]
+    public async Task Test_Admin_Edit_Pengajuan_Pemasukan_Stock_Terupdate_Dengan_Benar()
+    {
+        var adminClient = _webApp.GetAuthorizedClient(userId: _testData.Admin.Id);
+        var previousPengajuan = _testData.ListPengajuan[3];
+        
+        var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+        {
+            IdPengajuan = previousPengajuan.Id,
+            IdPegaju =  previousPengajuan.PengajuId,
+            ListBarangAjuan = [
+            new BarangAjuanRequest
+            {
+                Quantity = 1,
+                IdBarang = _testData.ListBarang[0].Id
+            }, 
+            new BarangAjuanRequest
+            {
+                Quantity = 2,
+                IdBarang = _testData.ListBarang[1].Id
+            }]
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = _webApp.GetDbContext();
+        var newListBarang = db.Barangs.ToList();
+        List<int> expectedQuantities = [10, 12, 10, 10, 10];
+
+        for (var i = 0; i < expectedQuantities.Count; i++)
+        {
+            newListBarang[i].CurrentStock.Should().Be(expectedQuantities[i]);
         }
     }
 
