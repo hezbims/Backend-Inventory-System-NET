@@ -10,6 +10,7 @@ namespace Inventory_Backend.Tests.TestData;
 /// <li>Pengajuan pertama statusnya diterima</li>
 /// <li>Pengajuan kedua statusnya ditolak</li>
 /// <li>Pengajuan ketiga statusnya menunggu</li>
+/// <li> Pengajuan keempat statusnya diterima. Namun berbeda dengan pengajuan pertama sampai ketiga, pengajuan ini bertipe pemasukan</li>
 /// </ul>
 /// </summary>
 public class CompleteTestSeeder : IDisposable
@@ -28,7 +29,9 @@ public class CompleteTestSeeder : IDisposable
         _basicTestSeeder.Run();
         var listBarang = _db.Barangs.ToList();
         var group = _db.Pengajus.First(pengaju => !pengaju.IsPemasok);
+        var pemasok = _db.Pengajus.First(pengaju => pengaju.IsPemasok);
         var nonAdmin = _db.Users.First(user => !user.IsAdmin);
+        var admin = _db.Users.First(user => user.IsAdmin);
         var statusPengajuanEntries = new List<StatusPengajuan>
         {
             StatusPengajuan.Diterima,
@@ -58,6 +61,22 @@ public class CompleteTestSeeder : IDisposable
                 ));
             _db.SaveChanges();
         }
+
+        _db.Pengajuans.Add(new Pengajuan(
+            pengaju: pemasok,
+            status: StatusPengajuan.Diterima,
+            user: admin,
+            createdAt: createdAt.ToUnixTimeMilliseconds(),
+            kodeTransaksi: getKodeTransaksi.Run(
+                dateCreatedAt: createdAt, pengaju: pemasok),
+            barangAjuans:
+            [
+                new BarangAjuan(
+                    barang: listBarang.First(),
+                    quantity: 1,
+                    keterangan: null)
+            ]));
+        _db.SaveChanges();
 
         return CompleteTestData.CreateFrom(db: _db);
     }

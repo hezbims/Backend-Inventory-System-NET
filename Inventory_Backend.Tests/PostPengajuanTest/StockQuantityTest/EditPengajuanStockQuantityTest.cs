@@ -31,7 +31,7 @@ public class EditPengajuanStockQuantityTest : IDisposable
     {
         var adminClient = _webApp.GetAuthorizedClient(userId: _testData.NonAdmin.Id);
 
-        var previousPengajuan = _testData.ListPengajuan.Last();
+        var previousPengajuan = _testData.ListPengajuan[2];
         var response = await adminClient.PostAsJsonAsync(
             "api/pengajuan/add",
             new CreatePengajuanRequest
