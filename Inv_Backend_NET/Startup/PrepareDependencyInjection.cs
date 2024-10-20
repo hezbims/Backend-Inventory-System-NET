@@ -5,6 +5,7 @@ using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Logging;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using NeoSmart.Caching.Sqlite.AspNetCore;
 
 namespace Inventory_Backend_NET.Startup;
@@ -15,21 +16,7 @@ public static class PrepareDependencyInjection
     {
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
         builder.Services.AddHttpContextAccessor();
-
-        // Alasan kenapa kok pakai sqlite cache :
-        // Sqlite Cache disini fungsinya untuk mentrack urutan hari dari pengajuan yang dibuat (3 digit terakhir dari kode transaksi, lihat model pengajuan)
-        //
-        // kenapa kok enggak pakai memory cache?
-        // karena kalo enggak sengaja server mati, memory cache bakalan terhapus datanya
-        //
-        // kenapa field urutan dari pengajuan, enggak di berdasarkan query dari database SQL Server? (berdasarkan pengajuan-pengajuan sebelumnya)
-        // karena kalo di query dari database, hasilnya bakal salah, kalo ada pengajuan ditengah-tengah yang kehapus
-        builder.Services.AddSqliteCache(
-            options =>
-            {
-                options.CachePath = Path.Combine(Environment.CurrentDirectory, "Cache/cache.db");
-            }
-        );
+        builder.Services.AddMemoryCache();
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IMyLogger>(new MyDevLogger());
@@ -51,7 +38,9 @@ public static class PrepareDependencyInjection
                             .GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString))
                     .AddInterceptors(
                         new CreateNewPengajuanInterceptor(
-                            timeProvider: serviceProvider.GetRequiredService<TimeProvider>()))
+                            timeProvider: serviceProvider.GetRequiredService<TimeProvider>()),
+                        new PengajuanChangedInterceptor(
+                            memoryCache: serviceProvider.GetRequiredService<IMemoryCache>()))
         );
 
         return builder;

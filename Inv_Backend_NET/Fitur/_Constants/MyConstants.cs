@@ -1,28 +1,28 @@
 namespace Inventory_Backend_NET.Fitur._Constants;
 
-public class MyConstants
+public static class MyConstants
 {
-    public static int PageSize  = 15;
-    public class Roles
+    public const int PageSize  = 15;
+    public static class Roles
     {
         public const string Admin = "Admin";
         public const string NonAdmin = "NonAdmin";
     }
-    public class Policies
+    public static class Policies
     {
         public const string AllUsers = "All-Users";
         public const string AdminOnly = "Admin-Only";
         public const string CorsPolicy = "Cors-Policy";
     }
-    public class CacheKeys
+    public static class CacheKeys
     {
-        public const string UrutanPengajuanHariIni = "urutan-pengajuan";
+        public const string PengajuanTableVersion = "pengajuan_table_version";
     }
 
-    public class AppSettingsKey
+    public static class AppSettingsKey
     {
         public const string MyConnectionString = "SQLServerConnection";
     }
     
-    public static string DateFormat = "yyyy-MM-dd";
+    public const string DateFormat = "yyyy-MM-dd";
 }
