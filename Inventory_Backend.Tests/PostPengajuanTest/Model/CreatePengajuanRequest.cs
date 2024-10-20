@@ -18,9 +18,9 @@ public record BarangAjuanRequest
 {
     [JsonPropertyName("quantity")]
     public required int Quantity { get; init; }
-    
-    [JsonPropertyName("keterangan")]
-    public required string Keterangan { get; init; }
+
+    [JsonPropertyName("keterangan")] 
+    public string Keterangan { get; init; } = "";
     
     [JsonPropertyName("id_barang")]
     public required int IdBarang { get; init; }

@@ -1,89 +1,69 @@
-using Inventory_Backend_NET.Database.Models;
-using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan;
+using System.Net;
+using System.Net.Http.Json;
+using FluentAssertions;
+using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
-using Inventory_Backend.Tests.TestConfiguration.Mock;
-using Inventory_Backend.Tests.TestConfiguration.Seeder;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
+using Inventory_Backend.Tests.TestData;
+using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostPengajuanTest;
 
 /// <summary>
 /// Mengecek apakah current stock pada tabel barangs terupdate dengan benar setelah nambah pengajuan baru
 /// </summary>
-// [Collection(TestConstant.UnitTestWithDbCollection)]
-// public class AddNewPengajuanStockQuantityTest : IDisposable
-// {
-//     private User Admin { get; }
-//     private User NonAdmin { get; }
-//     private IDistributedCache Cache { get;  }
-//     private Pengaju Grup { get; }
-//     private ICollection<Barang> Barangs { get; }
-//     public MyDbFixture Fixture { get; }
-//     
-//     public AddNewPengajuanStockQuantityTest(
-//         MyDbFixture fixture
-//     )
-//     {
-//         Fixture = fixture;
-//
-//         using var db = fixture.CreateContext();
-//         (Admin , NonAdmin , _) = db.SeedThreeUser();
-//         db.SeedBarang20WithQuantity20();
-//         db.SeedDuaPengaju();
-//
-//         Grup = db.Pengajus.Single(pengaju => !pengaju.IsPemasok);
-//         Barangs = db.Barangs.ToList();
-//         Cache = new MockDistributedCache();
-//     }
-//     
-//     [Fact]
-//     public void Test_Ketika_Submit_Pengajuan_Baru_Dengan_Pengaju_Tipe_Grup_Berhasil_Maka_Current_Stock_Akan_Berkurang()
-//     {
-//         var barang1 = Barangs.First();
-//         var barang2 = Barangs.Last();
-//         var pengajuan = new SubmitPengajuanBody
-//         {
-//             IdPengaju = Grup.Id,
-//             BarangAjuans = [
-//                 new BarangAjuanBody
-//                 {
-//                     IdBarang = barang1.Id,
-//                     Quantity = 2
-//                 },
-//                 new BarangAjuanBody
-//                 {
-//                     IdBarang = barang2.Id,
-//                     Quantity = 4
-//                 }
-//             ]
-//         };
-//
-//         var nonAdminContext = new MockHttpContextAccessor(NonAdmin);
-//         using var db = Fixture.CreateContext();
-//         
-//         var controller = new PostPengajuanController(
-//             db: db,
-//             cache: Cache,
-//             httpContextAccessor: nonAdminContext,
-//             timeProvider: TimeProvider.System
-//         );
-//         var result = controller.Index(requestBody: pengajuan);
-//         Assert.IsType<OkObjectResult>(result);
-//         
-//         Assert.Equal(
-//             18,
-//             db.Barangs.Single(barang => barang.Id == barang1.Id).CurrentStock
-//         );
-//         Assert.Equal(
-//             16,
-//             db.Barangs.Single(barang => barang.Id == barang2.Id).CurrentStock
-//         );
-//     }
-//
-//     public void Dispose()
-//     {
-//         Fixture.Cleanup();
-//     }
-// }
+[Collection(TestConstant.IntegrationTestDefinition)]
+public class AddNewPengajuanStockQuantityTest : IDisposable
+{
+    private readonly TestWebAppFactory _webApp;
+    private readonly BasicTestData _testData;
+
+    public AddNewPengajuanStockQuantityTest(
+        TestWebAppFactory webApp,
+        ITestOutputHelper logger)
+    {
+        _webApp = webApp;
+        _webApp.ConfigureLoggingToTestOutput(logger);
+
+        using var db = _webApp.GetDbContext();
+        _testData = new BasicTestSeeder(db: db).Run();
+    }
+
+    [Fact]
+    public async Task Test_Ketika_Submit_Pengajuan_Baru_Dengan_Pengaju_Tipe_Grup_Berhasil_Maka_Current_Stock_Akan_Berkurang()
+    {
+        var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
+
+        var response = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add" ,new CreatePengajuanRequest
+        {
+            IdPegaju = _testData.Grup.Id,
+            ListBarangAjuan = [
+            new BarangAjuanRequest
+            {
+                Quantity = 2,
+                IdBarang = _testData.ListBarang[1].Id
+            },
+            new BarangAjuanRequest
+            {
+                Quantity = 3,
+                IdBarang = _testData.ListBarang[4].Id
+            }]
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
+        await using var db = _webApp.GetDbContext();
+        
+        var newListBarang = db.Barangs.ToList();
+        List<int> expectedQuantities = [10, 8, 10, 10, 7];
+        
+        for (var i = 0; i < expectedQuantities.Count; i++)
+        {
+            newListBarang[i].CurrentStock.Should().Be(expectedQuantities[i]);
+        }
+    }
+    public void Dispose()
+    {
+        _webApp.Cleanup();
+    }
+}
