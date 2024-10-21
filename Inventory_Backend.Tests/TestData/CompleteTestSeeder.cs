@@ -91,6 +91,7 @@ public record CompleteTestData
 {
     public required User Admin { get; init; }
     public required User NonAdmin { get; init; }
+    public required User NonAdmin2 { get; init; }
     public required List<Barang> ListBarang { get; init; }
     public required Pengaju Grup { get; init; }
     public required Pengaju Pemasok { get; init; }
@@ -102,6 +103,7 @@ public record CompleteTestData
         {
             Admin = db.Users.First(user => user.IsAdmin),
             NonAdmin = db.Users.First(user => !user.IsAdmin),
+            NonAdmin2 = db.Users.Where(user => !user.IsAdmin).ToList().Last(),
             ListBarang = db.Barangs.ToList(),
             Grup = db.Pengajus.First(pengaju => !pengaju.IsPemasok),
             Pemasok = db.Pengajus.First(pengaju => pengaju.IsPemasok),

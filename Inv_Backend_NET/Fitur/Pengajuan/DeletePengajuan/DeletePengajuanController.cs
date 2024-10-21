@@ -3,6 +3,8 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
+using Inventory_Backend_NET.Fitur._Model;
+using Inventory_Backend_NET.Fitur.Pengajuan._Model.Exception;
 using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,27 +38,23 @@ public class DeletePengajuanController : ControllerBase
         try
         {
             var currentPengajuan = _db.Pengajuans
+                .Include(pengajuan => pengajuan.User)
                 .Include(pengajuan => pengajuan.Pengaju)
                 .Include(pengajuan => pengajuan.BarangAjuans)
+                .AsSplitQuery()
                 .FirstOrDefault(pengajuan => pengajuan.Id == idPengajuan);
 
             if (currentPengajuan == null)
-                return Unauthorized(new
-                {
-                    message = "Pengajuan tidak ditemukan"
-                });
+                return new PengajuanNotFound(pengajuanId: idPengajuan).ToHttpJsonResponse(this);
 
             var currentUser = _db.GetCurrentUserFrom(_httpContextAccessor);
-            var authorizeResult = AuthorizeDeletePengajuan(
-                currentPengajuan , currentUser!
+            var validationResult = AuthorizeDeletePengajuan(
+                currentPengajuan, currentUser!
             );
-            if (authorizeResult != null)
-                return BadRequest(new
-                {
-                    message = authorizeResult
-                });
+            if (validationResult != null)
+                return validationResult.ToHttpJsonResponse(this);
 
-            
+
             _updateStock.By(
                 previousPengajuan: currentPengajuan,
                 currentPengajuan: null
@@ -80,7 +78,7 @@ public class DeletePengajuanController : ControllerBase
         }
     }
 
-    private string? AuthorizeDeletePengajuan(
+    private ResultObject? AuthorizeDeletePengajuan(
         Database.Models.Pengajuan currentPengajuan,
         User currentUser
     )
@@ -89,10 +87,15 @@ public class DeletePengajuanController : ControllerBase
         if (currentUser.IsAdmin)
             return null;
 
+        // User mencoba menghapus pengajuan yang bukan miliknya,
+        // hanya admin yang dapat menghapus semua jenis pengajuan
+        if (currentPengajuan.User.Id != currentUser.Id)
+            return new NotOwnedDeletedPengajuan();
+
         // User boleh ngehapus pengajuan yang statusnya masih menunggu
         if (currentPengajuan.Status.Value == StatusPengajuan.MenungguValue)
             return null;
 
-        return $"Pengajuan yang statusnya '{currentPengajuan.Status.Value}' tidak dapat dihapus oleh non-admin";
+        return new PengajuanWithUndeletableStatus();
     }
 }
