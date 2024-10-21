@@ -54,9 +54,24 @@ public class AuthorizationTest : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    public void Test_Ketika_Pengajuannya_Statusnya_Diterima_Admin_Tetap_Bisa_Delete()
+    [Fact]
+    public async Task Test_Ketika_Pengajuannya_Statusnya_Diterima_Admin_Tetap_Bisa_Delete()
     {
+        var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
+        var response = await adminClient.DeleteAsync(
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[0].Id));
         
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
+    public async Task Test_Ketika_Pengajuannya_Statusnya_Ditolak_Admin_Tetap_Bisa_Delete()
+    {
+        var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
+        var response = await adminClient.DeleteAsync(
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[1].Id));
+        
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     public void Dispose()
