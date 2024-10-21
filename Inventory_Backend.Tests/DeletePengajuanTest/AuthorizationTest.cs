@@ -45,9 +45,13 @@ public class AuthorizationTest : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    public void Test_Ketika_Pengajuannya_Statusnya_Diterima_Maka_Non_Admin_Tidak_Bisa_Delete()
+    [Fact]
+    public async Task Test_Ketika_Pengajuannya_Statusnya_Diterima_Maka_Non_Admin_Tidak_Bisa_Delete()
     {
-        
+        var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
+        var response = await nonAdminClient.DeleteAsync(
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[0].Id));
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     public void Test_Ketika_Pengajuannya_Statusnya_Diterima_Admin_Tetap_Bisa_Delete()
