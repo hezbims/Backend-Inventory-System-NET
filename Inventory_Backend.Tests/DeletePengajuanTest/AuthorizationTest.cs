@@ -1,20 +1,41 @@
+using System.Net;
+using FluentAssertions;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
+using Inventory_Backend.Tests.TestData;
+using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.DeletePengajuanTest;
 
-// Ngecek apakah pengajuan berhak didelete oleh user atau tidak
-[Collection(TestConstant.UnitTestWithDbCollection)]
+// Ngecek apakah pengajuan berhak didelete oleh seorang user dengan tipe yang berbeda-beda
+[Collection(TestConstant.IntegrationTestDefinition)]
 public class AuthorizationTest : IDisposable
 {
-    private readonly MyDbFixture _fixture;
+    private readonly TestWebAppFactory _webApp;
+    private readonly CompleteTestData _testData;
 
-    public AuthorizationTest(MyDbFixture fixture)
+    public AuthorizationTest(
+        TestWebAppFactory webApp, 
+        ITestOutputHelper logger)
     {
-        _fixture = fixture;
-    }
+        _webApp = webApp;
+        _webApp.ConfigureLoggingToTestOutput(logger);
 
-    public void Test_Ketika_Pengajuannya_Statusnya_Menunggu_Maka_Non_Admin_Maka_Bisa_Delete()
+        using var db = _webApp.GetDbContext();
+        _testData = new CompleteTestSeeder(db: db).Run();
+    }
+    
+    [Fact]
+    public async Task Test_Ketika_Pengajuannya_Statusnya_Menunggu_Maka_Non_Admin_Maka_Bisa_Delete()
+    {
+        var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
+        var response = await nonAdminClient.DeleteAsync(
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[2].Id));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    public void
+        Test_Ketika_Non_Admin_Mencoba_Menghapus_Pengajuan_Orang_Lain_Yang_Statusnya_Menunggu_Maka_Tidak_Bisa_Di_Delete()
     {
         
     }
@@ -31,6 +52,6 @@ public class AuthorizationTest : IDisposable
 
     public void Dispose()
     {
-        _fixture.Cleanup();
+        _webApp.Cleanup();
     }
 }
