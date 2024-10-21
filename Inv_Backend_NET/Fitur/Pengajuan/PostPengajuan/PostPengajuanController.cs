@@ -70,44 +70,6 @@ public class PostPengajuanController : ControllerBase
                     currentPengajuan: currentPengajuan
                 );
 
-                // var tipeEvent = _getPengajuanEventType.Exec(previousPengajuan, submitter);
-                // TODO: ganti dengan interceptor yang naikin versi tabel
-                // if (tipeEvent != null)
-                // {
-                //     if (tipeEvent == PengajuanEvent.UserNotifAdmin)
-                //         foreach (var admin in _db.Users.Where(user => user.IsAdmin))
-                //             _cache.SetString(admin.Username, "1");
-                //     
-                //     else
-                //         _cache.SetString(currentPengajuan.User.Username, "1");
-                // }
-
-                if (requestBody.IdPengajuan == null)
-                {
-                    var currentTanggal = _timeProvider.GetLocalNow().ToString("yyyy-MM-dd");
-
-                    var totalPengajuanByTanggal = _db
-                        .TotalPengajuanByTanggals
-                        .FirstOrDefault(x => x.Tanggal == currentTanggal);
-
-                    if (totalPengajuanByTanggal == null)
-                    {
-                        totalPengajuanByTanggal = new TotalPengajuanByTanggal
-                        {
-                            Tanggal = currentTanggal,
-                            Total = 1
-                        };
-                        _db.Add(totalPengajuanByTanggal);
-                    }
-                    else
-                    {
-                        totalPengajuanByTanggal.Total += 1;
-                        _db.Update(totalPengajuanByTanggal);
-                    }
-
-                    _db.SaveChanges();
-                }
-
                 transaction.Commit();
                 return Ok(new
                 {

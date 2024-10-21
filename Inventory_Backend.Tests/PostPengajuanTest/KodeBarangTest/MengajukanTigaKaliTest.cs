@@ -1,90 +1,83 @@
-using Inventory_Backend_NET.Database.Models;
-using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan;
+using System.Net;
+using System.Net.Http.Json;
+using FluentAssertions;
+using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
-using Inventory_Backend.Tests.TestConfiguration.Mock;
-using Inventory_Backend.Tests.TestConfiguration.Seeder;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NeoSmart.Caching.Sqlite;
+using Inventory_Backend.Tests.TestData;
+using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostPengajuanTest.KodeBarangTest;
 
-// [Collection(TestConstant.UnitTestWithDbCollection)]
-// public class MengajukanTigaKaliTest : IDisposable
-// {
-//
-//     private readonly MyDbFixture _fixture;
-//     private readonly User _admin;
-//     private readonly Pengaju _pemasok;
-//     private readonly List<Barang> _barangs;
-//     
-//     private readonly DateTimeOffset _mockDateTime = new DateTimeOffset(
-//         year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0,
-//         offset: TimeSpan.Zero
-//     );
-//     private readonly TimeZoneInfo _mockTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Jakarta");
-//     
-//     public MengajukanTigaKaliTest(
-//         MyDbFixture fixture    
-//     )
-//     {
-//         _fixture = fixture;
-//         using var db = _fixture.CreateContext();
-//
-//         (_admin , _ , _) = db.SeedThreeUser();
-//         (_pemasok , _) = db.SeedDuaPengaju();
-//         _barangs = db.SeedBarang20WithQuantity20();
-//     }
-//
-//     [Fact]
-//     public void Test_Ketika_Mengajukan_Sukses_Tiga_Kali_Maka_Setiap_Transaksi_Kode_Transaksinya_Benar()
-//     {
-//         using var db = _fixture.CreateContext();
-//
-//         var mockTimeProvider = new Mock<TimeProvider>();
-//         mockTimeProvider.Setup(p => p.GetUtcNow()).Returns(_mockDateTime);
-//         mockTimeProvider.Setup(p => p.LocalTimeZone).Returns(_mockTimeZone);
-//
-//         var controller = new PostPengajuanController(
-//             db: db,
-//             httpContextAccessor: new MockHttpContextAccessor(_admin),
-//             cache: new SqliteCache(new SqliteCacheOptions()),
-//             timeProvider: mockTimeProvider.Object
-//         );
-//
-//
-//         var results = Enumerable.Range(1, 3).Select(_ =>
-//             controller.Index(new SubmitPengajuanBody
-//             {
-//                 IdPengaju = _pemasok.Id,
-//                 BarangAjuans = new List<BarangAjuanBody>
-//                 {
-//                     new BarangAjuanBody
-//                     {
-//                         IdBarang = _barangs.First().Id,
-//                         Quantity = 1
-//                     }
-//                 }
-//             })    
-//         );
-//         Assert.All(results , result => Assert.IsType<OkObjectResult>(result));
-//
-//         var expectedKodeTransaksi = new[]
-//         {
-//             "TRX-IN-2000-01-01-001",
-//             "TRX-IN-2000-01-01-002",
-//             "TRX-IN-2000-01-01-003"
-//         };
-//
-//         var pengajuans = db.Pengajuans.ToArray();
-//         for (var i = 0 ; i < 3 ; i++)
-//             Assert.Equal(expectedKodeTransaksi[i] , pengajuans[i].KodeTransaksi);
-//
-//     }
-//
-//     public void Dispose()
-//     {
-//         _fixture.Cleanup();
-//     }
-// }
+[Collection(TestConstant.IntegrationTestDefinition)]
+public class MengajukanTigaKaliTest : IDisposable
+{
+    private readonly TestWebAppFactory _webApp;
+    private readonly BasicTestData _testData;
+
+    public MengajukanTigaKaliTest(
+        TestWebAppFactory webApp,
+        ITestOutputHelper logger)
+    {
+        _webApp = webApp;
+        _webApp.ConfigureLoggingToTestOutput(logger);
+
+        using var db = _webApp.GetDbContext();
+        _testData = new BasicTestSeeder(db: db).Run();
+    }
+
+    [Fact]
+    public async Task Test_Ketika_Mengajukan_Sukses_Tiga_Kali_Maka_Setiap_Transaksi_Kode_Transaksinya_Benar()
+    {
+        var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
+        var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
+
+        for (var i = 0; i < 2; i++)
+        {
+            var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+            {
+                IdPegaju = _testData.Pemasok.Id,
+                ListBarangAjuan = [
+                    new BarangAjuanRequest
+                    {
+                        IdBarang = _testData.ListBarang.First().Id,
+                        Quantity = 1
+                    }
+                ]
+            });
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        
+        var response2 = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+        {
+            IdPegaju = _testData.Grup.Id,
+            ListBarangAjuan = [
+            new BarangAjuanRequest
+            {
+                IdBarang = _testData.ListBarang.First().Id,
+                Quantity = 1
+            }]
+        });
+        response2.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        List<string> expectedKodeTransaksi =
+        [
+            "TRX-IN-2024-10-01-001",
+            "TRX-IN-2024-10-01-002",
+            "TRX-OUT-2024-10-01-003",
+        ];
+
+        await using var db = _webApp.GetDbContext();
+        var listPengajuan = db.Pengajuans.ToList();
+
+        for (var i = 0; i < listPengajuan.Count(); i++)
+        {
+            expectedKodeTransaksi.Should().Contain(listPengajuan[i].KodeTransaksi);
+        }
+    }
+
+    public void Dispose()
+    {
+        _webApp.Cleanup();
+    }
+}
