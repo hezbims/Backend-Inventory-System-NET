@@ -4,8 +4,8 @@ using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
 using Inventory_Backend_NET.Fitur._Model;
-using Inventory_Backend_NET.Fitur.Pengajuan._Model.Exception;
-using Inventory_Backend_NET.UseCases.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
+using Inventory_Backend_NET.Fitur.Pengajuan.DeletePengajuan._ResultObject;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,7 @@ public class DeletePengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly UpdatePengajuanUseCase _updateStock;
+    private readonly UpdateStockByPengajuanUseCase _updateStock;
     
     public DeletePengajuanController(
         MyDbContext db,
@@ -27,7 +27,7 @@ public class DeletePengajuanController : ControllerBase
     {
         _db = db;
         _httpContextAccessor = httpContextAccessor;
-        _updateStock = new UpdatePengajuanUseCase(db);
+        _updateStock = new UpdateStockByPengajuanUseCase(db);
     }
 
     [HttpDelete]

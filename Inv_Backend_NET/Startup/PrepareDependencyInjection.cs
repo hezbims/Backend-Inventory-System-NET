@@ -37,9 +37,9 @@ public static class PrepareDependencyInjection
                         builder.Configuration
                             .GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString))
                     .AddInterceptors(
-                        new CreateNewPengajuanInterceptor(
+                        new UpdateTotalPengajuanByTanggalOnCreatePengajuanInterceptor(
                             timeProvider: serviceProvider.GetRequiredService<TimeProvider>()),
-                        new PengajuanChangedInterceptor(
+                        new UpdateCacheOnPengajuanChangedInterceptor(
                             memoryCache: serviceProvider.GetRequiredService<IMemoryCache>()))
         );
 

@@ -7,6 +7,7 @@ public static class TestConstant
 
     public static class ApiEndpoints
     {
+        public const String PostPengajuan = "/api/pengajuan/add";
         public static String DeletePengajuan(int idPengajuan) => $"/api/pengajuan/delete/{idPengajuan}";
     }
 }

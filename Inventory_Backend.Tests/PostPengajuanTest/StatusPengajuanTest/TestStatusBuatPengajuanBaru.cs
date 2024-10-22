@@ -24,15 +24,14 @@ public class TestStatusBuatPengajuanBaru : IDisposable
     private readonly Barang _barang;
     private readonly string _adminToken;
     private readonly string _nonAdminToken;
-    private readonly ITestOutputHelper _logger;
     
     public TestStatusBuatPengajuanBaru(
         TestWebAppFactory webApp,
         ITestOutputHelper logger 
     )
     {
-        _logger = logger;
         _webApp = webApp;
+        _webApp.ConfigureLoggingToTestOutput(logger);
         _client = webApp.CreateClient();
 
         using (var scope = _webApp.Services.CreateScope())
@@ -49,13 +48,13 @@ public class TestStatusBuatPengajuanBaru : IDisposable
     }
 
     [Fact]
-    public async Task Test_Kalau_Admin_Yang_Buat_Pengajuan_Maka_Statusnya_Diterima()
+    public async Task Test_Admin_Bisa_Buat_Pengajuan_Yang_Langsung_Diterima()
     {
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer" , _adminToken);
         
         var response = await _client.PostAsJsonAsync(
             "/api/pengajuan/add", 
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = _grup.Id,
                 ListBarangAjuan = new List<BarangAjuanRequest>
@@ -66,9 +65,9 @@ public class TestStatusBuatPengajuanBaru : IDisposable
                         Quantity = 1,
                         Keterangan = ""
                     }
-                }
+                },
+                StatusPengajuanString = StatusPengajuan.DiterimaValue
             });
-        
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await using var db = _webApp.GetDbContext();
@@ -86,7 +85,7 @@ public class TestStatusBuatPengajuanBaru : IDisposable
 
         var response = await _client.PostAsJsonAsync(
             "/api/pengajuan/add",
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = _grup.Id,
                 ListBarangAjuan = new List<BarangAjuanRequest>

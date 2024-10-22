@@ -35,6 +35,15 @@ public class StatusPengajuan
         }
     }
 
+    public static bool IsValidStatusPengajuanString(string str)
+    {
+        return str switch
+        {
+            StatusPengajuan.DiterimaValue or StatusPengajuan.DitolakValue or StatusPengajuan.MenungguValue => true,
+            _ => false
+        };
+    }
+
     /// <summary>
     ///  Mendapatkan pengajuan berdasarkan role user yang sedang mengedit atau membuat suatu pengajuan
     /// </summary>

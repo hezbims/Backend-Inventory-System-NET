@@ -9,10 +9,10 @@ namespace Inventory_Backend_NET.Database.Interceptor;
 /// <summary>
 /// Memastikan total pengajuan by tanggals terupdate ketika ada pengajuan baru 
 /// </summary>
-public class CreateNewPengajuanInterceptor : SaveChangesInterceptor
+public class UpdateTotalPengajuanByTanggalOnCreatePengajuanInterceptor : SaveChangesInterceptor
 {
     private readonly TimeProvider _timeProvider; 
-    public CreateNewPengajuanInterceptor(TimeProvider timeProvider)
+    public UpdateTotalPengajuanByTanggalOnCreatePengajuanInterceptor(TimeProvider timeProvider)
     {
         _timeProvider = timeProvider;
     }

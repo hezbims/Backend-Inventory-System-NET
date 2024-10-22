@@ -1,8 +1,9 @@
 using System.Text.Json.Serialization;
+using Inventory_Backend_NET.Database.Models;
 
 namespace Inventory_Backend.Tests.PostPengajuanTest.Model;
 
-public record CreatePengajuanRequest
+public record PostPengajuanRequest
 {
     [JsonPropertyName("id")] 
     public int? IdPengajuan { get; init; } = null;
@@ -11,7 +12,10 @@ public record CreatePengajuanRequest
     public required int IdPegaju { get; init; }
     
     [JsonPropertyName("list_barang_ajuan")]
-    public required List<BarangAjuanRequest> ListBarangAjuan { get; init; } 
+    public required List<BarangAjuanRequest> ListBarangAjuan { get; init; }
+
+    [JsonPropertyName("status_pengajuan")]
+    public string? StatusPengajuanString { get; init; }
 }
 
 public record BarangAjuanRequest

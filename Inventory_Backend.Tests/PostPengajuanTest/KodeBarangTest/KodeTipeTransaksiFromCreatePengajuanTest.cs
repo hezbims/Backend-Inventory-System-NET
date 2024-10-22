@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -37,7 +38,7 @@ public class KodeTipeTransaksiFromCreatePengajuanTest : IDisposable
         
         var response = await adminClient.PostAsJsonAsync(
             "/api/pengajuan/add",
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = _testData.Pemasok.Id,
                 ListBarangAjuan = [
@@ -47,7 +48,8 @@ public class KodeTipeTransaksiFromCreatePengajuanTest : IDisposable
                         Quantity = 1,
                         Keterangan = ""
                     }
-                ]
+                ],
+                StatusPengajuanString = StatusPengajuan.DiterimaValue
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -63,12 +65,11 @@ public class KodeTipeTransaksiFromCreatePengajuanTest : IDisposable
     [Fact]
     public async Task Test_Ketika_Pengajuannya_Pengeluaran_Maka_Kodenya_Out()
     {
-        await using var db = _webApp.GetDbContext();
         var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
         
         var response = await nonAdminClient.PostAsJsonAsync(
             "/api/pengajuan/add",
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = _testData.Grup.Id,
                 ListBarangAjuan = [
@@ -78,11 +79,13 @@ public class KodeTipeTransaksiFromCreatePengajuanTest : IDisposable
                         Quantity = 1,
                         Keterangan = ""
                     }
-                ]
+                ],
+                StatusPengajuanString = null
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
+        await using var db = _webApp.GetDbContext();
         db.Pengajuans
             .Should()
             .ContainSingle()

@@ -4,9 +4,11 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
+using Inventory_Backend_NET.Fitur._Model;
 using Inventory_Backend_NET.Fitur.Logging;
+using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
 using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._Logic;
-using Inventory_Backend_NET.UseCases.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._ResultObject;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,8 +23,7 @@ public class PostPengajuanController : ControllerBase
     private readonly MyDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly UpsertCurrentPengajuanUseCase _updateOrInsertNewPengajuan;
-    private readonly UpdatePengajuanUseCase _updateStock;
-    private readonly TimeProvider _timeProvider;
+    private readonly UpdateStockByPengajuanUseCase _updateStock;
     private readonly IMyLogger _logger;
     
     public PostPengajuanController(
@@ -38,8 +39,7 @@ public class PostPengajuanController : ControllerBase
         
         _updateOrInsertNewPengajuan  = new UpsertCurrentPengajuanUseCase(
             db: db, timeProvider: timeProvider);
-        _updateStock = new UpdatePengajuanUseCase(db: db);
-        _timeProvider = timeProvider;
+        _updateStock = new UpdateStockByPengajuanUseCase(db: db);
     }
     
     [HttpPost]
@@ -51,12 +51,11 @@ public class PostPengajuanController : ControllerBase
         {
             try
             {
-                if (requestBody.BarangAjuans.IsNullOrEmpty())
-                    throw new BadHttpRequestException("Tolong ajukan minimal satu barang");
-                if (requestBody.IdPengaju == default)
-                    throw new BadHttpRequestException("Tolong pilih pengaju");
-                
                 var submitter = _db.GetCurrentUserFrom(_httpContextAccessor)!;
+                var validationResult = ValidateRequestBody(
+                    requestBody: requestBody, user: submitter);
+                if (validationResult != null)
+                    return validationResult.ToHttpJsonResponse(this);
 
                 var previousPengajuan = GetPreviousPengajuan(requestBody);
                 var currentPengajuan = _updateOrInsertNewPengajuan.By(
@@ -70,17 +69,11 @@ public class PostPengajuanController : ControllerBase
                     currentPengajuan: currentPengajuan
                 );
 
+                _db.SaveChanges();
                 transaction.Commit();
                 return Ok(new
                 {
                     message = "Sukses"
-                });
-            }
-            catch (BadHttpRequestException e)
-            {
-                return BadRequest(new
-                {
-                    message = e.Message
                 });
             }
             catch (Exception e)
@@ -109,7 +102,33 @@ public class PostPengajuanController : ControllerBase
             );
         return previousPengajuan;
     }
-        
+
+    private ResultObject? ValidateRequestBody(
+        SubmitPengajuanBody requestBody,
+        User user)
+    {
+        if (requestBody.BarangAjuans.IsNullOrEmpty())
+            return new ChooseAtLeastOneBarangAjuan();
+        if (requestBody.IdPengaju == default)
+            return new PengajuIdRequired();
+
+        if (user.IsAdmin)
+        {
+            if (requestBody.StatusPengajuan.IsNullOrEmpty())
+                return new AdminMustHaveStatusPengajuan();
+            if (!StatusPengajuan.IsValidStatusPengajuanString(requestBody.StatusPengajuan!))
+                return new StatusPengajuanValueInvalid();
+        }
+        else
+        {
+            if (requestBody.StatusPengajuan != null)
+            {
+                return new OnlyAdminCanInputPengajuanStatus();
+            }
+        }
+
+        return null;
+    }
 }
 
 
@@ -126,6 +145,9 @@ public class SubmitPengajuanBody
     
     [JsonPropertyName("list_barang_ajuan")]
     public ICollection<BarangAjuanBody>? BarangAjuans { get; set; }
+    
+    [JsonPropertyName("status_pengajuan")]
+    public string? StatusPengajuan { get; set; }
 }
 
 public class BarangAjuanBody

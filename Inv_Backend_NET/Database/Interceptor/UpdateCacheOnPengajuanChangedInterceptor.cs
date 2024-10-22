@@ -7,10 +7,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Database.Interceptor;
 
-public class PengajuanChangedInterceptor : SaveChangesInterceptor
+public class UpdateCacheOnPengajuanChangedInterceptor : SaveChangesInterceptor
 {
     private readonly IMemoryCache _memoryCache;
-    public PengajuanChangedInterceptor(IMemoryCache memoryCache)
+    public UpdateCacheOnPengajuanChangedInterceptor(IMemoryCache memoryCache)
     {
         _memoryCache = memoryCache;
     }

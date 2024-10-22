@@ -34,24 +34,15 @@ public class UpsertCurrentPengajuanUseCase
             barangAjuanBody => barangAjuanBody.ToBarangAjuan()
         ).ToList();
 
-        if (currentBarangAjuans.Count == 0)
-        {
-            throw new BadHttpRequestException("Tolong ajukan minimal satu barang!");
-        }
-
         
         User pemilikPengajuan = previousPengajuan?.User ?? submitter;
 
-        
-        StatusPengajuan statusPengajuan;
 
-        int totalQuantityOfCurrentPengajuan = requestBody.BarangAjuans!.Sum(barangAjuan => barangAjuan.Quantity);
-        if (!submitter.IsAdmin && totalQuantityOfCurrentPengajuan == 0)
-            throw new BadHttpRequestException("Tidak boleh mengajukan dengan total quantity 0");
-        if (previousPengajuan != null && totalQuantityOfCurrentPengajuan == 0)
-            statusPengajuan = StatusPengajuan.Ditolak;
+        StatusPengajuan statusPengajuan;
+        if (requestBody.StatusPengajuan == null)
+            statusPengajuan = StatusPengajuan.Menunggu;
         else
-            statusPengajuan = StatusPengajuan.GetByEditor(submitter);
+            statusPengajuan = StatusPengajuan.From(requestBody.StatusPengajuan);
 
         var createdAt =
             previousPengajuan?.WaktuPengajuan ??

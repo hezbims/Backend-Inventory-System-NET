@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -34,7 +35,7 @@ public class MengajukanTigaKaliTest : IDisposable
 
         for (var i = 0; i < 2; i++)
         {
-            var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+            var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new PostPengajuanRequest
             {
                 IdPegaju = _testData.Pemasok.Id,
                 ListBarangAjuan = [
@@ -43,12 +44,13 @@ public class MengajukanTigaKaliTest : IDisposable
                         IdBarang = _testData.ListBarang.First().Id,
                         Quantity = 1
                     }
-                ]
+                ],
+                StatusPengajuanString = StatusPengajuan.DiterimaValue
             });
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         
-        var response2 = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+        var response2 = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add", new PostPengajuanRequest
         {
             IdPegaju = _testData.Grup.Id,
             ListBarangAjuan = [

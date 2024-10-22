@@ -30,7 +30,7 @@ public class StockQuantityAfterDeleteTest : IDisposable
         var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
 
         var response = await adminClient.DeleteAsync(
-            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[2].Id));
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[0].Id));
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var db = _webApp.GetDbContext();

@@ -42,7 +42,7 @@ public class EditPengajuanKodeTransaksiUnchangedTest : IDisposable
         var client = _webApp.GetAuthorizedClient(userId: oldPengajuan.User.Id);
         var response = await client.PostAsJsonAsync(
             "/api/pengajuan/add",
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = oldPengajuan.PengajuId,
                 IdPengajuan = oldPengajuan.Id,

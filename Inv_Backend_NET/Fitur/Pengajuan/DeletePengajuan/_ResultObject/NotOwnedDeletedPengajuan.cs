@@ -1,7 +1,7 @@
 using System.Net;
 using Inventory_Backend_NET.Fitur._Model;
 
-namespace Inventory_Backend_NET.Fitur.Pengajuan._Model.Exception;
+namespace Inventory_Backend_NET.Fitur.Pengajuan.DeletePengajuan._ResultObject;
 
 /// <summary>
 /// Keluar ketika user biasa mencoba menghapus pengajuan yang bukan miliknya. Hanya user admin yang dapat menghapus pengajuan yang bukan miliknya.

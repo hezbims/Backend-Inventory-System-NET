@@ -5,7 +5,6 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
-using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -95,6 +95,13 @@ public record CompleteTestData
     public required List<Barang> ListBarang { get; init; }
     public required Pengaju Grup { get; init; }
     public required Pengaju Pemasok { get; init; }
+    
+    /// <summary>
+    /// <ul>
+    /// <li>3 Pengajuan pertama adalah pengeluaran, statusnya masing-masing adalah Diterima, Ditolak, dan Menunggu</li>
+    /// <li>Pengajuan terakhir adalah pemasukan, statusnya diterima</li>
+    /// </ul>
+    /// </summary>
     public required List<Pengajuan> ListPengajuan { get; init; }
 
     public static CompleteTestData CreateFrom(MyDbContext db)

@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Fitur._Logic.Extension;
-using Inventory_Backend_NET.UseCases.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Fitur.Kategori.PostNewKategori;

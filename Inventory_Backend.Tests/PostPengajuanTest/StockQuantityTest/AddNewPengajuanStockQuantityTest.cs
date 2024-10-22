@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -31,11 +32,11 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
 
     [Fact]
     public async Task
-        Test_Ketika_Submit_Pengajuan_Baru_Dengan_Pengaju_Tipe_Grup_Berhasil_Maka_Current_Stock_Akan_Berkurang()
+        Test_Ketika_Non_Admin_Submit_Pengajuan_Baru_Maka_Stock_Barang_Akan_Tetap()
     {
         var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
 
-        var response = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+        var response = await nonAdminClient.PostAsJsonAsync("/api/pengajuan/add", new PostPengajuanRequest
         {
             IdPegaju = _testData.Grup.Id,
             ListBarangAjuan =
@@ -58,7 +59,7 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
         await using var db = _webApp.GetDbContext();
 
         var newListBarang = db.Barangs.ToList();
-        List<int> expectedQuantities = [10, 8, 10, 10, 7];
+        List<int> expectedQuantities = [10, 10, 10, 10, 10];
 
         for (var i = 0; i < expectedQuantities.Count; i++)
         {
@@ -68,10 +69,10 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
 
     [Fact]
     public async Task 
-        Test_Ketika_Submit_Pengajuan_Baru_Dengan_Pengaju_Tipe_Pemasok_Berhasil_Maka_Current_Stock_Akan_Bertambah(){
+        Test_Ketika_Admin_Submit_Pengajuan_Dengan_Tipe_Pemasok_Maka_Stock_Akan_Bertambah(){
         var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
 
-        var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new CreatePengajuanRequest
+        var response = await adminClient.PostAsJsonAsync("/api/pengajuan/add", new PostPengajuanRequest
         {
             IdPegaju = _testData.Pemasok.Id,
             ListBarangAjuan =
@@ -86,7 +87,8 @@ public class AddNewPengajuanStockQuantityTest : IDisposable
                     Quantity = 2,
                     IdBarang = _testData.ListBarang[3].Id
                 }
-            ]
+            ],
+            StatusPengajuanString = StatusPengajuan.DiterimaValue
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

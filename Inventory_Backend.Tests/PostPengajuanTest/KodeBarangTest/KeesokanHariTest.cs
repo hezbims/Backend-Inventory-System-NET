@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.PostPengajuanTest.Model;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -34,7 +35,7 @@ public class KeesokanHariTest : IDisposable
         TestTimeProvider.Instance.AddDays(1);
         var response = await client.PostAsJsonAsync(
             "/api/pengajuan/add",
-            new CreatePengajuanRequest
+            new PostPengajuanRequest
             {
                 IdPegaju = db.Pengajus.First(pengaju => pengaju.IsPemasok).Id,
                 ListBarangAjuan = new List<BarangAjuanRequest>
@@ -45,7 +46,8 @@ public class KeesokanHariTest : IDisposable
                         Keterangan = "",
                         Quantity = 1
                     }
-                }
+                },
+                StatusPengajuanString = StatusPengajuan.DiterimaValue
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
