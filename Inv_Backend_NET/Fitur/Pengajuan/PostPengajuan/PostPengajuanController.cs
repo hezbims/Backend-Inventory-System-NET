@@ -7,6 +7,7 @@ using Inventory_Backend_NET.Fitur._Logic.Extension;
 using Inventory_Backend_NET.Fitur._Model;
 using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Fitur.Pengajuan._Logic;
+using Inventory_Backend_NET.Fitur.Pengajuan.DeletePengajuan._ResultObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._Logic;
 using Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan._ResultObject;
 using Microsoft.AspNetCore.Authorization;
@@ -52,12 +53,15 @@ public class PostPengajuanController : ControllerBase
             try
             {
                 var submitter = _db.GetCurrentUserFrom(_httpContextAccessor)!;
+                
+                var previousPengajuan = GetPreviousPengajuan(requestBody);
                 var validationResult = ValidateRequestBody(
-                    requestBody: requestBody, user: submitter);
+                    requestBody: requestBody,
+                    previousPengajuan: previousPengajuan,
+                    user: submitter);
                 if (validationResult != null)
                     return validationResult.ToHttpJsonResponse(this);
-
-                var previousPengajuan = GetPreviousPengajuan(requestBody);
+                
                 var currentPengajuan = _updateOrInsertNewPengajuan.By(
                     previousPengajuan, 
                     requestBody, 
@@ -93,10 +97,13 @@ public class PostPengajuanController : ControllerBase
     
     private Database.Models.Pengajuan? GetPreviousPengajuan(SubmitPengajuanBody requestBody)
     {
+        if (requestBody.IdPengajuan is null)
+            return null;
         var previousPengajuan = _db.Pengajuans
             .Include(pengajuan => pengajuan.User)
             .Include(pengajuan => pengajuan.Pengaju)
             .Include(pengajuan => pengajuan.BarangAjuans)
+            .AsSplitQuery()
             .FirstOrDefault(
                 pengajuan => pengajuan.Id == requestBody.IdPengajuan
             );
@@ -105,6 +112,7 @@ public class PostPengajuanController : ControllerBase
 
     private ResultObject? ValidateRequestBody(
         SubmitPengajuanBody requestBody,
+        Database.Models.Pengajuan? previousPengajuan,
         User user)
     {
         if (requestBody.BarangAjuans.IsNullOrEmpty())
@@ -122,10 +130,14 @@ public class PostPengajuanController : ControllerBase
         else
         {
             if (requestBody.StatusPengajuan != null)
-            {
                 return new OnlyAdminCanInputPengajuanStatus();
-            }
+            if (previousPengajuan?.Status == StatusPengajuan.Diterima ||
+                previousPengajuan?.Status == StatusPengajuan.Ditolak)
+                return new NonAdminCanNotEditAcceptedOrRejectedPengajuan();
         }
+
+        if (previousPengajuan == null && requestBody.IdPengajuan != null)
+            return new PengajuanNotFound(requestBody.IdPengajuan);
 
         return null;
     }
