@@ -43,8 +43,20 @@ public class StockQuantityAfterDeleteTest : IDisposable
         }
     }
 
+    [Fact]
     public async Task Test_Ketika_Delete_Pengajuan_Yang_Statusnya_Menunggu_Maka_Stock_Akan_Tetap()
     {
+        var nonAdminClient = _webApp.GetAuthorizedClient(isAdmin: false);
+        
+        var response = await nonAdminClient.DeleteAsync(
+            TestConstant.ApiEndpoints.DeletePengajuan(_testData.ListPengajuan[2].Id));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var db = _webApp.GetDbContext();
+        List<int> expectedQuantities = [10, 10, 10, 10, 10];
+        var listBarang = db.Barangs.ToList();
+        for (int i = 0; i < listBarang.Count; i++)
+            listBarang[i].CurrentStock.Should().Be(expectedQuantities[i]);
     }
 
     public async Task Test_Ketika_Delete_Pengajuan_Yang_Statusnya_Ditolak_Maka_Stock_Akan_Tetap()
