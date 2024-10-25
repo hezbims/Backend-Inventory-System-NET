@@ -14,6 +14,9 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.PostPengajuanTest.StatusPengajuanTest;
 
+/// <summary>
+/// Memastikan status pengajuan yang dihasilkan dari proses pembuatan pengajuan baru sesuai ekspetasi.
+/// </summary>
 [Collection(TestConstant.IntegrationTestDefinition)]
 public class TestStatusBuatPengajuanBaru : IDisposable
 {
