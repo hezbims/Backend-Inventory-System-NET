@@ -30,8 +30,11 @@ public class TestStatusAdminEditPengajuan : IDisposable
         _testData = new CompleteTestSeeder(db: db).Run();
     }
 
-    [Fact]
-    public async Task Admin_Dapat_Mengubah_Status_Pengajuan_Dari_Menunggu_Menjadi_Diterima()
+    [Theory]
+    [InlineData(StatusPengajuan.DiterimaValue)]
+    [InlineData(StatusPengajuan.DitolakValue)]
+    public async Task Admin_Dapat_Mengubah_Status_Pengajuan_Dari_Menunggu_Menjadi_Diterima_dan_Menolak(
+        string expectedStatusPengajuan)
     {
         var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
 
@@ -50,7 +53,7 @@ public class TestStatusAdminEditPengajuan : IDisposable
                         IdBarang = previousPengajuan.BarangAjuans.First().BarangId
                     }
                 ],
-                StatusPengajuanString = StatusPengajuan.DiterimaValue
+                StatusPengajuanString = expectedStatusPengajuan
             });
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
@@ -58,7 +61,7 @@ public class TestStatusAdminEditPengajuan : IDisposable
         
         db.Pengajuans.Should().ContainSingle(pengajuan => 
             pengajuan.Id == previousPengajuan.Id &&
-            pengajuan.Status == StatusPengajuan.Diterima);
+            pengajuan.Status.Value == expectedStatusPengajuan);
     }
 
     public void Dispose()
