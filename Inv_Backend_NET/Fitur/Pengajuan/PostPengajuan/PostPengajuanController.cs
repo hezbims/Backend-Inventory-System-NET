@@ -129,11 +129,19 @@ public class PostPengajuanController : ControllerBase
         }
         else
         {
-            if (requestBody.StatusPengajuan != null)
+            if (requestBody.StatusPengajuan is not null)
                 return new OnlyAdminCanInputPengajuanStatus();
             if (previousPengajuan?.Status == StatusPengajuan.Diterima ||
                 previousPengajuan?.Status == StatusPengajuan.Ditolak)
                 return new NonAdminCanNotEditAcceptedOrRejectedPengajuan();
+        }
+
+        if (previousPengajuan?.Status == StatusPengajuan.Diterima ||
+            previousPengajuan?.Status == StatusPengajuan.Ditolak)
+        {
+            if (requestBody.StatusPengajuan is not null &&
+                previousPengajuan.Status.Value != requestBody.StatusPengajuan)
+                return new DitolakOrDiterimaPengajuanStatusCantBeChanged();
         }
 
         if (previousPengajuan == null && requestBody.IdPengajuan != null)
