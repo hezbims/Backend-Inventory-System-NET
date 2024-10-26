@@ -126,6 +126,8 @@ public class PostPengajuanController : ControllerBase
                 return new AdminMustHaveStatusPengajuan();
             if (!StatusPengajuan.IsValidStatusPengajuanString(requestBody.StatusPengajuan!))
                 return new StatusPengajuanValueInvalid();
+            if (requestBody.StatusPengajuan == StatusPengajuan.MenungguValue)
+                return new AdminCanNotEditPengajuanToWaitingStatus();
         }
         else
         {

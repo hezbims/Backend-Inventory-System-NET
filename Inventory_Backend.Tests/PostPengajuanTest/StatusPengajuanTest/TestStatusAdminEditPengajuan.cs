@@ -67,7 +67,24 @@ public class TestStatusAdminEditPengajuan : IDisposable
     [Fact]
     public async Task Test_Admin_Tidak_Dapat_Mengedit_Pengajuan_Dengan_Status_Menunggu_Ke_Status_Menunggu()
     {
+        var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
         
+        var previousPengajuan = _testData.ListPengajuan[2];
+
+        var response = await adminClient.PostAsJsonAsync(
+            TestConstant.ApiEndpoints.PostPengajuan,
+            new PostPengajuanRequest
+            {
+                IdPengajuan = previousPengajuan.Id,
+                IdPegaju = previousPengajuan.PengajuId,
+                ListBarangAjuan = [
+                new BarangAjuanRequest
+                {
+                    Quantity = 1,
+                    IdBarang = previousPengajuan.BarangAjuans.First().BarangId
+                }],
+            });
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Theory]
