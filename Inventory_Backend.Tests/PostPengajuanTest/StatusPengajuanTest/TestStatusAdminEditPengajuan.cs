@@ -64,6 +64,45 @@ public class TestStatusAdminEditPengajuan : IDisposable
             pengajuan.Status.Value == expectedStatusPengajuan);
     }
 
+    [Fact]
+    public async Task Test_Admin_Tidak_Dapat_Mengedit_Pengajuan_Dengan_Status_Menunggu_Ke_Status_Menunggu()
+    {
+        
+    }
+
+    [Theory]
+    [InlineData(StatusPengajuan.DiterimaValue, StatusPengajuan.DitolakValue)]
+    [InlineData(StatusPengajuan.DitolakValue, StatusPengajuan.DiterimaValue)]
+    [InlineData(StatusPengajuan.DitolakValue, StatusPengajuan.MenungguValue)]
+    [InlineData(StatusPengajuan.DiterimaValue, StatusPengajuan.MenungguValue)]
+    public async Task Test_Admin_Tidak_Dapat_Mengubah_Pengajuan_Yang_Statusnya_Sudah_Diterima_Atau_Ditolak(
+        string previousStatus, string nextStatus)
+    {
+        var adminClient = _webApp.GetAuthorizedClient(isAdmin: true);
+
+        var previousPengajuan = _testData.ListPengajuan.First(
+            pengajuan => pengajuan.Status.Value == previousStatus &&
+                         !pengajuan.Pengaju.IsPemasok);
+
+        var response = await adminClient.PostAsJsonAsync(
+            TestConstant.ApiEndpoints.PostPengajuan,
+            new PostPengajuanRequest
+            {
+                IdPengajuan = previousPengajuan.Id,
+                IdPegaju = previousPengajuan.PengajuId,
+                ListBarangAjuan =
+                [
+                    new BarangAjuanRequest
+                    {
+                        Quantity = 1,
+                        IdBarang = previousPengajuan.BarangAjuans.First().BarangId
+                    }
+                ],
+                StatusPengajuanString = nextStatus
+            });
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
     public void Dispose()
     {
         _webApp.Cleanup();
