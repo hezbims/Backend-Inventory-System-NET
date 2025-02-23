@@ -1,8 +1,4 @@
-
-using System.Data;
 using Inventory_Backend_NET.Database;
-using NeoSmart.Caching.Sqlite;
-using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Seeder;
 
@@ -18,7 +14,6 @@ namespace Inventory_Backend_NET.Seeder;
 /// </summary>
 public class CompleteSeeder
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly string[] _cliArgs;
     private readonly MyDbContext _db;
 
@@ -33,9 +28,8 @@ public class CompleteSeeder
         string[] cliArgs
     )
     {
-        _serviceProvider = serviceProvider;
         _cliArgs = cliArgs;
-        _db = _serviceProvider.GetService<MyDbContext>()!;
+        _db = serviceProvider.GetService<MyDbContext>()!;
 
         _tenKategoriSeeder = new TenKategoriSeeder(db: _db);
         _barangFromCsvSeeder = new BarangFromCsvSeeder(db: _db);
@@ -46,11 +40,8 @@ public class CompleteSeeder
     public void Run()
     {
         var rand = new Random(5);
-        
-        var sqliteCache = _serviceProvider.GetRequiredService<SqliteCache>();
-        sqliteCache.Clear();
 
-        // using var transaction = _db.Database.BeginTransaction();
+        using var transaction = _db.Database.BeginTransaction();
 
         var listKategori = _tenKategoriSeeder.Run();
         _threeUserSeeder.Run();
@@ -62,6 +53,6 @@ public class CompleteSeeder
             _randomPengajuanSeeder.Run(rand: rand, totalPengajuan: 37);
         }
         
-        // transaction.Commit();
+        transaction.Commit();
     }
 }

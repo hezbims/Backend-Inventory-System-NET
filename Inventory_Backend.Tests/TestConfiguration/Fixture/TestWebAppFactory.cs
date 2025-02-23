@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
@@ -50,7 +51,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
                     };
                 });
                 
-                RefreshDatabase(services);
+                DeleteDatabase(services);
             });
         
     }
@@ -67,15 +68,27 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
 
     private HttpClient GetAuthorizedClient(Func<User, bool> condition)
     {
+        var jwt = GenerateJwt(condition);
+        
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer", jwt);
+        return client;
+    }
+
+    private string GenerateJwt(Func<User, bool> condition)
+    {
         using var scope = Server.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
         var jwtService = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
         
-        var client = CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-            "Bearer", 
-            jwtService.GenerateNewToken(db.Users.First(condition)));
-        return client;
+        var user = db.Users.First(condition);
+        return jwtService.GenerateNewToken(user);
+    }
+    
+    public string GenerateJwt(bool isAdmin)
+    {
+        return GenerateJwt(user => user.IsAdmin == isAdmin);
     }
 
     public void ConfigureLoggingToTestOutput(ITestOutputHelper testOutputHelper)
@@ -83,7 +96,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
         Console.SetOut(new TestOutputWriter(testOutputHelper));
     }
 
-    public void RefreshDatabase(IServiceCollection services)
+    private void DeleteDatabase(IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
@@ -95,7 +108,12 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
     public void Cleanup()
     {
         TestTimeProvider.Instance.Reset();
-        using var context = GetDbContext();
+        
+        using var scope = Server.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+        var memCache = scope.ServiceProvider.GetRequiredService<IMemoryCache>() as MemoryCache;
+        memCache!.Clear();
+        
         context.RefreshDatabase();
     }
 
@@ -104,5 +122,5 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
         var scope = Server.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
         return db;
-    } 
+    }
 }

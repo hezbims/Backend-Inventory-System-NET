@@ -2,31 +2,20 @@ using System.Net.WebSockets;
 using System.Text;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.PengajuanEvent;
 
 [Route("ws/pengajuan/event")]
-public class PengajuanEventWebsocket : Controller
+public class PengajuanEventWebsocket(
+    MyDbContext db,
+    IJwtTokenService jwtService,
+    IMemoryCache memoryCache)
+    : Controller
 {
-    private readonly IDistributedCache _cache;
-    private readonly MyDbContext _db;
-    private readonly IJwtTokenService _jwtService;
-    
-    public PengajuanEventWebsocket(
-        IDistributedCache cache,
-        MyDbContext db,
-        IJwtTokenService jwtService
-    )
-    {
-        _cache = cache;
-        _db = db;
-        _jwtService = jwtService;
-    }
-    
     [HttpGet]
     public async Task Index()
     {
@@ -37,12 +26,7 @@ public class PengajuanEventWebsocket : Controller
 
             if (user != null)
             {
-                await SendText("Authenticated", websocket);
-                ListenAcknowledgment(
-                    webSocket: websocket,
-                    user: user
-                );
-                SendNotification(
+                await SendPengajuanTableVersionPeriodically(
                     webSocket: websocket,
                     user: user
                 );
@@ -61,79 +45,47 @@ public class PengajuanEventWebsocket : Controller
     // Autentikasi manual, user diharuskan mengirim JWT ke websocket channel
     private async Task<User?> LoadCurrentUser(WebSocket webSocket)
     {
-        var buffer = new byte[1024 * 50];
-        var result = await webSocket.ReceiveAsync(
-            buffer: new ArraySegment<byte>(buffer),
-            cancellationToken: CancellationToken.None
-        );
-        if (result.MessageType == WebSocketMessageType.Text)
+        var jwt = await webSocket.ReceiveTextAsync();
+        if (jwt is not null)
         {
-            var jwt = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            var username = _jwtService.GetUsernameFromJwt(jwt);
-            
-            return _db.Users.FirstOrDefault(user => user.Username == username);
+            var username = jwtService.GetUsernameFromJwt(jwt);
+            return db.Users.FirstOrDefault(user => user.Username == username);
         }
 
         return null;
     }
 
-    private async Task ListenAcknowledgment(
-        WebSocket webSocket,
-        User user
-    )
-    {
-        var buffer = new byte[1024 * 4];
-
-        while (webSocket.State == WebSocketState.Open)
-        {
-            var result = await webSocket.ReceiveAsync(
-                buffer: new ArraySegment<byte>(buffer),
-                CancellationToken.None
-            );
-            // Kalo dapat pesan ready dari user
-            if (result.MessageType == WebSocketMessageType.Text &&
-                Encoding.UTF8.GetString(buffer, 0, result.Count) == "Ready")
-            {
-                // Remove cache yang sudah di acknowledge
-                _cache.Remove(user.Username);
-                // nandai kalo cache udah di remove, dan user boleh ngehasilin notifikasi
-                await SendText("Acknowledged", webSocket);
-            }
-            else if (result.MessageType == WebSocketMessageType.Close)
-                await webSocket.CloseAsync(
-                    closeStatus: WebSocketCloseStatus.NormalClosure, 
-                    statusDescription: string.Empty, 
-                    cancellationToken: CancellationToken.None
-                );
-        }
-    }
-
-    private async Task SendNotification(
+    private async Task SendPengajuanTableVersionPeriodically(
         WebSocket webSocket,
         User user
     )
     {
         while (true)
         {
-            var message = _cache.Get(user.Username) ?? new byte[]{};
-            if (!message.IsNullOrEmpty())
-            {
-                if (webSocket.State == WebSocketState.Aborted || webSocket.State == WebSocketState.Closed)
-                    break;
-                // Nyuruh user untuk ngekonfirmasi bahwa user siap nerima notifikasi
-                await SendText("Please Confirm", webSocket);
-            }
+            int message = memoryCache.Get<int>(
+                user.IsAdmin ? 
+                    MyConstants.CacheKeys.PengajuanTableVersionForAdmin :
+                    MyConstants.CacheKeys.PengajuanTableVersionByUser(user));
+            
+            if (webSocket.State == WebSocketState.Aborted || webSocket.State == WebSocketState.Closed)
+                break;
+            await webSocket.SendTextAsync(message: message.ToString());
 
             Thread.Sleep(5000);
         }
     }
+}
 
-    private async Task SendText(byte[] message , WebSocket webSocket)
+
+public static class PengajuanEventWebsocketExtensions
+{
+    public static async Task SendTextAsync(this WebSocket webSocket, string message)
     {
+        var messageByte = Encoding.UTF8.GetBytes(message);
         var arraySegment = new ArraySegment<byte>(
-            array: message,
+            array: messageByte,
             offset: 0,
-            count: message.Length
+            count: messageByte.Length
         );
         await webSocket.SendAsync(
             buffer: arraySegment,
@@ -142,10 +94,16 @@ public class PengajuanEventWebsocket : Controller
             cancellationToken: CancellationToken.None
         );
     }
-    
-    private async Task SendText(string message, WebSocket webSocket)
-    {
-        await SendText(Encoding.UTF8.GetBytes(message), webSocket);
-    }
 
+    public static async Task<string?> ReceiveTextAsync(this WebSocket webSocket)
+    {
+        var buffer = new byte[1024 * 50];
+        var result = await webSocket.ReceiveAsync(
+            buffer: new ArraySegment<byte>(buffer),
+            cancellationToken: CancellationToken.None
+        );
+        if (result.MessageType == WebSocketMessageType.Text)
+            return Encoding.UTF8.GetString(buffer, 0, result.Count);
+        return null;
+    }
 }

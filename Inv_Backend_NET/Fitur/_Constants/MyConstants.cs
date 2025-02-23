@@ -1,3 +1,5 @@
+using Inventory_Backend_NET.Database.Models;
+
 namespace Inventory_Backend_NET.Fitur._Constants;
 
 public static class MyConstants
@@ -16,7 +18,12 @@ public static class MyConstants
     }
     public static class CacheKeys
     {
-        public const string PengajuanTableVersion = "pengajuan_table_version";
+        public static string PengajuanTableVersionByUser(User user)
+        {
+            return $"pengajuan_table_version : {user.Id}";
+        }
+        
+        public const string PengajuanTableVersionForAdmin = "pengajuan_table_version_for_admin";
     }
 
     public static class AppSettingsKey

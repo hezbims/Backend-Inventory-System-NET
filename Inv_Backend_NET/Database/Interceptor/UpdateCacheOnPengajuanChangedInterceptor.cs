@@ -15,32 +15,37 @@ public class UpdateCacheOnPengajuanChangedInterceptor : SaveChangesInterceptor
         _memoryCache = memoryCache;
     }
 
-    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         MyDbContext? db = eventData.Context as MyDbContext;
         if (db == null)
-            return base.SavedChanges(eventData, result);
+            return base.SavingChanges(eventData, result);
 
-        var hasPengajuan = !db.ChangeTracker
+        var entries = db.ChangeTracker
             .Entries<Pengajuan>()
             .Where(entry =>
-                entry.State switch
-                {
-                    EntityState.Added or EntityState.Deleted or EntityState.Modified => true,
-                    _ => false
-                })
-            .IsNullOrEmpty();
-
+                entry.State == EntityState.Added ||
+                entry.State == EntityState.Modified ||
+                entry.State == EntityState.Deleted)
+            .ToList();
+        
+        var hasPengajuan = !entries.IsNullOrEmpty();
         if (hasPengajuan)
         {
-            var previousTableVersion = _memoryCache.Get<int>(
-                MyConstants.CacheKeys.PengajuanTableVersion);
-            
+            var user = entries.Single().Entity.User;
+            var previousTableVersionByUser = _memoryCache.Get<int>(
+                MyConstants.CacheKeys.PengajuanTableVersionByUser(user));
             _memoryCache.Set(
-                MyConstants.CacheKeys.PengajuanTableVersion,
-                previousTableVersion + 1);
+                MyConstants.CacheKeys.PengajuanTableVersionByUser(user),
+                previousTableVersionByUser + 1);
+            
+            var previousTableVersionByAdmin = _memoryCache.Get<int>(
+                MyConstants.CacheKeys.PengajuanTableVersionForAdmin);
+            _memoryCache.Set(
+                MyConstants.CacheKeys.PengajuanTableVersionForAdmin,
+                previousTableVersionByAdmin + 1);
         }
         
-        return base.SavedChanges(eventData, result);
+        return base.SavingChanges(eventData, result);
     }
 }
