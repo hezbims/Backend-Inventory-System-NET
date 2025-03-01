@@ -9,14 +9,9 @@ namespace Inventory_Backend_NET.Fitur.Barang
     // TODO : Test kalo current stock yang direturn benar
     [Route("api/barang")]
     [Authorize(policy: MyConstants.Policies.AllUsers)]
-    public class BarangController : Controller
+    public class BarangController(GetBarangsQuery getBarangsQuery) : Controller
     {
-        private readonly GetBarangsQuery _getBarangsQuery;
-        public BarangController(
-            GetBarangsQuery getBarangsQuery)
-        {
-            _getBarangsQuery = getBarangsQuery;
-        }
+        private readonly GetBarangsQuery _getBarangsQuery = getBarangsQuery;
 
         [HttpGet]
         public IActionResult Get(

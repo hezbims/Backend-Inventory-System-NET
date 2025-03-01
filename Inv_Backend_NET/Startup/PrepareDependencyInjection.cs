@@ -4,6 +4,7 @@ using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Barang._Dependency;
 using Inventory_Backend_NET.Fitur.Logging;
+using Inventory_Backend_NET.Fitur.Pengajuan._Dependency;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,6 +16,7 @@ public static class PrepareDependencyInjection
     public static WebApplicationBuilder PrepareDependencyInjectionServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddBarangDependency();
+        builder.Services.AddPengajuanDependency();
         
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
         builder.Services.AddHttpContextAccessor();
