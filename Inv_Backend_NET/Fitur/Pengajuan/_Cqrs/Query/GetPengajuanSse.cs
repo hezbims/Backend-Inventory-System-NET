@@ -31,7 +31,8 @@ public class GetPengajuanSse(
                 currentUser.IsAdmin ? 
                     MyConstants.CacheKeys.PengajuanTableVersionForAdmin :
                     MyConstants.CacheKeys.PengajuanTableVersionByUser(currentUser));
-            await response.WriteAsync($"data:{message}\r\r", cancellationToken: cancellationToken);
+            await response.WriteAsync($"event:get-user-transaction-version\n\n", cancellationToken: cancellationToken);
+            await response.WriteAsync($"data:{message}\n\n", cancellationToken: cancellationToken);
             await response.Body.FlushAsync(cancellationToken: cancellationToken);
             
             Thread.Sleep(5000);
