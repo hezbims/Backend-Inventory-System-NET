@@ -49,6 +49,7 @@ public class CompleteTestSeeder : IDisposable
                     status: statusPengajuan,
                     user: nonAdmin,
                     createdAt: createdAt.ToUnixTimeMilliseconds(),
+                    updatedAt: createdAt.ToUnixTimeMilliseconds(),
                     kodeTransaksi: getKodeTransaksi.Run(
                         dateCreatedAt: createdAt, pengaju: group),
                     barangAjuans: new List<BarangAjuan>
@@ -67,6 +68,7 @@ public class CompleteTestSeeder : IDisposable
             status: StatusPengajuan.Diterima,
             user: admin,
             createdAt: createdAt.ToUnixTimeMilliseconds(),
+            updatedAt: createdAt.ToUnixTimeMilliseconds(),
             kodeTransaksi: getKodeTransaksi.Run(
                 dateCreatedAt: createdAt, pengaju: pemasok),
             barangAjuans:

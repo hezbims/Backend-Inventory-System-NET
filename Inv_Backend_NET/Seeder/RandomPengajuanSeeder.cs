@@ -75,7 +75,8 @@ public class RandomPengajuanSeeder
                         dateCreatedAt: dateCreatedAt,
                         pengaju: pengaju
                     ),
-                    createdAt: dateCreatedAt.ToUnixTimeMilliseconds()
+                    createdAt: dateCreatedAt.ToUnixTimeMilliseconds(),
+                    updatedAt: dateCreatedAt.ToUnixTimeMilliseconds()
                 )
             );
             _db.SaveChanges();

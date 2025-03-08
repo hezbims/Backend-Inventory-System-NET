@@ -47,6 +47,7 @@ public class UpsertCurrentPengajuanUseCase
         var createdAt =
             previousPengajuan?.WaktuPengajuan ??
             _timeProvider.GetLocalNow().ToUnixTimeMilliseconds();
+        var updatedAt = _timeProvider.GetLocalNow().ToUnixTimeMilliseconds();
         
         Database.Models.Pengajuan currentPengajuan = new Database.Models.Pengajuan(
             pengaju: currentPengaju,
@@ -55,6 +56,7 @@ public class UpsertCurrentPengajuanUseCase
             barangAjuans: currentBarangAjuans,
             id: previousPengajuan?.Id,
             createdAt: createdAt,
+            updatedAt: updatedAt,
             kodeTransaksi: _getKodeTransaksiPengajuan.Run(
                 dateCreatedAt: DateTimeOffset.FromUnixTimeMilliseconds(createdAt),
                 pengaju: currentPengaju
