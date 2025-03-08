@@ -18,5 +18,7 @@ public class PengajuanConfiguration : IEntityTypeConfiguration<Pengajuan>
         builder
             .HasIndex(e => e.KodeTransaksi)
             .IsUnique();
+        builder
+            .HasIndex(e => new { e.WaktuUpdate, e.Id });
     }
 }

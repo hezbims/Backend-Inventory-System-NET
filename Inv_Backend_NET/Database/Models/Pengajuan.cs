@@ -14,6 +14,7 @@ public class Pengajuan
     
     // Nyimpen jam dan tanggal kapan pengajuan ini terjadi dalam bentuk millisecond unix timestamp
     public long WaktuPengajuan { get; set; }
+    public long WaktuUpdate { get; set; }
     public Pengaju Pengaju { get; set; }
     public int PengajuId { get; set; }
     public StatusPengajuan Status { get; set; }
@@ -29,10 +30,12 @@ public class Pengajuan
         User user,
         ICollection<BarangAjuan> barangAjuans,
         long createdAt,
+        long updatedAt,
         String kodeTransaksi,
         int? id = null
     )
     {
+        WaktuUpdate = updatedAt;
         WaktuPengajuan = createdAt;
         KodeTransaksi = kodeTransaksi;
         Pengaju = pengaju;
