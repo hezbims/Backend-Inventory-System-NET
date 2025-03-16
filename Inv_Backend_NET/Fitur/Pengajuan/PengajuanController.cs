@@ -1,5 +1,6 @@
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur.Pengajuan._Cqrs.Query;
+using Inventory_Backend_NET.Fitur.Pengajuan._Dto.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,14 +9,22 @@ namespace Inventory_Backend_NET.Fitur.Pengajuan;
 [Route("api/pengajuan")]
 [Authorize(policy : MyConstants.Policies.AllUsers)]
 public class PengajuanController(
-    GetPengajuanSse getPengajuanSse)
+    GetPengajuanSse getPengajuanSse,
+    GetPengajuans getPengajuans)
     : Controller
 {
-    private readonly GetPengajuanSse _getPengajuanSse = getPengajuanSse;
 
+    [HttpGet]
+    public async Task<IActionResult> GetPengajuans(
+        GetPengajuansRequestParams requestParams,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await getPengajuans.Execute(requestParams, cancellationToken));
+    }
+    
     [HttpGet("event")]
     public async Task GetPengajuanServerSentEvent(CancellationToken cancellationToken)
     {
-        await _getPengajuanSse.Execute(cancellationToken: cancellationToken);
+        await getPengajuanSse.Execute(cancellationToken: cancellationToken);
     }
 }

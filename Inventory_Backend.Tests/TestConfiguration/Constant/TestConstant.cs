@@ -9,5 +9,7 @@ public static class TestConstant
     {
         public const String PostPengajuan = "/api/pengajuan/add";
         public static String DeletePengajuan(int idPengajuan) => $"/api/pengajuan/delete/{idPengajuan}";
+        
+        public const string GetPengajuansV2 = "/api/pengajuan";
     }
 }

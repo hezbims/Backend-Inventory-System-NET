@@ -37,7 +37,7 @@ namespace Inventory_Backend_NET.Fitur.Autentikasi.Login
                 {
                     message = "Sukses",
                     token = _jwtTokenService.GenerateNewToken(currentUser),
-                    user = UserDto.From(currentUser)
+                    user = GetUserDto.From(currentUser)
                 });
             }
         }

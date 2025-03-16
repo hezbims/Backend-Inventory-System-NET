@@ -4,7 +4,7 @@ namespace Inventory_Backend_NET.Fitur._Constants;
 
 public static class MyConstants
 {
-    public const int PageSize  = 15;
+    public const int DefaultPageSize  = 50;
     public static class Roles
     {
         public const string Admin = "Admin";

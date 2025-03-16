@@ -30,7 +30,7 @@ public class GetCurrentUserController : ControllerBase
     public IActionResult GetCurrentUser()
     {
         var user = _db.GetCurrentUserFrom(_httpContextAccessor);
-        var userDto = UserDto.From(user);
+        var userDto = GetUserDto.From(user);
         
         return Ok(new
         {

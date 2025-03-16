@@ -18,7 +18,7 @@ public class GetPengajuanSse(
     {
         HttpResponse response = _httpContextAccessor.HttpContext?.Response ??
             throw new InvalidOperationException("HttpContext was null");
-        User currentUser = _dbContext.GetCurrentUserFrom(_httpContextAccessor) ??
+        User currentUser = await _dbContext.GetCurrentUserFromAsync(_httpContextAccessor, cancellationToken) ??
             throw new UnauthorizedAccessException();
         
         response.ContentType = "text/event-stream";
@@ -35,7 +35,7 @@ public class GetPengajuanSse(
             await response.WriteAsync($"data:{message}\n\n", cancellationToken: cancellationToken);
             await response.Body.FlushAsync(cancellationToken: cancellationToken);
             
-            Thread.Sleep(5000);
+            await Task.Delay(5000, cancellationToken);
         }
     }
 }
