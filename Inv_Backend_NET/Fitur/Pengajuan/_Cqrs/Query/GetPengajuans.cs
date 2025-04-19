@@ -47,8 +47,8 @@ public class GetPengajuans(
         if (!requestParams.SearchKeyword.IsNullOrEmpty())
         {
             query = query.Where(data =>
-                EF.Functions.Contains(data.pengajuan.KodeTransaksi, requestParams.SearchKeyword) ||
-                EF.Functions.Contains(data.pengaju.Nama , requestParams.SearchKeyword));
+                EF.Functions.Contains(data.pengajuan.KodeTransaksi, $"\"{requestParams.SearchKeyword}\"") ||
+                EF.Functions.Contains(data.pengaju.Nama , $"\"{requestParams.SearchKeyword}\""));
         }
         if (requestParams.IdPengaju != null)
         {

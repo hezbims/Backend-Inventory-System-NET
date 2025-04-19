@@ -50,7 +50,7 @@ public class CompleteSeeder
 
         if (!_cliArgs.Contains("no-pengajuan"))
         {
-            _randomPengajuanSeeder.Run(rand: rand, totalPengajuan: 37);
+            _randomPengajuanSeeder.Run(rand: rand, totalPengajuan: 200);
         }
         
         transaction.Commit();

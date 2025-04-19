@@ -46,7 +46,7 @@ namespace Inventory_Backend_NET.Migrations
 
                 IF EXISTS (SELECT * FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID('Pengajuans'))
                 DROP FULLTEXT INDEX ON Pengajuans;
-            ");
+            ", true);
         }
     }
 }
