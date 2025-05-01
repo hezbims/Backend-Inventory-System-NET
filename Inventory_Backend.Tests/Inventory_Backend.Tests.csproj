@@ -76,11 +76,19 @@
     <None Update="appsettings.Test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Fitur\Product\_Preparation\Assets\two_product_with_same_code.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Fitur\Pengajuan\" />
     <Folder Include="Fitur\Pengajuan\GetPengajuanTest\_Preparation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Fitur\Product\_Preparation\TestAssets\two_product_with_same_code.csv" />
+    <ClInclude Include="Fitur\Product\_Preparation\Assets\two_product_with_same_code.csv" />
   </ItemGroup>
 
 </Project>

@@ -17,6 +17,14 @@ public class TestAssetsUtils
         );
         return formFile;
     }
+    
+    /// <param name="path">Path relative dari root test project folder</param>
+    public static StreamContent GetFileStream(string path)
+    {
+        string fullPath = Path.Combine(Directory.GetCurrentDirectory(), path);
+        FileStream fileStream = File.OpenRead(path: fullPath);
+        return new StreamContent(fileStream);
+    }
 
     public static IFormFile GetDuaBarangSamaCsv()
     {

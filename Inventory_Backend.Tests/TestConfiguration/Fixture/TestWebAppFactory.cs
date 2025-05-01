@@ -123,20 +123,9 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
     /// - <c>Memory cache</c><br></br>
     /// - <c>TestTimeProvider</c><br></br>
     /// </summary>
-    public void Cleanup()
+    public void Cleanup(IServiceScope? scope = null)
     {
-        TestTimeProvider.Instance.Reset();
-
-        using var scope = Server.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-        var memCache = scope.ServiceProvider.GetRequiredService<IMemoryCache>() as MemoryCache;
-        memCache!.Clear();
-
-        context.RefreshDatabase();
-    }
-
-    public void Cleanup(IServiceScope scope)
-    {
+        scope ??= Server.Services.CreateScope();
         TestTimeProvider.Instance.Reset();
         
         var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();

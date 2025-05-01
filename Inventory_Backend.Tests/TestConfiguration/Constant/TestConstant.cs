@@ -7,6 +7,11 @@ public static class TestConstant
 
     public static class ApiEndpoints
     {
+        public static class Product
+        {
+            public const string PostCsv = "/api/barang/submit-csv";
+        }
+        
         public const String PostPengajuan = "/api/pengajuan/add";
         public static String DeletePengajuan(int idPengajuan) => $"/api/pengajuan/delete/{idPengajuan}";
         
