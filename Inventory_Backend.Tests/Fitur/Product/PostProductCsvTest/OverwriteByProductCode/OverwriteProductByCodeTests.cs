@@ -1,14 +1,16 @@
 using System.Net;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend.Tests.TestConfiguration;
-using Inventory_Backend.Tests.TestConfiguration.CollectionDefinition;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
-namespace Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest;
+namespace Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest.OverwriteByProductCode;
 
+/// <summary>
+/// Memastikan bisa mencegah atau menimpa data product dengan kode yang sama
+/// </summary>
 [Collection(TestConstant.IntegrationTestDefinition)]
 public class OverwriteProductByCodeTests : IDisposable
 {
@@ -32,7 +34,7 @@ public class OverwriteProductByCodeTests : IDisposable
         await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
-            "Fitur/Product/_Preparation/Assets/two_product_with_same_code.csv");
+            "./Fitur/Product/PostProductCsvTest/OverwriteByProductCode/_Preparation/two_product_with_same_code.csv");
         
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("true"), "overwrite_by_kode_barang");
@@ -66,7 +68,7 @@ public class OverwriteProductByCodeTests : IDisposable
         await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
-            "Fitur/Product/_Preparation/Assets/two_product_with_same_code.csv");
+            "./Fitur/Product/PostProductCsvTest/OverwriteByProductCode/_Preparation/two_product_with_same_code.csv");
         
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("false"), "overwrite_by_kode_barang");
