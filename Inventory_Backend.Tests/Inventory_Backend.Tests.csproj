@@ -85,12 +85,14 @@
     <None Update="Fitur\Product\PostProductCsvTest\ProductNameConflict\_Preparation\same_code_same_name.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Fitur\Product\PostProductCsvTest\CategoryNameSame\_Preparation\has_overlapping_category.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Fitur\Pengajuan\" />
     <Folder Include="Fitur\Pengajuan\GetPengajuanTest\_Preparation\" />
-    <Folder Include="Fitur\Product\PostProductCsvTest\CategoryNameSame\" />
   </ItemGroup>
 
 </Project>
