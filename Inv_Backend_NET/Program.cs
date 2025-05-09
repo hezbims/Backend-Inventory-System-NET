@@ -16,7 +16,9 @@ public class Program
             .PrepareSwaggerWithJwtInputService()
             .PrepareAuthenticationServices()
             .PrepareCorsServices()
-            .PrepareSpaServices();
+            .PrepareSpaServices()
+            .PrepareMonitongServices()
+            .PrepareExceptionHandlingServices();
 
 
 
@@ -35,6 +37,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseCors();
         app.UseAuthorization();
+        app.UseExceptionHandler();
         app.MapControllers();
         app.PrepareSpaServices();
 

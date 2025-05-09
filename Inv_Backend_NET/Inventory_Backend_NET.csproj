@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantGlobalization>false</InvariantGlobalization>
     <UserSecretsId>bbfffc45-0ba5-4ea6-ae45-ad3ac664a451</UserSecretsId>
   </PropertyGroup>
 
@@ -22,6 +22,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.0.3" />
     <PackageReference Include="NeoSmart.Caching.Sqlite.AspNetCore" Version="7.0.2" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
   </ItemGroup>
@@ -29,6 +31,7 @@
   <ItemGroup>
     <Folder Include="Cache\" />
     <Folder Include="Fitur\Barang\GetTemplateBarangCsv\_Logic\" />
+    <Folder Include="log\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
