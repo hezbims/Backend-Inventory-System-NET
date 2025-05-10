@@ -46,9 +46,14 @@ public class GetPengajuans(
         
         if (!requestParams.SearchKeyword.IsNullOrEmpty())
         {
+            string escapedSearchKeyword = requestParams.SearchKeyword
+                .Replace("\\", "\\\\") 
+                .Replace("%", "\\%")
+                .Replace("_", "\\_")
+                .Replace("[", "\\["); 
             query = query.Where(data =>
-                EF.Functions.Contains(data.pengajuan.KodeTransaksi, $"\"{requestParams.SearchKeyword}\"") ||
-                EF.Functions.Contains(data.pengaju.Nama , $"\"{requestParams.SearchKeyword}\""));
+                EF.Functions.Like(data.pengajuan.KodeTransaksi, $"%{escapedSearchKeyword}%") ||
+                EF.Functions.Like(data.pengaju.Nama , $"%{escapedSearchKeyword}%"));
         }
         if (requestParams.IdPengaju != null)
         {
