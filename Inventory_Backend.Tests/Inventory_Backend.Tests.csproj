@@ -94,6 +94,9 @@
     <None Update="Fitur\Product\PostProductCsvTest\InvalidHeader\_Preparation\partially_incorrect_headers.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Fitur\Product\PostProductCsvTest\InvalidRowData\_Preparation\invalid_field.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
