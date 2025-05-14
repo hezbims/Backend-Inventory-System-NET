@@ -100,8 +100,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Fitur\Pengajuan\" />
-    <Folder Include="Fitur\Pengajuan\GetPengajuanTest\_Preparation\" />
+    <Folder Include="Fitur\Transaction\GetPengajuanTest\_Preparation\" />
   </ItemGroup>
 
 </Project>

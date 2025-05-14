@@ -1,4 +1,4 @@
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
 
 public record UserDto(
-    int UserAssignedId, bool IsAssigned, bool IsAdmin);
+    int Id, bool IsAdmin);

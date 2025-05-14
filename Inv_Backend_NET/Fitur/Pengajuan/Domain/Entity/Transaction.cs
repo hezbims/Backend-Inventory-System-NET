@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 
-using CreateTransactionResult = Result<Transaction, List<IBaseTransactionDomainError>>;
+using CreateTransactionResult = Result<(Transaction, IReadOnlyList<ProductQuantityChangedEvent>), List<IBaseTransactionDomainError>>;
 using PatchTransactionResult = Result<IReadOnlyList<ProductQuantityChangedEvent>, List<IBaseTransactionDomainError>>;
 public class Transaction
 {
@@ -29,6 +29,7 @@ public class Transaction
         Id = id;
         TransactionTime = transactionTime;
         StakeholderId = stakeholderId;
+        TransactionType = transactionType;
         Status = status;
         CreatorId = creatorId;
         TransactionItems = transactionItems;
@@ -37,10 +38,13 @@ public class Transaction
 
     public static CreateTransactionResult CreateNew(CreateNewTransactionDto dto)
     {
+        List<IBaseTransactionDomainError> errors = [];
         if (!dto.Creator.IsAdmin && dto.TransactionType == TransactionType.In)
-            return new CreateTransactionResult.Failed([
-                new UserNonAdminShouldNotCreateTransactionOfTypeInError()
-            ]);
+            errors.Add(new UserNonAdminShouldNotCreateTransactionOfTypeInError());
+        if (dto.TransactionItems.IsNullOrEmpty())
+            errors.Add(new TransactionItemsShouldNotBeEmptyError());
+        if (!errors.IsNullOrEmpty())
+            return new CreateTransactionResult.Failed(errors);
         
         IReadOnlyList<TransactionItem> transactionItems = dto.TransactionItems.ToTransactionItemEntities();
         Transaction newlyCreatedTransaction = new Transaction(
@@ -49,10 +53,10 @@ public class Transaction
             transactionTime: dto.TransactionTime,
             stakeholderId: dto.StakeholderId,
             status: dto.Creator.IsAdmin ? TransactionStatus.Accepted : TransactionStatus.Waiting,
-            creatorId: dto.Creator.UserAssignedId,
+            creatorId: dto.Creator.Id,
             transactionItems: transactionItems);
         
-        return new CreateTransactionResult.Succeed(newlyCreatedTransaction);
+        return new CreateTransactionResult.Succeed((newlyCreatedTransaction, []));
     }
 
     public PatchTransactionResult AcceptTransaction(AcceptTransactionDto dto)
