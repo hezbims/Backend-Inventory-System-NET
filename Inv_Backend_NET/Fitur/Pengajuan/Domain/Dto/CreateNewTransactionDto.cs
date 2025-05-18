@@ -1,5 +1,4 @@
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
 
@@ -8,4 +7,5 @@ public record CreateNewTransactionDto(
     long TransactionTime,
     int StakeholderId,
     UserDto Creator,
-    IReadOnlyList<TransactionItemDto> TransactionItems);
+    IReadOnlyList<TransactionItemDto> TransactionItems,
+    UserDto? AssignedUser = null);

@@ -49,9 +49,10 @@ public class NonAdminCreateNewTransactionTest
         Assert.Equal(0, transaction.Id);
         Assert.Equal(1_000_200L, transaction.TransactionTime);
         Assert.Equal(1, transaction.StakeholderId);
-        Assert.Equal(TransactionType.Out, transaction.TransactionType);
+        Assert.Equal(TransactionType.Out, transaction.Type);
         Assert.Equal(TransactionStatus.Waiting, transaction.Status);
         Assert.Equal(_nonAdmin.Id, transaction.CreatorId);
+        Assert.Equal(_nonAdmin.Id, transaction.AssignedUserId);
         
         Assert.Equal(0, transaction.TransactionItems[0].Id);
         Assert.Equal(1, transaction.TransactionItems[0].ProductId);
