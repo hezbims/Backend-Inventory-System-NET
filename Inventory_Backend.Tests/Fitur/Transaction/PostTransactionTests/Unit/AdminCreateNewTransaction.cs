@@ -1,6 +1,7 @@
 ﻿using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend.Tests.Fitur.Transaction.PostTransactionTests.Unit;
@@ -95,5 +96,20 @@ public class AdminCreateNewTransaction
                 Assert.Equal(TransactionStatus.Prepared, transaction.Status);
             }
         }
+    }
+
+    [Fact]
+    public void ShouldNotAbleCreateTransactionWithEmptyTransactionItem()
+    {
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.Out,
+            StakeholderId: 1,
+            TransactionTime: 12,
+            Creator: _userAdmin,
+            TransactionItems: [],
+            AssignedUser: null));
+        
+        List<IBaseTransactionDomainError> errors = result.GetError();
+        Assert.Contains(errors, error => error is TransactionItemsShouldNotBeEmptyError);
     }
 }
