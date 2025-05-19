@@ -3,7 +3,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.PostTransactionTests.Unit;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 
