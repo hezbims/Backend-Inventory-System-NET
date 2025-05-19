@@ -14,8 +14,8 @@ public static class TransactionMapperExtension
         return transactionItems.Select(
             transactionItem => 
                 new ProductQuantityChangedEvent(
-                    productId: transactionItem.ProductId,
-                    quantity: transactionItem.Quantity,
-                    type: transactionType)).ToList();
+                    ProductId: transactionItem.ProductId,
+                    Quantity: transactionItem.Quantity,
+                    Type: transactionType)).ToList();
     }
 }
