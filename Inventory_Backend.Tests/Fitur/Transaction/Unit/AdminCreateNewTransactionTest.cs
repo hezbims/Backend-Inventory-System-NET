@@ -3,12 +3,13 @@ using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
+using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
 
 namespace Inventory_Backend.Tests.Fitur.Transaction.Unit;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 
-public class AdminCreateNewTransaction
+public class AdminCreateNewTransactionTest
 {
     private readonly UserDto _userAdmin = new UserDto(Id: 99, IsAdmin: true);
     private readonly UserDto _assignedNonAdminUser = new UserDto(Id: 64, IsAdmin: false);
@@ -18,7 +19,7 @@ public class AdminCreateNewTransaction
     [InlineData(TransactionType.Out)]
     public void ShouldResultingInCorrectSideEffects(TransactionType transactionType)
     {
-        List<TransactionItemDto> transactionItems =
+        IReadOnlyList<TransactionItemDto> transactionItems =
         [
             new TransactionItemDto(
                 ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
@@ -35,14 +36,8 @@ public class AdminCreateNewTransaction
             TransactionItems: transactionItems));
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = result.GetData().Item2;
-        
-        Assert.Equal(3, sideEffects.Count);
-        for (int i = 0; i < sideEffects.Count; i++)
-        {
-            Assert.Equal(transactionItems[i].Quantity, sideEffects[i].Quantity);
-            Assert.Equal(transactionItems[i].ProductId, sideEffects[i].ProductId);
-            Assert.Equal(transactionType, sideEffects[i].Type);
-        }
+
+        sideEffects.AssertAll(expectedEvents: transactionItems.ToAssertionDtos(transactionType));
     }
 
     [Theory]
@@ -54,9 +49,8 @@ public class AdminCreateNewTransaction
         TransactionType transactionType,
         bool useAssignedUser)
     {
-        List<TransactionItemDto> transactionItems = [
-            new TransactionItemDto(
-                ProductId: 25, Quantity: 7, Notes: "Humm.. 😐")];
+        IReadOnlyList<TransactionItemDto> transactionItems = [
+            new TransactionItemDto(ProductId: 25, Quantity: 7, Notes: "Humm.. 😐")];
         
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: transactionType,
@@ -67,35 +61,37 @@ public class AdminCreateNewTransaction
             AssignedUser: useAssignedUser ? _assignedNonAdminUser : null));
 
         Transaction transaction = result.GetData().Item1;
-        Assert.Equal(0, transaction.Id);
-        Assert.Equal(12, transaction.TransactionTime);
-        Assert.Equal(1, transaction.StakeholderId);
-        Assert.Equal(transactionType, transaction.Type);
-        Assert.Equal(_userAdmin.Id, transaction.CreatorId);
-        Assert.Single(transaction.TransactionItems);
-        Assert.Equal(25, transaction.TransactionItems[0].ProductId);
-        Assert.Equal(7, transaction.TransactionItems[0].Quantity);
-        Assert.Equal("Humm.. 😐", transaction.TransactionItems[0].Notes);
-
+        int expectedAssignedUserId;
+        TransactionStatus expectedTransactionStatus;
         if (!useAssignedUser)
         {
-            Assert.Equal(transaction.CreatorId, transaction.AssignedUserId);
-            Assert.Equal(TransactionStatus.Confirmed, transaction.Status);
+            expectedAssignedUserId = transaction.CreatorId;
+            expectedTransactionStatus = TransactionStatus.Confirmed;
         }
         else
         {
             // assigned user must be same as creator when transaction type is IN
             if (transactionType == TransactionType.In)
             {
-                Assert.Equal(transaction.CreatorId, transaction.AssignedUserId);
-                Assert.Equal(TransactionStatus.Confirmed, transaction.Status);
+               expectedAssignedUserId = transaction.CreatorId;
+               expectedTransactionStatus = TransactionStatus.Confirmed;
             }
             else
             {
-                Assert.Equal(_assignedNonAdminUser.Id, transaction.AssignedUserId);
-                Assert.Equal(TransactionStatus.Prepared, transaction.Status);
+                expectedAssignedUserId = _assignedNonAdminUser.Id;
+                expectedTransactionStatus = TransactionStatus.Prepared;
             }
         }
+        
+        transaction.AssertTransactionFullData(
+            id: 0, 
+            transactionTime: 12,
+            stakeholderId: 1, 
+            type: transactionType,
+            creatorId: _userAdmin.Id, 
+            assignedUserId: expectedAssignedUserId,
+            status: expectedTransactionStatus, 
+            transactionItems: transactionItems.ToAssertionDtos());
     }
 
     [Fact]
