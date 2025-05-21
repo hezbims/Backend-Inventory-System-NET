@@ -1,3 +1,3 @@
-namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
+namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 
 public class UserNonAdminShouldNotCreateTransactionOfTypeInError : IBaseTransactionDomainError;

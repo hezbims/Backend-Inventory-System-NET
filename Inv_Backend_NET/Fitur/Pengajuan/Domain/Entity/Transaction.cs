@@ -1,8 +1,14 @@
 using Inventory_Backend_NET.Common.Domain.Dto;
 using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CancelTransaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Mapper;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Microsoft.IdentityModel.Tokens;
@@ -20,11 +26,12 @@ public class Transaction
     public TransactionStatus Status { get; private set; }
     public int CreatorId { get; private set; } // User ID
     public int AssignedUserId { get; private set; }
-    public IReadOnlyList<TransactionItem> TransactionItems { get; private set; } = [];
+    public IReadOnlyList<TransactionItem> TransactionItems { get; private set; }
 
-    private Transaction(
+    public Transaction(
         int id, TransactionType type, long transactionTime, int stakeholderId,
-        TransactionStatus status, int creatorId, int assignedUserId)
+        TransactionStatus status, int creatorId, int assignedUserId,
+        List<TransactionItem>? transactionItems = null)
     {
         Id = id;
         TransactionTime = transactionTime;
@@ -33,6 +40,7 @@ public class Transaction
         Status = status;
         CreatorId = creatorId;
         AssignedUserId = assignedUserId;
+        TransactionItems = transactionItems ?? [];
     }
 
 
@@ -86,21 +94,34 @@ public class Transaction
         return new CreateTransactionResult.Succeed((newlyCreatedTransaction, sideEffects));
     }
 
-    public PatchTransactionResult AcceptTransaction(AcceptTransactionDto dto)
+    public PatchTransactionResult PrepareTransaction(PrepareTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
-        if (!dto.Acceptor.IsAdmin)
-            errors.Add(new UserNonAdminShouldNotAcceptTransactionError());
+        if (!dto.Preparator.IsAdmin)
+            errors.Add(new UserNonAdminShouldNotPrepareTransactionError());
         if (this.Status != TransactionStatus.Waiting)
-            errors.Add(new OnlyWaitingTransactionCanBeAcceptedError());
+            errors.Add(new OnlyWaitingTransactionCanBePreparedError());
+        if (dto.TransactionItems.Count != TransactionItems.Count)
+            errors.Add(new PreparedTransactionItemsSizeMustBeSameError());
+        else if (
+            dto.TransactionItems
+                .Where(item => item.Quantity < 0)
+                .Select((_, index) => index)
+                .ToList() is var negativeItems &&
+            !negativeItems.IsNullOrEmpty())
+            errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(negativeItems));
         
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
         
         Status = TransactionStatus.Prepared;
         
-        List<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
-            dto.TransactionItems.ToTransactionItemEntities(),
+        IReadOnlyList<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
+            TransactionItems.Select((item, index) => new TransactionItem(
+                id: item.Id,
+                productId: item.ProductId, 
+                quantity: dto.TransactionItems[index].Quantity,
+                notes: item.Notes)).ToList(),
             hasSideEffects: true);
         
         return new PatchTransactionResult.Succeed(sideEffects);
@@ -150,7 +171,7 @@ public class Transaction
         IReadOnlyList<TransactionItem> newTransactionItems,
         bool hasSideEffects)
     {
-        IReadOnlyList<TransactionItem> oldTransactionItems = TransactionItems;
+        var oldTransactionItems = TransactionItems;
         TransactionItems = newTransactionItems;
         
         List<ProductQuantityChangedEvent> events = [];

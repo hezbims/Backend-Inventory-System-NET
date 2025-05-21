@@ -1,6 +1,6 @@
 ﻿using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
@@ -34,13 +34,13 @@ public static class TransactionDomainAssertionUtils
     }
 
     public static void AssertAll(
-        this IReadOnlyList<ProductQuantityChangedEvent> productQuantityChangedEvents,
+        this IReadOnlyList<ProductQuantityChangedEvent> actualEvents,
         IReadOnlyList<ProductQuantityChangedEventAssertionDto> expectedEvents)
     {
-        Assert.Equal(expectedEvents.Count(), productQuantityChangedEvents.Count());
-        for (int i = 0; i < productQuantityChangedEvents.Count(); i++)
+        Assert.Equal(expectedEvents.Count(), actualEvents.Count());
+        for (int i = 0; i < actualEvents.Count(); i++)
         {
-            var actualEvent = productQuantityChangedEvents[i];
+            var actualEvent = actualEvents[i];
             var expectedEvent = expectedEvents[i];
             Assert.Equal(expectedEvent.ProductId, actualEvent.ProductId);
             Assert.Equal(expectedEvent.Quantity, actualEvent.Quantity);
@@ -52,7 +52,7 @@ public static class TransactionDomainAssertionUtils
 public static class TransactionAssertionMapper
 {
     public static List<ProductQuantityChangedEventAssertionDto> ToAssertionDtos(
-        this IEnumerable<TransactionItemDto> transactionItemDtos,
+        this IEnumerable<CreateTransactionItemDto> transactionItemDtos,
         TransactionType transactionType)
     {
         return transactionItemDtos.Select(item =>
@@ -62,7 +62,7 @@ public static class TransactionAssertionMapper
     }
     
     public static List<TransactionItemAssertionDto> ToAssertionDtos(
-        this IEnumerable<TransactionItemDto> transactionItemDtos)
+        this IEnumerable<CreateTransactionItemDto> transactionItemDtos)
     {
         return transactionItemDtos.Select(item =>
                 new TransactionItemAssertionDto(

@@ -1,7 +1,10 @@
 ﻿using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
 
@@ -19,13 +22,13 @@ public class AdminCreateNewTransactionTest
     [InlineData(TransactionType.Out)]
     public void ShouldResultingInCorrectSideEffects(TransactionType transactionType)
     {
-        IReadOnlyList<TransactionItemDto> transactionItems =
+        IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new TransactionItemDto(
+            new CreateTransactionItemDto(
                 ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
-            new TransactionItemDto(
+            new CreateTransactionItemDto(
                 ProductId: 24, Quantity: 3, Notes: ""),
-            new TransactionItemDto(
+            new CreateTransactionItemDto(
                 ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
@@ -49,8 +52,8 @@ public class AdminCreateNewTransactionTest
         TransactionType transactionType,
         bool useAssignedUser)
     {
-        IReadOnlyList<TransactionItemDto> transactionItems = [
-            new TransactionItemDto(ProductId: 25, Quantity: 7, Notes: "Humm.. 😐")];
+        IReadOnlyList<CreateTransactionItemDto> transactionItems = [
+            new CreateTransactionItemDto(ProductId: 25, Quantity: 7, Notes: "Humm.. 😐")];
         
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: transactionType,

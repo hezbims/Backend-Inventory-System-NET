@@ -7,11 +7,11 @@ public class TransactionItem
     public int Quantity { get; private init; }
     public string Notes { get; private init; }
 
-    private TransactionItem(
-        int id,
+    public TransactionItem(
         int productId,
         int quantity,
-        string notes)
+        string notes,
+        int id = 0)
     {
         Id = id;
         ProductId = productId;

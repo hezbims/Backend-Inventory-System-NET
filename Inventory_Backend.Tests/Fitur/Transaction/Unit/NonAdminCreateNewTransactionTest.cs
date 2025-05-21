@@ -1,6 +1,11 @@
 ﻿using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
 
@@ -22,8 +27,8 @@ public class NonAdminCreateNewTransactionTest
             StakeholderId: 1,
             Creator: _nonAdmin,
             TransactionItems: [
-                new TransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-                new TransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+                new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
             ]
         ));
 
@@ -34,10 +39,10 @@ public class NonAdminCreateNewTransactionTest
     [Fact]  
     public void TransactionDataShouldCreatedCorrectly()
     {
-        IReadOnlyList<TransactionItemDto> transactionItems =
+        IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new TransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-            new TransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+            new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
+            new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: TransactionType.Out,
@@ -71,8 +76,8 @@ public class NonAdminCreateNewTransactionTest
             StakeholderId: 1,
             Creator: _nonAdmin,
             TransactionItems: [
-                new TransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-                new TransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+                new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
             ]
         ));
 
