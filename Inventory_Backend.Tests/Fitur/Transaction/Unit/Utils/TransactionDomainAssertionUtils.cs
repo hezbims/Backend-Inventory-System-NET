@@ -1,6 +1,5 @@
 ﻿using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
@@ -28,7 +27,8 @@ public static class TransactionDomainAssertionUtils
            var expectedItem = transactionItems[i];
            var actualItem = transaction.TransactionItems[i];
            Assert.Equal(expectedItem.ProductId, actualItem.ProductId);
-           Assert.Equal(expectedItem.Quantity, actualItem.Quantity);
+           Assert.Equal(expectedItem.ExpectedQuantity, actualItem.ExpectedQuantity);
+           Assert.Equal(expectedItem.PreparedQuantity, actualItem.PreparedQuantity);
            Assert.Equal(expectedItem.Notes, actualItem.Notes);
         }
     }
@@ -49,30 +49,8 @@ public static class TransactionDomainAssertionUtils
     }
 }
 
-public static class TransactionAssertionMapper
-{
-    public static List<ProductQuantityChangedEventAssertionDto> ToAssertionDtos(
-        this IEnumerable<CreateTransactionItemDto> transactionItemDtos,
-        TransactionType transactionType)
-    {
-        return transactionItemDtos.Select(item =>
-            new ProductQuantityChangedEventAssertionDto(
-                ProductId: item.ProductId, Quantity: item.Quantity, Type: transactionType))
-            .ToList();
-    }
-    
-    public static List<TransactionItemAssertionDto> ToAssertionDtos(
-        this IEnumerable<CreateTransactionItemDto> transactionItemDtos)
-    {
-        return transactionItemDtos.Select(item =>
-                new TransactionItemAssertionDto(
-                    ProductId: item.ProductId, Quantity: item.Quantity, Notes: item.Notes))
-            .ToList();
-    }
-}
-
 public record TransactionItemAssertionDto(
-    int ProductId, int Quantity, string Notes);
+    int ProductId, int ExpectedQuantity, int? PreparedQuantity, string Notes);
 
 public record ProductQuantityChangedEventAssertionDto(
     int ProductId, int Quantity, TransactionType Type);

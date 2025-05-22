@@ -26,7 +26,7 @@ public class NonAdminPreparedTransaction
         
         var errors = transaction.PrepareTransaction(new PrepareTransactionDto(
                 Preparator: nonAdminUser, TransactionItems: [
-                    new PrepareTransactionItemDto(Quantity: 1),]))
+                    new PrepareTransactionItemDto(PreparedQuantity: 1),]))
             .GetError();
         Assert.Contains(errors, error => error is UserNonAdminShouldNotPrepareTransactionError);
     }

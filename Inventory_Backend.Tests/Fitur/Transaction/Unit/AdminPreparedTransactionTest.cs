@@ -34,19 +34,15 @@ public class AdminPreparedTransactionTest
     }
 
     [Fact]
-    public void Admin_Should_Be_Able_To_Prepare_Transaction_And_Produce_Correct_Side_Effects()
+    public void Admin_Should_Be_Able_To_Prepare_Waiting_Transaction_And_Produce_Correct_Side_Effects()
     {
         var sideEffects = _transaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser, TransactionItems: [
-                new PrepareTransactionItemDto(Quantity: 1),
-                new PrepareTransactionItemDto(Quantity: 0)]))
+                new PrepareTransactionItemDto(PreparedQuantity: 1),
+                new PrepareTransactionItemDto(PreparedQuantity: 0)]))
             .GetData();
         
         sideEffects.AssertAll([
-            new ProductQuantityChangedEventAssertionDto(
-                ProductId: 2, Quantity: 3, Type: TransactionType.In),
-            new ProductQuantityChangedEventAssertionDto(
-                ProductId: 3, Quantity: 4, Type: TransactionType.In),
             new ProductQuantityChangedEventAssertionDto(
                 ProductId: 2, Quantity: 1, Type: TransactionType.Out),
             new ProductQuantityChangedEventAssertionDto(
@@ -60,8 +56,8 @@ public class AdminPreparedTransactionTest
         _transaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser, TransactionItems:
             [
-                new PrepareTransactionItemDto(Quantity: 1),
-                new PrepareTransactionItemDto(Quantity: 0)
+                new PrepareTransactionItemDto(PreparedQuantity: 1),
+                new PrepareTransactionItemDto(PreparedQuantity: 0)
             ]));
         
         _transaction.AssertTransactionFullData(
@@ -74,9 +70,9 @@ public class AdminPreparedTransactionTest
             assignedUserId: _nonAdminUser.Id, 
             transactionItems: [
                 new TransactionItemAssertionDto(
-                    ProductId: 2, Quantity: 1, Notes: ""),
+                    ProductId: 2, ExpectedQuantity: 3, PreparedQuantity: 1, Notes: ""),
                 new TransactionItemAssertionDto(
-                    ProductId: 3, Quantity: 0, Notes: "ini notes"),
+                    ProductId: 3, ExpectedQuantity: 4, PreparedQuantity: 0, Notes: "ini notes"),
             ]);
     }
 
@@ -97,7 +93,12 @@ public class AdminPreparedTransactionTest
             assignedUserId: _nonAdminUser.Id,
             transactionItems: 
             [
-                new TransactionItem(productId: 2, quantity: 12, notes: "", id: 4)
+                new TransactionItem(
+                    productId: 2, 
+                    expectedQuantity: 12,
+                    preparedQuantity: status == TransactionStatus.Prepared ? 12 : null,
+                    notes: "", 
+                    id: 4)
             ]
         );
 
@@ -105,7 +106,7 @@ public class AdminPreparedTransactionTest
             Preparator: _adminUser,
             TransactionItems:
             [
-                new PrepareTransactionItemDto(Quantity: 12)
+                new PrepareTransactionItemDto(PreparedQuantity: 12)
             ])).GetError();
 
         Assert.Contains(errors, error => error is OnlyWaitingTransactionCanBePreparedError);
@@ -118,9 +119,9 @@ public class AdminPreparedTransactionTest
             Preparator: _adminUser,
             TransactionItems:
             [
-                new PrepareTransactionItemDto(Quantity: 1),
-                new PrepareTransactionItemDto(Quantity: 0),
-                new PrepareTransactionItemDto(Quantity: 2)
+                new PrepareTransactionItemDto(PreparedQuantity: 1),
+                new PrepareTransactionItemDto(PreparedQuantity: 0),
+                new PrepareTransactionItemDto(PreparedQuantity: 2)
             ])).GetError();
 
         Assert.Contains(errors , error => error is PreparedTransactionItemsSizeMustBeSameError);
@@ -133,8 +134,8 @@ public class AdminPreparedTransactionTest
             Preparator: _adminUser,
             TransactionItems:
             [
-                new PrepareTransactionItemDto(Quantity: -1),
-                new PrepareTransactionItemDto(Quantity: 0),
+                new PrepareTransactionItemDto(PreparedQuantity: -1),
+                new PrepareTransactionItemDto(PreparedQuantity: 0),
             ])).GetError();
 
         Assert.Contains(errors , error => error is TransactionItemsShouldNotContainsNegativeQuantity);

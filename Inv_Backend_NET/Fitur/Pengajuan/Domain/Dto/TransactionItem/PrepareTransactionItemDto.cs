@@ -1,3 +1,3 @@
 ﻿namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 
-public record PrepareTransactionItemDto(int Quantity);
+public record PrepareTransactionItemDto(int PreparedQuantity);

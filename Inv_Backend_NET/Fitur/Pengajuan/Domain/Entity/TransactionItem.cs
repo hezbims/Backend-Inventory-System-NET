@@ -4,28 +4,32 @@ public class TransactionItem
 {
     public int Id { get; private init; }
     public int ProductId { get; private init; }
-    public int Quantity { get; private init; }
+    public int ExpectedQuantity { get; private init; }
+    public int? PreparedQuantity { get; private init; }
     public string Notes { get; private init; }
 
     public TransactionItem(
         int productId,
-        int quantity,
+        int expectedQuantity,
+        int? preparedQuantity,
         string notes,
         int id = 0)
     {
         Id = id;
         ProductId = productId;
-        Quantity = quantity;
+        ExpectedQuantity = expectedQuantity;
+        PreparedQuantity = preparedQuantity;
         Notes = notes;
     }
 
     public static TransactionItem CreateNew(
-        int productId, int quantity, string notes)
+        int productId, int expectedQuantity, int? preparedQuantity, string notes)
     {
         return new TransactionItem(
             id: 0, 
             productId: productId,
-            quantity: quantity,
+            expectedQuantity: expectedQuantity,
+            preparedQuantity: preparedQuantity,
             notes: notes);
     }
 }

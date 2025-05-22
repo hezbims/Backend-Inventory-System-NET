@@ -1,9 +1,7 @@
 ﻿using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
@@ -62,7 +60,13 @@ public class NonAdminCreateNewTransactionTest
             status: TransactionStatus.Waiting, 
             creatorId: _nonAdmin.Id, 
             assignedUserId: _nonAdmin.Id, 
-            transactionItems: transactionItems.ToAssertionDtos());
+            transactionItems: transactionItems.Select(item =>
+                new TransactionItemAssertionDto(
+                    ProductId: item.ProductId,
+                    ExpectedQuantity: item.Quantity,
+                    PreparedQuantity: null,
+                    Notes: item.Notes)
+            ).ToList());
     }
     #endregion
 

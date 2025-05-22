@@ -1,7 +1,6 @@
 using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Mapper;
 
@@ -11,11 +10,14 @@ public static class TransactionMapperExtension
         this IEnumerable<TransactionItem> transactionItems,
         TransactionType transactionType)
     {
-        return transactionItems.Select(
+        return transactionItems
+            .Where(transactionItem => 
+                transactionItem.PreparedQuantity != null)
+            .Select(
             transactionItem => 
                 new ProductQuantityChangedEvent(
                     ProductId: transactionItem.ProductId,
-                    Quantity: transactionItem.Quantity,
+                    Quantity: transactionItem.PreparedQuantity!.Value,
                     Type: transactionType)).ToList();
     }
 }

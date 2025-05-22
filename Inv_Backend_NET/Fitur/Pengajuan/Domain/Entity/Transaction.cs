@@ -56,9 +56,12 @@ public class Transaction
 
         int assigendUserId;
         // only admin can assign a transaction to another user when transaction type is out
-        if (dto.TransactionType == TransactionType.Out && 
-            dto.AssignedUser != null && 
-            dto.Creator.IsAdmin)
+        if (dto is
+            {
+                TransactionType: TransactionType.Out, 
+                AssignedUser: not null, 
+                Creator.IsAdmin: true
+            })
             assigendUserId = dto.AssignedUser.Id;
         else
             assigendUserId = dto.Creator.Id;
@@ -79,7 +82,8 @@ public class Transaction
             }
         }
         
-        IReadOnlyList<TransactionItem> transactionItems = dto.TransactionItems.ToTransactionItemEntities();
+        IReadOnlyList<TransactionItem> transactionItems = dto.TransactionItems
+            .ToTransactionItemEntities(isAdminCreation: dto.Creator.IsAdmin);
         Transaction newlyCreatedTransaction = new Transaction(
             id: 0,
             type: dto.TransactionType,
@@ -105,7 +109,7 @@ public class Transaction
             errors.Add(new PreparedTransactionItemsSizeMustBeSameError());
         else if (
             dto.TransactionItems
-                .Where(item => item.Quantity < 0)
+                .Where(item => item.PreparedQuantity < 0)
                 .Select((_, index) => index)
                 .ToList() is var negativeItems &&
             !negativeItems.IsNullOrEmpty())
@@ -119,8 +123,9 @@ public class Transaction
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
             TransactionItems.Select((item, index) => new TransactionItem(
                 id: item.Id,
-                productId: item.ProductId, 
-                quantity: dto.TransactionItems[index].Quantity,
+                productId: item.ProductId,
+                expectedQuantity: item.ExpectedQuantity,
+                preparedQuantity: dto.TransactionItems[index].PreparedQuantity,
                 notes: item.Notes)).ToList(),
             hasSideEffects: true);
         
@@ -157,12 +162,8 @@ public class Transaction
 
         TransactionTime = dto.TransactionTime;
         StakeholderId = dto.StakeholderId;
-        IReadOnlyList<TransactionItem> oldTransactionItems = dto.TransactionItems.ToTransactionItemEntities();
-        TransactionItems = dto.TransactionItems.ToTransactionItemEntities();
 
         List<ProductQuantityChangedEvent> sideEffects = [];
-        GenerateProductQuantityChangedEvents(
-            oldTransactionItems: oldTransactionItems);
         
         return new PatchTransactionResult.Succeed(sideEffects);
     }

@@ -40,7 +40,14 @@ public class AdminCreateNewTransactionTest
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = result.GetData().Item2;
 
-        sideEffects.AssertAll(expectedEvents: transactionItems.ToAssertionDtos(transactionType));
+        sideEffects.AssertAll(expectedEvents: 
+            transactionItems.Select(item =>
+                new ProductQuantityChangedEventAssertionDto(
+                    ProductId: item.ProductId,
+                    Quantity: item.Quantity,
+                    Type: transactionType
+                )
+            ).ToList());
     }
 
     [Theory]
@@ -94,7 +101,14 @@ public class AdminCreateNewTransactionTest
             creatorId: _userAdmin.Id, 
             assignedUserId: expectedAssignedUserId,
             status: expectedTransactionStatus, 
-            transactionItems: transactionItems.ToAssertionDtos());
+            transactionItems: transactionItems.Select(item =>
+                new TransactionItemAssertionDto(
+                    ProductId: item.ProductId,
+                    ExpectedQuantity: item.Quantity,
+                    PreparedQuantity: item.Quantity,
+                    Notes: item.Notes
+                )
+            ).ToList());
     }
 
     [Fact]
