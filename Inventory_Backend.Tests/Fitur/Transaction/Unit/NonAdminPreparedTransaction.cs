@@ -19,12 +19,14 @@ public class NonAdminPreparedTransaction
             TransactionTime: 25,
             StakeholderId: 2,
             Creator: nonAdminUser,
+            Notes: "",
             TransactionItems: [
                 new CreateTransactionItemDto(ProductId: 2, Quantity: 3, Notes: ""),
             ]
         )).GetData().Item1;
         
         var errors = transaction.PrepareTransaction(new PrepareTransactionDto(
+                Notes: "Seharusnya aku tak mampu 😭",
                 Preparator: nonAdminUser, TransactionItems: [
                     new PrepareTransactionItemDto(PreparedQuantity: 1),]))
             .GetError();

@@ -36,6 +36,7 @@ public class AdminCreateNewTransactionTest
             StakeholderId: 1,
             TransactionTime: 12,
             Creator: _userAdmin,
+            Notes: "Ini buatan admin",
             TransactionItems: transactionItems));
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = result.GetData().Item2;
@@ -68,6 +69,7 @@ public class AdminCreateNewTransactionTest
             TransactionTime: 12,
             Creator: _userAdmin,
             TransactionItems: transactionItems,
+            Notes: "Ini buatan admin",
             AssignedUser: useAssignedUser ? _assignedNonAdminUser : null));
 
         Transaction transaction = result.GetData().Item1;
@@ -100,7 +102,8 @@ public class AdminCreateNewTransactionTest
             type: transactionType,
             creatorId: _userAdmin.Id, 
             assignedUserId: expectedAssignedUserId,
-            status: expectedTransactionStatus, 
+            status: expectedTransactionStatus,
+            notes: "Ini buatan admin",
             transactionItems: transactionItems.Select(item =>
                 new TransactionItemAssertionDto(
                     ProductId: item.ProductId,
@@ -120,6 +123,7 @@ public class AdminCreateNewTransactionTest
             TransactionTime: 12,
             Creator: _userAdmin,
             TransactionItems: [],
+            Notes: "seharusnya ini gk bisa",
             AssignedUser: null));
         
         List<IBaseTransactionDomainError> errors = result.GetError();

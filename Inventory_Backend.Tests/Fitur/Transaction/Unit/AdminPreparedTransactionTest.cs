@@ -26,6 +26,7 @@ public class AdminPreparedTransactionTest
             TransactionTime: 25,
             StakeholderId: 2,
             Creator: _nonAdminUser,
+            Notes: "Saya ambil 15 menit sebelum istirahat",
             TransactionItems: [
                 new CreateTransactionItemDto(ProductId: 2, Quantity: 3, Notes: ""),
                 new CreateTransactionItemDto(ProductId: 3, Quantity: 4, Notes: "ini notes"),
@@ -37,6 +38,7 @@ public class AdminPreparedTransactionTest
     public void Admin_Should_Be_Able_To_Prepare_Waiting_Transaction_And_Produce_Correct_Side_Effects()
     {
         var sideEffects = _transaction.PrepareTransaction(new PrepareTransactionDto(
+            Notes: "",
             Preparator: _adminUser, TransactionItems: [
                 new PrepareTransactionItemDto(PreparedQuantity: 1),
                 new PrepareTransactionItemDto(PreparedQuantity: 0)]))
@@ -54,6 +56,7 @@ public class AdminPreparedTransactionTest
     public void Admin_Should_Be_Able_To_Prepare_Transaction_And_Produce_Correct_Transaction_Data()
     {
         _transaction.PrepareTransaction(new PrepareTransactionDto(
+            Notes: "Beberapa barang udah diambil grup lain",
             Preparator: _adminUser, TransactionItems:
             [
                 new PrepareTransactionItemDto(PreparedQuantity: 1),
@@ -67,7 +70,8 @@ public class AdminPreparedTransactionTest
             type: TransactionType.Out,
             status: TransactionStatus.Prepared, 
             creatorId: _nonAdminUser.Id, 
-            assignedUserId: _nonAdminUser.Id, 
+            assignedUserId: _nonAdminUser.Id,
+            notes: "Beberapa barang udah diambil grup lain",
             transactionItems: [
                 new TransactionItemAssertionDto(
                     ProductId: 2, ExpectedQuantity: 3, PreparedQuantity: 1, Notes: ""),
@@ -91,6 +95,7 @@ public class AdminPreparedTransactionTest
             status: status,
             creatorId: _nonAdminUser.Id,
             assignedUserId: _nonAdminUser.Id,
+            notes: "Semuanya dikemas dalam karung",
             transactionItems: 
             [
                 new TransactionItem(
@@ -104,6 +109,7 @@ public class AdminPreparedTransactionTest
 
         var errors = nonWaitingTransaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser,
+            Notes: "Hmm...",
             TransactionItems:
             [
                 new PrepareTransactionItemDto(PreparedQuantity: 12)
@@ -117,6 +123,7 @@ public class AdminPreparedTransactionTest
     {
         var errors = _transaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser,
+            Notes: "humm",
             TransactionItems:
             [
                 new PrepareTransactionItemDto(PreparedQuantity: 1),
@@ -132,6 +139,7 @@ public class AdminPreparedTransactionTest
     {
         var errors = _transaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser,
+            Notes: "seharusnya error nih",
             TransactionItems:
             [
                 new PrepareTransactionItemDto(PreparedQuantity: -1),

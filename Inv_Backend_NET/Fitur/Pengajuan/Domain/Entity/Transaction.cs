@@ -27,10 +27,11 @@ public class Transaction
     public int CreatorId { get; private set; } // User ID
     public int AssignedUserId { get; private set; }
     public IReadOnlyList<TransactionItem> TransactionItems { get; private set; }
+    public string Notes { get; private set; }
 
     public Transaction(
         int id, TransactionType type, long transactionTime, int stakeholderId,
-        TransactionStatus status, int creatorId, int assignedUserId,
+        TransactionStatus status, int creatorId, int assignedUserId, string notes,
         List<TransactionItem>? transactionItems = null)
     {
         Id = id;
@@ -40,6 +41,7 @@ public class Transaction
         Status = status;
         CreatorId = creatorId;
         AssignedUserId = assignedUserId;
+        Notes = notes;
         TransactionItems = transactionItems ?? [];
     }
 
@@ -91,7 +93,8 @@ public class Transaction
             stakeholderId: dto.StakeholderId,
             status: status,
             creatorId: dto.Creator.Id,
-            assignedUserId: assigendUserId);
+            assignedUserId: assigendUserId,
+            notes: dto.Notes);
         List<ProductQuantityChangedEvent> sideEffects = newlyCreatedTransaction
             .ReplaceTransactionItems(transactionItems, hasSideEffects: dto.Creator.IsAdmin);
         
@@ -118,7 +121,8 @@ public class Transaction
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
         
-        Status = TransactionStatus.Prepared;
+        Status = TransactionStatus.Prepared; 
+        Notes = dto.Notes;
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
             TransactionItems.Select((item, index) => new TransactionItem(

@@ -5,4 +5,5 @@ namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 
 public record PrepareTransactionDto(
     UserDto Preparator,
-    IReadOnlyList<PrepareTransactionItemDto> TransactionItems);
+    IReadOnlyList<PrepareTransactionItemDto> TransactionItems,
+    string Notes);

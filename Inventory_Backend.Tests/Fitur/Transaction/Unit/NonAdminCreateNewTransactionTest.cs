@@ -24,6 +24,7 @@ public class NonAdminCreateNewTransactionTest
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
+            Notes: "seharusnya gk ada side effect",
             TransactionItems: [
                 new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
                 new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
@@ -47,6 +48,7 @@ public class NonAdminCreateNewTransactionTest
             TransactionTime: 1_000_200L,
             StakeholderId: 1,
             Creator: _nonAdmin,
+            Notes: "non-admin ngebuat",
             TransactionItems: transactionItems
         ));
 
@@ -59,7 +61,8 @@ public class NonAdminCreateNewTransactionTest
             type: TransactionType.Out, 
             status: TransactionStatus.Waiting, 
             creatorId: _nonAdmin.Id, 
-            assignedUserId: _nonAdmin.Id, 
+            assignedUserId: _nonAdmin.Id,
+            notes: "non-admin ngebuat",
             transactionItems: transactionItems.Select(item =>
                 new TransactionItemAssertionDto(
                     ProductId: item.ProductId,
@@ -79,6 +82,7 @@ public class NonAdminCreateNewTransactionTest
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
+            Notes: "seharusnya gagal",
             TransactionItems: [
                 new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
                 new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
@@ -97,6 +101,7 @@ public class NonAdminCreateNewTransactionTest
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
+            Notes: "seharusnya enggak bisa",
             TransactionItems: []
         ));
 

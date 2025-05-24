@@ -12,7 +12,8 @@ public static class TransactionDomainAssertionUtils
         this Transaction transaction,
         int id, long transactionTime, int stakeholderId,
         TransactionType type, TransactionStatus status, int creatorId,
-        int assignedUserId, IReadOnlyList<TransactionItemAssertionDto> transactionItems)
+        int assignedUserId, string notes, 
+        IReadOnlyList<TransactionItemAssertionDto> transactionItems)
     {
         Assert.Equal(id, transaction.Id);
         Assert.Equal(transactionTime, transaction.TransactionTime);
@@ -21,6 +22,7 @@ public static class TransactionDomainAssertionUtils
         Assert.Equal(status, transaction.Status);
         Assert.Equal(creatorId, transaction.CreatorId);
         Assert.Equal(assignedUserId, transaction.AssignedUserId);
+        Assert.Equal(notes, transaction.Notes);
         Assert.Equal(transactionItems.Count, transaction.TransactionItems.Count);
         for (int i = 0 ; i < transactionItems.Count; i++)
         {

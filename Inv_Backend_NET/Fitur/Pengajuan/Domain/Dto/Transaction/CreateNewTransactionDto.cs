@@ -9,5 +9,6 @@ public record CreateNewTransactionDto(
     long TransactionTime,
     int StakeholderId,
     UserDto Creator,
+    string Notes,
     IReadOnlyList<CreateTransactionItemDto> TransactionItems,
     UserDto? AssignedUser = null);
