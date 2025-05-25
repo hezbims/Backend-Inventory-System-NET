@@ -1,0 +1,3 @@
+namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
+
+public class NonAdminCanOnlyUpdateTheirOwnTransactionError : IBaseTransactionDomainError;

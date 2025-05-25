@@ -108,5 +108,31 @@ public class NonAdminCreateNewTransactionTest
         var errors = result.GetError();
         Assert.Contains(errors, error => error is TransactionItemsShouldNotBeEmptyError);
     }
+
+    [Fact]
+    public void Must_Not_Create_Transaction_Item_With_Less_Than_1_Quantity()
+    {
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.Out,
+            TransactionTime: 0L,
+            StakeholderId: 1,
+            Creator: _nonAdmin,
+            Notes: "seharusnya enggak bisa",
+            TransactionItems: 
+            [
+                new CreateTransactionItemDto(ProductId: 3, Quantity: 0, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 4, Quantity: -1, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 5, Quantity: 5, Notes: "Yang ini valid"),
+            ]
+        ));
+
+        var errors = result.GetError();
+        TransactionItemMustAtLeastHave1QuantityError error = (TransactionItemMustAtLeastHave1QuantityError) 
+            errors.Single(error => 
+                error is TransactionItemMustAtLeastHave1QuantityError);
+        Assert.Equal(2, error.ErrorIndices.Count);
+        Assert.Contains(1, error.ErrorIndices);
+        Assert.Contains(0, error.ErrorIndices);
+    }
     #endregion
 }

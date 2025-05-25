@@ -53,6 +53,26 @@ public class Transaction
             errors.Add(new UserNonAdminShouldNotCreateTransactionOfTypeInError());
         if (dto.TransactionItems.IsNullOrEmpty())
             errors.Add(new TransactionItemsShouldNotBeEmptyError());
+        if (!dto.Creator.IsAdmin)
+        {
+            if (dto.TransactionItems
+                .Select((item, index) => (item, index))   
+                .Where(pair => pair.item.Quantity < 1)
+                .Select(pair => pair.index)
+                .ToList() is var indicesWithLessThan1Quantity &&
+                !indicesWithLessThan1Quantity.IsNullOrEmpty())
+                errors.Add(new TransactionItemMustAtLeastHave1QuantityError(indicesWithLessThan1Quantity));
+        }
+        else
+        {
+            if (dto.TransactionItems
+                    .Select((item, index) => (item, index))   
+                    .Where(pair => pair.item.Quantity < 0)
+                    .Select(pair => pair.index)
+                    .ToList() is var indicesWithNegativeQuantity &&
+                !indicesWithNegativeQuantity.IsNullOrEmpty())
+                errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(indicesWithNegativeQuantity));
+        }
         if (!errors.IsNullOrEmpty())
             return new CreateTransactionResult.Failed(errors);
 
@@ -159,15 +179,46 @@ public class Transaction
     public PatchTransactionResult UpdateTransaction(UpdateTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
-        if (dto.UpdaterId != this.CreatorId)
-            errors.Add(new UserCanOnlyUpdateTheirOwnTransactionError());
+        
+        if (!dto.Updater.IsAdmin)
+        {
+            if (this.Status != TransactionStatus.Waiting)
+                errors.Add(new NonAdminCanNotUpdateNonWaitingTransactionError(
+                    currentTransactionStatus: Status));
+            if (dto.Updater.Id != this.CreatorId)
+                errors.Add(new NonAdminCanOnlyUpdateTheirOwnTransactionError());   
+            if (dto.Group.IsSupplier)
+                errors.Add(new NonAdminCanNotAssignSupplierGroupError());
+        }
+        else
+        {
+            
+        }
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
 
         TransactionTime = dto.TransactionTime;
-        StakeholderId = dto.StakeholderId;
+        StakeholderId = dto.Group.Id;
+        Notes = dto.Notes;
 
-        List<ProductQuantityChangedEvent> sideEffects = [];
+        List<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
+            newTransactionItems: dto.TransactionItems.Select((item, index) =>
+            {
+                // kalau updater adalah admin, maka expected quantity tetap sama
+                // kalau updater adalah non admin, maka expected quantity bakalan mengikuti sesuai request
+                int expectedQuantity = dto.Updater.IsAdmin ? TransactionItems[index].ExpectedQuantity : item.Quantity;
+                
+                // kalau updater adalah admin, maka prepared quantity akan berubah mengikuti sesuai request
+                // kalau updater adalah non admin, maka prepared quantity pasti null (karena transaction pasti di waiting)
+                int? preparedQuantity = dto.Updater.IsAdmin ? item.Quantity : null;
+
+                return TransactionItem.CreateNew(
+                    productId: item.ProductId,
+                    expectedQuantity: expectedQuantity,
+                    preparedQuantity: preparedQuantity,
+                    notes: item.Notes
+                );
+            }).ToList(), hasSideEffects: dto.Updater.IsAdmin); // Side effect hanya ketika admin update prepared transaction
         
         return new PatchTransactionResult.Succeed(sideEffects);
     }

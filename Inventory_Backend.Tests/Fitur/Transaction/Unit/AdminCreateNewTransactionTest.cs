@@ -5,6 +5,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
 
@@ -17,6 +18,7 @@ public class AdminCreateNewTransactionTest
     private readonly UserDto _userAdmin = new UserDto(Id: 99, IsAdmin: true);
     private readonly UserDto _assignedNonAdminUser = new UserDto(Id: 64, IsAdmin: false);
     
+    #region Positive Case
     [Theory]
     [InlineData(TransactionType.In)]
     [InlineData(TransactionType.Out)]
@@ -113,7 +115,9 @@ public class AdminCreateNewTransactionTest
                 )
             ).ToList());
     }
+    #endregion
 
+    #region Negative Case
     [Fact]
     public void ShouldNotAbleCreateTransactionWithEmptyTransactionItem()
     {
@@ -129,4 +133,31 @@ public class AdminCreateNewTransactionTest
         List<IBaseTransactionDomainError> errors = result.GetError();
         Assert.Contains(errors, error => error is TransactionItemsShouldNotBeEmptyError);
     }
+
+    [Fact]
+    public void Should_Not_Create_Transaction_Item_With_Negative_Quantity()
+    {
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.Out,
+            StakeholderId: 1,
+            TransactionTime: 12,
+            Creator: _userAdmin,
+            TransactionItems: [
+                new CreateTransactionItemDto(ProductId: 3, Quantity: -1, Notes: "test"),
+                new CreateTransactionItemDto(ProductId: 4, Quantity: 0, Notes: "test"),
+                new CreateTransactionItemDto(ProductId: 5, Quantity: -2, Notes: "test"),
+                
+            ],
+            Notes: "seharusnya ini gk bisa",
+            AssignedUser: null));
+        
+        List<IBaseTransactionDomainError> errors = result.GetError();
+        var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single(error => 
+                error is TransactionItemsShouldNotContainsNegativeQuantity);
+        Assert.Equal(2, error.ErrorIndices.Count);
+        Assert.Contains(2, error.ErrorIndices);
+        Assert.Contains(0, error.ErrorIndices);
+    }
+    #endregion
+    
 }
