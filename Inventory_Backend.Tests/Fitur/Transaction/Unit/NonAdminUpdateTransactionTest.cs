@@ -16,12 +16,13 @@ using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transact
 
 public class NonAdminUpdateTransactionTest
 {
-    private readonly UserDto _nonAdminPrimary = new UserDto(IsAdmin: false, Id: 1);
-    private readonly UserDto _nonAdminSecondary = new UserDto(IsAdmin: false, Id: 2);
+    private readonly UserDto _nonAdminPrimary;
+    private readonly UserDto _nonAdminSecondary;
     private readonly Transaction _waitingTransaction;
 
     public NonAdminUpdateTransactionTest()
     {
+        _nonAdminSecondary = new UserDto(IsAdmin: false, Id: 2);
         _nonAdminPrimary = new UserDto(IsAdmin: false, Id: 1);
         _nonAdminSecondary = new UserDto(IsAdmin: false, Id: 2);
         _waitingTransaction = Transaction.CreateNew(new CreateNewTransactionDto(
@@ -118,7 +119,7 @@ public class NonAdminUpdateTransactionTest
                 new UpdateTransactionItemDto(ProductId: 23, Quantity: 25, Notes: ""),
             ])).GetError();
 
-        Assert.Contains(errors, error => error is NonAdminCanOnlyUpdateTheirOwnTransactionError);
+        Assert.Contains(errors, error => error is NonAdminCanNotUpdateNonWaitingTransactionError);
     }
 
     [Fact]
@@ -184,8 +185,16 @@ public class NonAdminUpdateTransactionTest
             Group: new GroupDto(Id: 37, IsSupplier: false),
             Updater: _nonAdminPrimary,
             Notes: "",
-            TransactionItems: [])).GetError();
+            TransactionItems: [
+                new UpdateTransactionItemDto(ProductId: 1, Quantity: 1, Notes: ""),
+                new UpdateTransactionItemDto(ProductId: 1, Quantity: 0, Notes: ""),
+                new UpdateTransactionItemDto(ProductId: 1, Quantity: -2, Notes: ""),
+            ])).GetError();
 
-        Assert.Contains(errors, error => error is TransactionItemsShouldNotBeEmptyError);
+        var error = (TransactionItemMustAtLeastHave1QuantityError) errors.Single(error => 
+            error is TransactionItemMustAtLeastHave1QuantityError);
+        
+        Assert.Contains(1 , error.ErrorIndices);
+        Assert.Contains(2 , error.ErrorIndices);
     }
 }

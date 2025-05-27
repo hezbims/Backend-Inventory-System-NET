@@ -48,8 +48,6 @@ public class AdminPreparedTransactionTest
         sideEffects.AssertAll([
             new ProductQuantityChangedEventAssertionDto(
                 ProductId: 2, Quantity: 1, Type: TransactionType.Out),
-            new ProductQuantityChangedEventAssertionDto(
-                ProductId: 3, Quantity: 0, Type: TransactionType.Out)
         ]);
     }
     
@@ -132,7 +130,7 @@ public class AdminPreparedTransactionTest
                 new PrepareTransactionItemDto(PreparedQuantity: 2)
             ])).GetError();
 
-        Assert.Contains(errors , error => error is PreparedTransactionItemsSizeMustBeSameError);
+        Assert.Contains(errors , error => error is TransactionItemsSizeMustBeSameError);
     }
 
     [Fact]
@@ -147,6 +145,7 @@ public class AdminPreparedTransactionTest
                 new PrepareTransactionItemDto(PreparedQuantity: 0),
             ])).GetError();
 
-        Assert.Contains(errors , error => error is TransactionItemsShouldNotContainsNegativeQuantity);
+        var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single();
+        Assert.Contains(0, error.ErrorIndices);
     }
 }

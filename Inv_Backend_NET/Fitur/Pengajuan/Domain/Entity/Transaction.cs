@@ -1,6 +1,7 @@
 using Inventory_Backend_NET.Common.Domain.Dto;
 using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
+using Inventory_Backend_NET.Common.Utils;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
@@ -56,9 +57,7 @@ public class Transaction
         if (!dto.Creator.IsAdmin)
         {
             if (dto.TransactionItems
-                .Select((item, index) => (item, index))   
-                .Where(pair => pair.item.Quantity < 1)
-                .Select(pair => pair.index)
+                .SelectIndexWhere(item => item.Quantity < 1)
                 .ToList() is var indicesWithLessThan1Quantity &&
                 !indicesWithLessThan1Quantity.IsNullOrEmpty())
                 errors.Add(new TransactionItemMustAtLeastHave1QuantityError(indicesWithLessThan1Quantity));
@@ -66,9 +65,7 @@ public class Transaction
         else
         {
             if (dto.TransactionItems
-                    .Select((item, index) => (item, index))   
-                    .Where(pair => pair.item.Quantity < 0)
-                    .Select(pair => pair.index)
+                    .SelectIndexWhere(item => item.Quantity < 0)
                     .ToList() is var indicesWithNegativeQuantity &&
                 !indicesWithNegativeQuantity.IsNullOrEmpty())
                 errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(indicesWithNegativeQuantity));
@@ -129,11 +126,10 @@ public class Transaction
         if (this.Status != TransactionStatus.Waiting)
             errors.Add(new OnlyWaitingTransactionCanBePreparedError());
         if (dto.TransactionItems.Count != TransactionItems.Count)
-            errors.Add(new PreparedTransactionItemsSizeMustBeSameError());
+            errors.Add(new TransactionItemsSizeMustBeSameError());
         else if (
             dto.TransactionItems
-                .Where(item => item.PreparedQuantity < 0)
-                .Select((_, index) => index)
+                .SelectIndexWhere(item => item.PreparedQuantity < 0)
                 .ToList() is var negativeItems &&
             !negativeItems.IsNullOrEmpty())
             errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(negativeItems));
@@ -187,36 +183,60 @@ public class Transaction
                     currentTransactionStatus: Status));
             if (dto.Updater.Id != this.CreatorId)
                 errors.Add(new NonAdminCanOnlyUpdateTheirOwnTransactionError());   
-            if (dto.Group.IsSupplier)
+            if (dto.Group!.IsSupplier)
                 errors.Add(new NonAdminCanNotAssignSupplierGroupError());
+            if (dto.TransactionItems.IsNullOrEmpty())
+                errors.Add(new TransactionItemsShouldNotBeEmptyError());
+            if (dto.TransactionItems
+                    .SelectIndexWhere(item => item.Quantity <= 0)
+                    .ToList() is var indexWithLessThan1Quantity&&
+                !indexWithLessThan1Quantity.IsNullOrEmpty())
+                errors.Add(new TransactionItemMustAtLeastHave1QuantityError(indexWithLessThan1Quantity));
         }
         else
         {
-            
+            if (this.Status != TransactionStatus.Prepared)
+                errors.Add(new AdminCanOnlyUpdatePreparedTransaction());
+            if (dto.TransactionItems.Count != TransactionItems.Count)
+                errors.Add(new TransactionItemsSizeMustBeSameError());
+            else if (
+                dto.TransactionItems
+                     .SelectIndexWhere(item => item.Quantity < 0)
+                     .ToList() is var indexWithNegativeQuantity &&
+                 !indexWithNegativeQuantity.IsNullOrEmpty())
+                errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(indexWithNegativeQuantity));
         }
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
 
-        TransactionTime = dto.TransactionTime;
-        StakeholderId = dto.Group.Id;
+        if (!dto.Updater.IsAdmin)
+        {
+            TransactionTime = dto.TransactionTime!.Value;
+            StakeholderId = dto.Group!.Id;
+        }
+
         Notes = dto.Notes;
 
         List<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
-            newTransactionItems: dto.TransactionItems.Select((item, index) =>
+            newTransactionItems: dto.TransactionItems.Select((request, index) =>
             {
                 // kalau updater adalah admin, maka expected quantity tetap sama
                 // kalau updater adalah non admin, maka expected quantity bakalan mengikuti sesuai request
-                int expectedQuantity = dto.Updater.IsAdmin ? TransactionItems[index].ExpectedQuantity : item.Quantity;
+                int expectedQuantity = dto.Updater.IsAdmin ? TransactionItems[index].ExpectedQuantity : request.Quantity;
                 
                 // kalau updater adalah admin, maka prepared quantity akan berubah mengikuti sesuai request
                 // kalau updater adalah non admin, maka prepared quantity pasti null (karena transaction pasti di waiting)
-                int? preparedQuantity = dto.Updater.IsAdmin ? item.Quantity : null;
+                int? preparedQuantity = dto.Updater.IsAdmin ? request.Quantity : null;
+                
+                int productId = dto.Updater.IsAdmin ? TransactionItems[index].ProductId : request.ProductId!.Value;
+                
+                string notes = dto.Updater.IsAdmin ? TransactionItems[index].Notes : request.Notes!;
 
                 return TransactionItem.CreateNew(
-                    productId: item.ProductId,
+                    productId: productId,
                     expectedQuantity: expectedQuantity,
                     preparedQuantity: preparedQuantity,
-                    notes: item.Notes
+                    notes: notes
                 );
             }).ToList(), hasSideEffects: dto.Updater.IsAdmin); // Side effect hanya ketika admin update prepared transaction
         

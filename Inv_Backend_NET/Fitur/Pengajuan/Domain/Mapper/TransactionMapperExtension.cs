@@ -12,7 +12,7 @@ public static class TransactionMapperExtension
     {
         return transactionItems
             .Where(transactionItem => 
-                transactionItem.PreparedQuantity != null)
+                transactionItem.PreparedQuantity is > 0)
             .Select(
             transactionItem => 
                 new ProductQuantityChangedEvent(

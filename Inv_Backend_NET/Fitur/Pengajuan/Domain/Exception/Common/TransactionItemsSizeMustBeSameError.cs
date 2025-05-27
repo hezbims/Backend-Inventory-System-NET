@@ -1,3 +1,3 @@
 ﻿namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 
-public class PreparedTransactionItemsSizeMustBeSameError : IBaseTransactionDomainError;
+public class TransactionItemsSizeMustBeSameError : IBaseTransactionDomainError;
