@@ -7,6 +7,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CancelTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.ConfirmTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
@@ -241,6 +242,28 @@ public class Transaction
             }).ToList(), hasSideEffects: dto.Updater.IsAdmin); // Side effect hanya ketika admin update prepared transaction
         
         return new PatchTransactionResult.Succeed(sideEffects);
+    }
+
+    public PatchTransactionResult ConfirmTransaction(
+        ConfirmTransactionDto dto)
+    {
+        List<IBaseTransactionDomainError> errors = [];
+        if (dto.User.IsAdmin)
+            errors.Add(new AdminCanNotConfirmTransactionError());
+        else
+        {
+            if (AssignedUserId != dto.User.Id)
+                errors.Add(new NonAdminCanNotConfirmOtherUserTransaction());
+            else if (Status != TransactionStatus.Prepared)
+                errors.Add(new NonAdminCanOnlyConfirmPreparedTransaction(Status));
+        }
+        
+        if (!errors.IsNullOrEmpty())
+            return new PatchTransactionResult.Failed(errors);
+
+        Status = TransactionStatus.Confirmed;
+        Notes = Notes;
+        return new PatchTransactionResult.Succeed([]);
     }
 
     private List<ProductQuantityChangedEvent> ReplaceTransactionItems(
