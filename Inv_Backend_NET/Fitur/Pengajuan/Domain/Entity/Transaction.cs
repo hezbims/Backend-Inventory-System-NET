@@ -153,10 +153,10 @@ public class Transaction
         return new PatchTransactionResult.Succeed(sideEffects);
     }
     
-    public PatchTransactionResult CancelTransaction(RejectTransactionDto dto)
+    public PatchTransactionResult CancelTransaction(CancelTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
-        if (!dto.Rejector.IsAdmin)
+        if (!dto.Cancelator.IsAdmin)
             errors.Add(new UserNonAdminShouldNotRejectTransactionError());
         if (this.Status != TransactionStatus.Waiting)
             errors.Add(new OnlyWaitingTransactionCanBeRejectedError());
