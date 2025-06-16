@@ -262,7 +262,7 @@ public class Transaction
             return new PatchTransactionResult.Failed(errors);
 
         Status = TransactionStatus.Confirmed;
-        Notes = Notes;
+        Notes = dto.Notes;
         return new PatchTransactionResult.Succeed([]);
     }
 
