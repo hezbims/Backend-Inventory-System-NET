@@ -10,6 +10,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.ConfirmTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.RejectTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Mapper;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
@@ -173,6 +174,35 @@ public class Transaction
         
         List<ProductQuantityChangedEvent> sideEffects = GetSideEffectsOfReturnedPreparedTransactionItems();
         
+        return new PatchTransactionResult.Succeed(sideEffects);
+    }
+
+    public PatchTransactionResult Reject(RejectTransactionDto dto)
+    {
+        if (!dto.Rejector.IsAdmin)
+            return new PatchTransactionResult.Failed([
+                new NonAdminIsNotAllowedToRejectTransactionError()]);
+        
+        List<IBaseTransactionDomainError> errors = [];
+        if (this.Status is not (TransactionStatus.Waiting or TransactionStatus.Prepared))
+            errors.Add(new OnlyWaitingAndPreparedTransactionCanBeRejectedError());
+        if (dto.Notes.IsNullOrEmpty())
+            errors.Add(new RejectionNotesMustNotBeEmptyError());
+        
+        if (!errors.IsNullOrEmpty())
+            return new PatchTransactionResult.Failed(errors);
+
+        this.Notes = dto.Notes;
+        this.Status = TransactionStatus.Rejected;
+        List<TransactionItem> newTransactionItems = this.TransactionItems.Select(item =>
+            new TransactionItem(
+                id: item.Id,
+                productId: item.ProductId,
+                expectedQuantity: item.ExpectedQuantity,
+                preparedQuantity: null,
+                notes: item.Notes)).ToList();
+        
+        var sideEffects = ReplaceTransactionItems(newTransactionItems, hasSideEffects: true);
         return new PatchTransactionResult.Succeed(sideEffects);
     }
 

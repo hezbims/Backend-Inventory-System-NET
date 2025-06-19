@@ -24,6 +24,9 @@ internal static class TransactionStatusesGenerate
     
     public static IEnumerable<object[]> NoCanceledAndRejected =>
         _baseDatasWithIgnored(TransactionStatus.Canceled, TransactionStatus.Rejected).ToArrayObject();
+    
+    public static IEnumerable<object[]> NoWaitingAndPrepared =>
+        _baseDatasWithIgnored(TransactionStatus.Waiting, TransactionStatus.Prepared).ToArrayObject();
 
     public static IEnumerable<object[]> All => BaseDatas.ToArrayObject();
 }
