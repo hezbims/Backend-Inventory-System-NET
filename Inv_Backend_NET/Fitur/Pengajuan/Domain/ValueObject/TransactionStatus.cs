@@ -5,5 +5,6 @@ public enum TransactionStatus
     Waiting = 0, 
     Prepared = 1, 
     Canceled = 2,
-    Confirmed = 3
+    Confirmed = 3,
+    Rejected = 4
 }

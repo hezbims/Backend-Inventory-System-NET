@@ -27,6 +27,14 @@ public record TransactionFactory(
             creatorId: CreatorId,
             assignedUserId: AssignedUserId,
             notes: Notes,
-            transactionItems: TransactionItems.Select(item => item.Build()).ToList());
+            transactionItems: TransactionItems.Select(item =>
+            {
+                if (Status is TransactionStatus.Waiting or TransactionStatus.Rejected)
+                    return (item with
+                    {
+                        PreparedQuantity = null,
+                    }).Build();
+                return item.Build();
+            }).ToList());
     }
 }

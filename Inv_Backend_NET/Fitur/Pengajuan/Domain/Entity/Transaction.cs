@@ -156,19 +156,22 @@ public class Transaction
     public PatchTransactionResult CancelTransaction(CancelTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
-        if (!dto.Cancelator.IsAdmin)
-            errors.Add(new UserNonAdminShouldNotRejectTransactionError());
-        if (this.Status != TransactionStatus.Waiting)
-            errors.Add(new OnlyWaitingTransactionCanBeRejectedError());
+        if (dto.Notes.IsNullOrEmpty())
+            errors.Add(new CanNotCancelTransactionWithEmptyNotesError());
+        if (this.AssignedUserId != dto.Cancelator.Id)
+            errors.Add(new CanNotCancelOtherUserTransaction());
+        else if (this.Status == TransactionStatus.Canceled)
+            errors.Add(new TransactionCanNotCanceledTwiceError());
+        else if (this.Status == TransactionStatus.Rejected)
+            errors.Add(new RejectedTransactionCanNotCanceled());
         
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
-        
 
         Status = TransactionStatus.Canceled;
+        Notes = dto.Notes;
         
-        List<ProductQuantityChangedEvent> sideEffects = GenerateProductQuantityChangedEvents(
-            oldTransactionItems: TransactionItems);
+        List<ProductQuantityChangedEvent> sideEffects = GetSideEffectsOfReturnedPreparedTransactionItems();
         
         return new PatchTransactionResult.Succeed(sideEffects);
     }
@@ -285,18 +288,9 @@ public class Transaction
 
         return events;
     }
-    
-    private List<ProductQuantityChangedEvent> GenerateProductQuantityChangedEvents(
-        IReadOnlyList<TransactionItem> oldTransactionItems)
-    {
-        List<ProductQuantityChangedEvent> events = [];
-        
-        // undo product quantity in old transaction items
-        events.AddRange(oldTransactionItems.ToProductQuantityChangedEvents(Type.GetInverse()));
-        
-        // apply product quantity in current transaction items
-        events.AddRange(TransactionItems.ToProductQuantityChangedEvents(Type));
 
-        return events;
+    List<ProductQuantityChangedEvent> GetSideEffectsOfReturnedPreparedTransactionItems()
+    {
+        return this.TransactionItems.ToProductQuantityChangedEvents(this.Type.GetInverse());
     }
 }
