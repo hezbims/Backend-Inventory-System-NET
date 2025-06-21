@@ -1,5 +1,6 @@
 using System.Net;
 using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend.Tests.Seeder;
 using Inventory_Backend.Tests.TestConfiguration;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -12,26 +13,17 @@ namespace Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest.OverwriteByPr
 /// Memastikan bisa mencegah atau menimpa data product dengan kode yang sama
 /// </summary>
 [Collection(TestConstant.IntegrationTestDefinition)]
-public class OverwriteProductByCodeTests : IDisposable
+public class OverwriteProductByCodeTests : BaseIntegrationTest
 {
-    private readonly TestWebAppFactory _webAppFactory;
-    private readonly HttpClient _client;
-    private readonly ITestOutputHelper _output;
-    
-    public OverwriteProductByCodeTests(
-        TestWebAppFactory factory,
-        ITestOutputHelper output)
+    public OverwriteProductByCodeTests(TestWebAppFactory factory, ITestOutputHelper output) : 
+        base(factory, output)
     {
-        _webAppFactory = factory;
-        _webAppFactory.ConfigureLoggingToTestOutput(output);
-        _output = output;
-        _client = factory.CreateClient();
+        factory.Get<UserSeeder>().CreateAdmin();
     }
 
     [Fact]
     public async Task test_allow_override_existing_product()
     {
-        await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
             "./Fitur/Product/PostProductCsvTest/OverwriteByProductCode/_Preparation/two_product_with_same_code.csv");
@@ -39,11 +31,11 @@ public class OverwriteProductByCodeTests : IDisposable
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("true"), "overwrite_by_kode_barang");
 
-        var response = await _client.PostAsync(
+        var response = await AdminClient.PostAsync(
             TestConstant.ApiEndpoints.Product.PostCsv, requestBody);
-        _output.WriteLine(await response.Content.ReadAsStringAsync());
+        Output.WriteLine(await response.Content.ReadAsStringAsync());
         
-        Barang product = db.Barangs
+        Barang product = Db.Barangs
             .Include(barang => barang.Kategori)
             .Single();
 
@@ -65,7 +57,6 @@ public class OverwriteProductByCodeTests : IDisposable
     [Fact]
     public async Task test_prevent_overwrite_existing_product()
     {
-        await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
             "./Fitur/Product/PostProductCsvTest/OverwriteByProductCode/_Preparation/two_product_with_same_code.csv");
@@ -73,18 +64,12 @@ public class OverwriteProductByCodeTests : IDisposable
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("false"), "overwrite_by_kode_barang");
 
-        var response = await _client.PostAsync(
+        var response = await AdminClient.PostAsync(
             TestConstant.ApiEndpoints.Product.PostCsv, requestBody);
         
-        _output.WriteLine(await response.Content.ReadAsStringAsync());
+        Output.WriteLine(await response.Content.ReadAsStringAsync());
         
-        Assert.Empty(db.Barangs.ToList());
+        Assert.Empty(Db.Barangs.ToList());
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    public void Dispose()
-    {
-        _client.Dispose();
-        _webAppFactory.Cleanup();
     }
 }
