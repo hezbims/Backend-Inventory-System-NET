@@ -8,14 +8,26 @@ using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest.InvalidRowData;
 
+using User = Inventory_Backend_NET.Database.Models.User;
+
 [Collection(TestConstant.IntegrationTestDefinition)]
-public class InvalidRowDataTests(TestWebAppFactory webApp, ITestOutputHelper output)
-    : BaseIntegrationTest(webApp, output)
+public class InvalidRowDataTests
+    : BaseIntegrationTest
 {
+    public InvalidRowDataTests(TestWebAppFactory webApp, ITestOutputHelper output) : base(webApp, output)
+    {
+        List<User> users =
+        [
+            new (username: "admin", password: "admin123", isAdmin: true),
+            new (username: "non_admin", password: "non-admin123", isAdmin: false)
+        ];
+        Db.AddRange(users);
+        Db.SaveChanges();
+    }
+    
     [Fact]
     public async Task should_display_correct_error_when_row_data_is_invalid()
     {
-        await using var db = _dbContext;
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
             "./Fitur/Product/PostProductCsvTest/InvalidRowData/_Preparation/invalid_field.csv");
@@ -23,16 +35,16 @@ public class InvalidRowDataTests(TestWebAppFactory webApp, ITestOutputHelper out
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("true"), "overwrite_by_kode_barang");
 
-        var response = await _adminClient.PostAsync(
+        var response = await AdminClient.PostAsync(
             TestConstant.ApiEndpoints.Product.PostCsv, requestBody);
         string responseBody = await response.Content.ReadAsStringAsync();
         PostProductCsvErrorDto errorDto = JsonConvert.DeserializeObject<PostProductCsvErrorDto>(responseBody)!;
         
-        _output.WriteLine(responseBody);
+        Output.WriteLine(responseBody);
         
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(db.Barangs.ToList());
-        Assert.Empty(db.Kategoris.ToList());
+        Assert.Empty(Db.Barangs.ToList());
+        Assert.Empty(Db.Kategoris.ToList());
         var baris3 = errorDto.Errors["BARIS #3"];
         Assert.Contains("Kode Barang tidak boleh kosong", baris3);
         Assert.Contains("Nama Barang tidak boleh kosong", baris3);
