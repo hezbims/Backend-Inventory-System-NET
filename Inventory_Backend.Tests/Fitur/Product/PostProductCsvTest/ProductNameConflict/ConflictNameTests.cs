@@ -1,5 +1,6 @@
 using System.Net;
 using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend.Tests.Seeder;
 using Inventory_Backend.Tests.TestConfiguration;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -12,20 +13,13 @@ namespace Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest.ProductNameCo
 /// Menguji ketika ada nama product yang sama
 /// </summary>
 [Collection(TestConstant.IntegrationTestDefinition)]
-public class ConflictNameTests : IDisposable
+public class ConflictNameTests : BaseIntegrationTest
 {
-    private readonly TestWebAppFactory _webAppFactory;
-    private readonly HttpClient _client;
-    private readonly ITestOutputHelper _output;
-    
     public ConflictNameTests(
         TestWebAppFactory factory,
-        ITestOutputHelper output)
+        ITestOutputHelper output) : base(factory, output)
     {
-        _webAppFactory = factory;
-        _webAppFactory.ConfigureLoggingToTestOutput(output);
-        _output = output;
-        _client = factory.CreateClient();
+        factory.Get<UserSeeder>().CreateAdmin();
     }
 
     [Theory]
@@ -34,7 +28,6 @@ public class ConflictNameTests : IDisposable
     public async Task test_product_name_can_not_be_same_when_product_code_is_different(
         bool isOverwriteBySameProductCode)
     {
-        await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
             "./Fitur/Product/PostProductCsvTest/ProductNameConflict/_Preparation/different_code_same_name.csv");
@@ -42,19 +35,18 @@ public class ConflictNameTests : IDisposable
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent(isOverwriteBySameProductCode ? "true" : "false"), "overwrite_by_kode_barang");
 
-        var response = await _client.PostAsync(
+        var response = await AdminClient.PostAsync(
             TestConstant.ApiEndpoints.Product.PostCsv, requestBody);
-        _output.WriteLine(await response.Content.ReadAsStringAsync());
+        Output.WriteLine(await response.Content.ReadAsStringAsync());
         
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(db.Barangs.ToList());
-        Assert.Empty(db.Kategoris.ToList());
+        Assert.Empty(Db.Barangs.ToList());
+        Assert.Empty(Db.Kategoris.ToList());
     }
 
     [Fact]
     public async Task test_product_name_can_be_same_when_product_code_is_same()
     {
-        await using var db = _webAppFactory.GetDbContext();
         using var requestBody = new MultipartFormDataContent();
         using var csvStream = TestAssetsUtils.GetFileStream(
             "./Fitur/Product/PostProductCsvTest/ProductNameConflict/_Preparation/same_code_same_name.csv");
@@ -62,15 +54,15 @@ public class ConflictNameTests : IDisposable
         requestBody.Add(csvStream, "csv", "file.csv");
         requestBody.Add(new StringContent("true"), "overwrite_by_kode_barang");
 
-        var response = await _client.PostAsync(
+        var response = await AdminClient.PostAsync(
             TestConstant.ApiEndpoints.Product.PostCsv, requestBody);
         
-        _output.WriteLine(await response.Content.ReadAsStringAsync());
+        Output.WriteLine(await response.Content.ReadAsStringAsync());
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         
-        Barang product = db.Barangs.Include(product1 => product1.Kategori).Single();
-        Assert.Equal(2, db.Kategoris.Count());
+        Barang product = Db.Barangs.Include(product1 => product1.Kategori).Single();
+        Assert.Equal(2, Db.Kategoris.Count());
         Assert.True(product.Id > 0);
         Assert.Equal("R1-1-1", product.KodeBarang);
         Assert.Equal("Mata Solder", product.Nama);
@@ -83,11 +75,5 @@ public class ConflictNameTests : IDisposable
         Assert.Equal(55, product.LastMonthStock);
         Assert.Equal(20000, product.UnitPrice);
         Assert.Equal("Pc", product.Uom);
-    }
-
-    public void Dispose()
-    {
-        _client.Dispose();
-        _webAppFactory.Cleanup();
     }
 }
