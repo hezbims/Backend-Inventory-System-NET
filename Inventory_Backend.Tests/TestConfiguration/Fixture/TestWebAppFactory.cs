@@ -92,7 +92,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
         return jwtService.GenerateNewToken(user);
     }
 
-    public T GetService<T>() where T : notnull
+    public T Get<T>() where T : notnull
     {
         var scope = Server.Services.CreateScope();
         return scope.ServiceProvider.GetRequiredService<T>();

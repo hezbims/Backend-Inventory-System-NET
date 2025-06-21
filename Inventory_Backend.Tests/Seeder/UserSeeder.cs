@@ -20,4 +20,16 @@ public class UserSeeder(
         
         return newUser;
     }
+
+    public User CreateAdmin()
+    {
+        User newUser = new User(
+            username: "some_Admin123",
+            password: "1234578A@!",
+            isAdmin: true);
+        dbContext.Users.Add(newUser);
+        dbContext.SaveChanges();
+        
+        return newUser;
+    }
 }

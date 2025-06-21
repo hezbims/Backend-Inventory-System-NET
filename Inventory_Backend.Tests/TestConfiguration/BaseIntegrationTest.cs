@@ -24,7 +24,7 @@ public abstract class BaseIntegrationTest : IDisposable
     private readonly IServiceScope _scope;
 
     private MyDbContext? _dbContext;
-    protected MyDbContext Db => _dbContext ??= _webApp.GetService<MyDbContext>();
+    protected MyDbContext Db => _dbContext ??= _webApp.Get<MyDbContext>();
     
     
     protected readonly ITestOutputHelper Output;
