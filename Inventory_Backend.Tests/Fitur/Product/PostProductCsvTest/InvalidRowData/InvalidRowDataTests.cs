@@ -1,5 +1,6 @@
 using System.Net;
 using Inventory_Backend.Tests.Fitur.Product.PostProductCsvTest._Dto;
+using Inventory_Backend.Tests.Seeder;
 using Inventory_Backend.Tests.TestConfiguration;
 using Inventory_Backend.Tests.TestConfiguration.Constant;
 using Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -16,13 +17,7 @@ public class InvalidRowDataTests
 {
     public InvalidRowDataTests(TestWebAppFactory webApp, ITestOutputHelper output) : base(webApp, output)
     {
-        List<User> users =
-        [
-            new (username: "admin", password: "admin123", isAdmin: true),
-            new (username: "non_admin", password: "non-admin123", isAdmin: false)
-        ];
-        Db.AddRange(users);
-        Db.SaveChanges();
+        Get<UserSeeder>().CreateAdmin();
     }
     
     [Fact]

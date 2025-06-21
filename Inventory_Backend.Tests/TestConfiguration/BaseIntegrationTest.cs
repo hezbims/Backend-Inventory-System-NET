@@ -41,7 +41,7 @@ public abstract class BaseIntegrationTest : IDisposable
         Output = output;
     }
     
-    protected T GetService<T>() where T : notnull
+    protected T Get<T>() where T : notnull
     {
         return _scope.ServiceProvider.GetRequiredService<T>();
     }

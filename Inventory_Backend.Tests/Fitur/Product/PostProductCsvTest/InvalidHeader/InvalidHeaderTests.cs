@@ -15,7 +15,7 @@ public class InvalidHeaderTests : BaseIntegrationTest
     
     public InvalidHeaderTests(TestWebAppFactory factory, ITestOutputHelper output) : base(factory, output)
     {
-        factory.Get<UserSeeder>().CreateAdmin();
+        Get<UserSeeder>().CreateAdmin();
     }
 
     [Fact]

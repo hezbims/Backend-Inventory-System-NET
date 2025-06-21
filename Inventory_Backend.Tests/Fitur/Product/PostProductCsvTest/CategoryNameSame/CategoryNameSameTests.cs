@@ -14,7 +14,7 @@ public class CategoryNameSameTests : BaseIntegrationTest
 {
     public CategoryNameSameTests(TestWebAppFactory webApp, ITestOutputHelper output) : base(webApp, output)
     {
-        webApp.Get<UserSeeder>().CreateAdmin();
+        Get<UserSeeder>().CreateAdmin();
     }
 
     [Fact]

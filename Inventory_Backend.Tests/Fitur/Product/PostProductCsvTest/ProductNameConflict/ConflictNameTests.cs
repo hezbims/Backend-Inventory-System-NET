@@ -19,7 +19,7 @@ public class ConflictNameTests : BaseIntegrationTest
         TestWebAppFactory factory,
         ITestOutputHelper output) : base(factory, output)
     {
-        factory.Get<UserSeeder>().CreateAdmin();
+        Get<UserSeeder>().CreateAdmin();
     }
 
     [Theory]

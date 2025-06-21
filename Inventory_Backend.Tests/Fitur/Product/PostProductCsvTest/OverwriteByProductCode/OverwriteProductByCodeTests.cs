@@ -18,7 +18,7 @@ public class OverwriteProductByCodeTests : BaseIntegrationTest
     public OverwriteProductByCodeTests(TestWebAppFactory factory, ITestOutputHelper output) : 
         base(factory, output)
     {
-        factory.Get<UserSeeder>().CreateAdmin();
+        Get<UserSeeder>().CreateAdmin();
     }
 
     [Fact]
