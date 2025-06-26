@@ -1,5 +1,5 @@
-﻿using Inventory_Backend_NET.Database.Interceptor;
-using Inventory_Backend_NET.Database.Models;
+﻿using Inventory_Backend_NET.Database.Models;
+using Inventory_Backend_NET.Fitur.Pengajuan.Infrastructure.EF;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Backend_NET.Database
@@ -16,9 +16,9 @@ namespace Inventory_Backend_NET.Database
         public DbSet<Pengaju> Pengajus { get; set; } = null!;
         public DbSet<BarangAjuan> BarangAjuans { get; set; } = null!;
         public DbSet<StatusPengajuan> StatusPengajuans { get; set; } = null!;
-
         public DbSet<TotalPengajuanByTanggal> TotalPengajuanByTanggals { get; set; } = null!;
-        
+        public DbSet<TransactionEf> Transactions { get; set; } = null!;
+        public DbSet<TransactionItemEf> TransactionItems { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
