@@ -5,7 +5,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
 
@@ -26,12 +26,9 @@ public class AdminCreateNewTransactionTest
     {
         IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new CreateTransactionItemDto(
-                ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
-            new CreateTransactionItemDto(
-                ProductId: 24, Quantity: 3, Notes: ""),
-            new CreateTransactionItemDto(
-                ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
+            new (ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
+            new (ProductId: 24, Quantity: 3, Notes: ""),
+            new (ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: transactionType, 
@@ -119,6 +116,30 @@ public class AdminCreateNewTransactionTest
 
     #region Negative Case
     [Fact]
+    public void Must_Not_Be_Able_To_Assign_To_Admin()
+    {
+        IReadOnlyList<CreateTransactionItemDto> transactionItems =
+        [
+            new (ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
+            new (ProductId: 24, Quantity: 3, Notes: ""),
+            new (ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
+        ];
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.Out, 
+            StakeholderId: 1,
+            TransactionTime: 12,
+            AssignedUser: _userAdmin,
+            Creator: _userAdmin,
+            Notes: "Ini buatan admin",
+            TransactionItems: transactionItems));
+
+        var errors = result.GetError();
+
+        Assert.Contains(errors, error => error is AdminMustNotAssignTransactionToAdminUserError);
+
+    }
+    
+    [Fact]
     public void ShouldNotAbleCreateTransactionWithEmptyTransactionItem()
     {
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
@@ -143,9 +164,9 @@ public class AdminCreateNewTransactionTest
             TransactionTime: 12,
             Creator: _userAdmin,
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 3, Quantity: -1, Notes: "test"),
-                new CreateTransactionItemDto(ProductId: 4, Quantity: 0, Notes: "test"),
-                new CreateTransactionItemDto(ProductId: 5, Quantity: -2, Notes: "test"),
+                new (ProductId: 3, Quantity: -1, Notes: "test"),
+                new (ProductId: 4, Quantity: 0, Notes: "test"),
+                new (ProductId: 5, Quantity: -2, Notes: "test"),
                 
             ],
             Notes: "seharusnya ini gk bisa",

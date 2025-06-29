@@ -66,6 +66,8 @@ public class Transaction
         }
         else
         {
+            if (dto.AssignedUser?.IsAdmin == true && dto.Creator.IsAdmin)
+                errors.Add(new AdminMustNotAssignTransactionToAdminUserError());
             if (dto.TransactionItems
                     .SelectIndexWhere(item => item.Quantity < 0)
                     .ToList() is var indicesWithNegativeQuantity &&
