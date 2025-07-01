@@ -8,7 +8,8 @@ web/
 # dotenv files
 **/.env
 **/appsettings.*.json
-**/efbundle
+
+efbundle.exe
 
 # User-specific files
 *.rsuser
