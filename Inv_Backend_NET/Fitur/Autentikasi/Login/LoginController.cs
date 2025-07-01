@@ -2,6 +2,7 @@
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Autentikasi._Dto.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Backend_NET.Fitur.Autentikasi.Login
@@ -20,6 +21,7 @@ namespace Inventory_Backend_NET.Fitur.Autentikasi.Login
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Login([FromBody] LoginBodyDto user)
         {
             var currentUser = _db.Users.FirstOrDefault( 

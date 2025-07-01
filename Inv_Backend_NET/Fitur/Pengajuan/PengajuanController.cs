@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Inventory_Backend_NET.Fitur.Pengajuan;
 
 [Route("api/pengajuan")]
-[Authorize(policy : MyConstants.Policies.AllUsers)]
 public class PengajuanController(
     GetPengajuanSse getPengajuanSse,
     GetPengajuans getPengajuans)

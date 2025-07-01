@@ -32,4 +32,11 @@ public static class MyConstants
     }
     
     public const string DateFormat = "yyyy-MM-dd";
+    
+    /// <summary>
+    /// Key untuk error yang diakibatkan karena aplikasi FE gagal
+    /// memastikan input yang dikirimkan ke BE terformat dengan benar
+    /// (bukan salah input dari user)
+    /// </summary>
+    public const string WrongContractErrorKey = "__wrong_contract__";
 }

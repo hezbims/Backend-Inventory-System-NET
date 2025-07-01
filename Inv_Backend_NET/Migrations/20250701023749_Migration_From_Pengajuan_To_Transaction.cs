@@ -5,11 +5,19 @@
 namespace Inventory_Backend_NET.Migrations
 {
     /// <inheritdoc />
-    public partial class NewTransactionEFEntity : Migration
+    public partial class Migration_From_Pengajuan_To_Transaction : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Pengajuans_Pengajus_PengajuId",
+                table: "Pengajuans");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Pengajuans_Users_UserId",
+                table: "Pengajuans");
+
             migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
@@ -34,19 +42,19 @@ namespace Inventory_Backend_NET.Migrations
                         column: x => x.GroupId,
                         principalTable: "Pengajus",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Transactions_Users_AssignedUserId",
                         column: x => x.AssignedUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Transactions_Users_CreatorId",
                         column: x => x.CreatorId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -112,16 +120,56 @@ namespace Inventory_Backend_NET.Migrations
                 name: "IX_Transactions_UpdatedAt",
                 table: "Transactions",
                 column: "UpdatedAt");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Pengajuans_Pengajus_PengajuId",
+                table: "Pengajuans",
+                column: "PengajuId",
+                principalTable: "Pengajus",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Pengajuans_Users_UserId",
+                table: "Pengajuans",
+                column: "UserId",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Pengajuans_Pengajus_PengajuId",
+                table: "Pengajuans");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Pengajuans_Users_UserId",
+                table: "Pengajuans");
+
             migrationBuilder.DropTable(
                 name: "TransactionItems");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Pengajuans_Pengajus_PengajuId",
+                table: "Pengajuans",
+                column: "PengajuId",
+                principalTable: "Pengajus",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Pengajuans_Users_UserId",
+                table: "Pengajuans",
+                column: "UserId",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

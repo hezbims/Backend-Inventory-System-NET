@@ -22,6 +22,7 @@ public class RegisterNewUserController : ControllerBase
     }
     
     [HttpPost]
+    [AllowAnonymous]
     public IActionResult Index([FromBody] RegisterRequestBody requestBody)
     {
         try

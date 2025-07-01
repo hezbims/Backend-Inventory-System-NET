@@ -17,7 +17,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.PostPengajuan;
 
-[Authorize(MyConstants.Policies.AllUsers)]
 [Route("api/pengajuan/add")]
 public class PostPengajuanController : ControllerBase
 {

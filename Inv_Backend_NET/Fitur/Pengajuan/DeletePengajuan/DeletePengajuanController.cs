@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Inventory_Backend_NET.Fitur.Pengajuan.DeletePengajuan;
 
 [Route("api/pengajuan/delete")]
-[Authorize(MyConstants.Policies.AllUsers)]
 public class DeletePengajuanController : ControllerBase
 {
     private readonly MyDbContext _db;

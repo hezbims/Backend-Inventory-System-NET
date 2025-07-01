@@ -20,5 +20,17 @@ public class PengajuanConfiguration : IEntityTypeConfiguration<Pengajuan>
             .IsUnique();
         builder
             .HasIndex(e => new { e.WaktuUpdate, e.Id });
+        
+        builder
+            .HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder
+            .HasOne(t => t.Pengaju)
+            .WithMany()
+            .HasForeignKey(t => t.PengajuId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

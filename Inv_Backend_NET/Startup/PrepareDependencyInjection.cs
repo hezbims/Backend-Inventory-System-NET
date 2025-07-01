@@ -5,6 +5,8 @@ using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Barang._Dependency;
 using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Fitur.Pengajuan._Dependency;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -31,7 +33,13 @@ public static class PrepareDependencyInjection
             // untuk ngegunain JsonPropertyName kalo ada error
             options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
     
-            options.MaxModelValidationErrors = 100;             
+            options.MaxModelValidationErrors = 100;
+            
+            var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+
+            options.Filters.Add(new AuthorizeFilter(policy)); // 👈 Global AuthGuard
         });
         
         builder.Services.AddDbContext<MyDbContext>(

@@ -35,4 +35,28 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Transaction.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Transaction.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Transaction.id.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Transaction.id.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Transaction.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Transaction.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Transaction.id.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Transaction.id.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
 </Project>

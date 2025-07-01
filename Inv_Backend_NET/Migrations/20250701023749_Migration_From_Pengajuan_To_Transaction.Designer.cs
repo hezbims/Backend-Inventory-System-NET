@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inventory_Backend_NET.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250626063918_New-Transaction-EF-Entity")]
-    partial class NewTransactionEFEntity
+    [Migration("20250701023749_Migration_From_Pengajuan_To_Transaction")]
+    partial class Migration_From_Pengajuan_To_Transaction
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -408,13 +408,13 @@ namespace Inventory_Backend_NET.Migrations
                     b.HasOne("Inventory_Backend_NET.Database.Models.Pengaju", "Pengaju")
                         .WithMany()
                         .HasForeignKey("PengajuId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Inventory_Backend_NET.Database.Models.User", "User")
-                        .WithMany("Pengajuans")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Pengaju");
@@ -427,19 +427,19 @@ namespace Inventory_Backend_NET.Migrations
                     b.HasOne("Inventory_Backend_NET.Database.Models.User", "AssignedUser")
                         .WithMany()
                         .HasForeignKey("AssignedUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Inventory_Backend_NET.Database.Models.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Inventory_Backend_NET.Database.Models.Pengaju", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssignedUser");
@@ -476,11 +476,6 @@ namespace Inventory_Backend_NET.Migrations
             modelBuilder.Entity("Inventory_Backend_NET.Database.Models.Pengajuan", b =>
                 {
                     b.Navigation("BarangAjuans");
-                });
-
-            modelBuilder.Entity("Inventory_Backend_NET.Database.Models.User", b =>
-                {
-                    b.Navigation("Pengajuans");
                 });
 
             modelBuilder.Entity("Inventory_Backend_NET.Fitur.Pengajuan.Infrastructure.EF.TransactionEf", b =>

@@ -8,7 +8,6 @@ namespace Inventory_Backend_NET.Fitur.Barang
 {
     // TODO : Test kalo current stock yang direturn benar
     [Route("api/barang")]
-    [Authorize(policy: MyConstants.Policies.AllUsers)]
     public class BarangController(GetBarangsQuery getBarangsQuery) : Controller
     {
         private readonly GetBarangsQuery _getBarangsQuery = getBarangsQuery;
