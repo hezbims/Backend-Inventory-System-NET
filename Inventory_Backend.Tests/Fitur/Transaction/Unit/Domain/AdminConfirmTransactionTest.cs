@@ -5,7 +5,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.ConfirmTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 

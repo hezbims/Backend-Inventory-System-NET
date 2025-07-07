@@ -37,9 +37,9 @@ public static class RefreshDatabaseExtension
                 return;
             
             var foreignKeyEntities = entity
-                .GetForeignKeys()
-                .Select(foreignKey => foreignKey.PrincipalEntityType);
-
+                .GetReferencingForeignKeys()
+                .Select(foreignKey => foreignKey.DeclaringEntityType);
+            
             foreach (IEntityType foreignKeyEntity in foreignKeyEntities)
                 Visit(foreignKeyEntity);
             

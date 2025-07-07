@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using Inventory_Backend.Tests.Fitur.Pengaju._Dto;
 using Inventory_Backend.Tests.Fitur.User._Dto;
 
-namespace Inventory_Backend.Tests.Fitur.Pengajuan.GetPengajuanTest._Dto;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Integration.GetPengajuanTest._Dto;
 
 public record GetPengajuansResponseTestDto(
     [property: JsonPropertyName("data")]

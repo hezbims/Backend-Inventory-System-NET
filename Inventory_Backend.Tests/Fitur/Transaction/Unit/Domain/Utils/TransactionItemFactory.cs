@@ -1,6 +1,6 @@
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
 
 public record TransactionItemFactory(
     int Id,

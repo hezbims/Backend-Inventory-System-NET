@@ -11,7 +11,7 @@ namespace Inventory_Backend.Tests.TestConfiguration;
 /// <summary>
 /// Class ini digunakan agar ketika membuat test, kita enggak perlu ribet-ribet lagi mikirin cleanup
 /// </summary>
-public abstract class BaseIntegrationTest : IDisposable
+public abstract class BaseIntegrationTest
 {
     private readonly TestWebAppFactory _webApp;
 
@@ -21,7 +21,7 @@ public abstract class BaseIntegrationTest : IDisposable
     protected HttpClient NonAdminClient => _nonAdminClient ??= _webApp.GetAuthorizedClient(isAdmin: false);
     private HttpClient? _customClient;
 
-    private readonly IServiceScope _scope;
+    private IServiceScope? _scope;
 
     private MyDbContext? _dbContext;
     protected MyDbContext Db => _dbContext ??= _webApp.Get<MyDbContext>();
@@ -34,16 +34,15 @@ public abstract class BaseIntegrationTest : IDisposable
         ITestOutputHelper output)
     {
         _webApp = factory;
-        
         _webApp.ConfigureLoggingToTestOutput(output);
-        _scope = factory.Server.Services.CreateScope();
-        
         Output = output;
+        
+        ResetServices();
     }
     
     protected T Get<T>() where T : notnull
     {
-        return _scope.ServiceProvider.GetRequiredService<T>();
+        return _scope!.ServiceProvider.GetRequiredService<T>();
     }
 
     protected HttpClient GetAuthorizedClient(int userId)
@@ -53,19 +52,23 @@ public abstract class BaseIntegrationTest : IDisposable
         return _customClient;
     }
 
-    public void Dispose()
+    private void ResetServices()
     {
         TestTimeProvider.Instance.Reset();
-        
-        var context = _scope.ServiceProvider.GetRequiredService<MyDbContext>();
-        var memCache = _scope.ServiceProvider.GetRequiredService<IMemoryCache>() as MemoryCache;
-        memCache!.Clear();
 
-        context.RefreshDatabase();
-        _scope.Dispose();
-        
+        using  (var currentScope = _scope ?? _webApp.Server.Services.CreateScope())
+        {
+            var context = currentScope.ServiceProvider.GetRequiredService<MyDbContext>();
+            var memCache = currentScope.ServiceProvider.GetRequiredService<IMemoryCache>() as MemoryCache;
+            
+            memCache!.Clear();
+            context.RefreshDatabase();
+        }
+
         _adminClient?.Dispose();
         _nonAdminClient?.Dispose();
         _customClient?.Dispose();
+        
+        _scope = _webApp.Server.Services.CreateScope();
     }
 }

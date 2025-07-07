@@ -1,7 +1,7 @@
 using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 

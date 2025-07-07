@@ -4,7 +4,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 

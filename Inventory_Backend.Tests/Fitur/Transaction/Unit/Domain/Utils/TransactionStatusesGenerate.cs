@@ -1,6 +1,6 @@
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
 
 internal static class TransactionStatusesGenerate
 {

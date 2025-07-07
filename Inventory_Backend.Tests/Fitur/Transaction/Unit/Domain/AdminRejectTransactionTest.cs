@@ -3,9 +3,9 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.RejectTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
-using Inventory_Backend.Tests.Fitur.Transaction.Unit.Utils;
+using Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
 
-namespace Inventory_Backend.Tests.Fitur.Transaction.Unit;
+namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 
