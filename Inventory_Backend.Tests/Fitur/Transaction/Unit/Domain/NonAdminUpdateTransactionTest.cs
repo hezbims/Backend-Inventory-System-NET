@@ -191,10 +191,12 @@ public class NonAdminUpdateTransactionTest
                 new UpdateTransactionItemDto(ProductId: 1, Quantity: -2, Notes: ""),
             ])).GetError();
 
-        var error = (TransactionItemMustAtLeastHave1QuantityError) errors.Single(error => 
-            error is TransactionItemMustAtLeastHave1QuantityError);
+        var lessThan1QuantityErrors = errors.Where(error => 
+            error is TransactionItemMustAtLeastHave1QuantityError)
+            .Cast<TransactionItemMustAtLeastHave1QuantityError>()
+            .ToList();
         
-        Assert.Contains(1 , error.ErrorIndices);
-        Assert.Contains(2 , error.ErrorIndices);
+        Assert.Contains(lessThan1QuantityErrors, e => e.Index == 1);
+        Assert.Contains(lessThan1QuantityErrors, e => e.Index == 2);
     }
 }

@@ -20,7 +20,7 @@ namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 
 using CreateTransactionResult = Result<(Transaction, IReadOnlyList<ProductQuantityChangedEvent>), List<IBaseTransactionDomainError>>;
 using PatchTransactionResult = Result<IReadOnlyList<ProductQuantityChangedEvent>, List<IBaseTransactionDomainError>>;
-public class Transaction
+internal sealed class Transaction
 {
     public int Id { get; private set; }
     public long TransactionTime { get; private set; }
@@ -49,7 +49,7 @@ public class Transaction
     }
 
 
-    public static CreateTransactionResult CreateNew(CreateNewTransactionDto dto)
+    internal static CreateTransactionResult CreateNew(CreateNewTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
         if (!dto.Creator.IsAdmin && dto.TransactionType == TransactionType.In)
@@ -60,9 +60,12 @@ public class Transaction
         {
             if (dto.TransactionItems
                 .SelectIndexWhere(item => item.Quantity < 1)
-                .ToList() is var indicesWithLessThan1Quantity &&
-                !indicesWithLessThan1Quantity.IsNullOrEmpty())
-                errors.Add(new TransactionItemMustAtLeastHave1QuantityError(indicesWithLessThan1Quantity));
+                .ToList() is var indicesWithLessThan1Quantity)
+                foreach (var index in indicesWithLessThan1Quantity)
+                    errors.Add(new TransactionItemMustAtLeastHave1QuantityError
+                    {
+                        Index = index,
+                    });
         }
         else
         {
@@ -70,9 +73,13 @@ public class Transaction
                 errors.Add(new AdminMustNotAssignTransactionToAdminUserError());
             if (dto.TransactionItems
                     .SelectIndexWhere(item => item.Quantity < 0)
-                    .ToList() is var indicesWithNegativeQuantity &&
-                !indicesWithNegativeQuantity.IsNullOrEmpty())
-                errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(indicesWithNegativeQuantity));
+                    .ToList() is var indicesWithNegativeQuantity)
+                foreach (var index in indicesWithNegativeQuantity)
+                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
+                    {
+                        Index = index,
+                    });
+                
         }
         if (!errors.IsNullOrEmpty())
             return new CreateTransactionResult.Failed(errors);
@@ -134,9 +141,13 @@ public class Transaction
         else if (
             dto.TransactionItems
                 .SelectIndexWhere(item => item.PreparedQuantity < 0)
-                .ToList() is var negativeItems &&
-            !negativeItems.IsNullOrEmpty())
-            errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(negativeItems));
+                .ToList() is var negativeItems)
+                foreach (var index in negativeItems)
+                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
+                    {
+                        Index = index,
+                    });        
+            
         
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
@@ -225,9 +236,12 @@ public class Transaction
                 errors.Add(new TransactionItemsShouldNotBeEmptyError());
             if (dto.TransactionItems
                     .SelectIndexWhere(item => item.Quantity <= 0)
-                    .ToList() is var indexWithLessThan1Quantity&&
-                !indexWithLessThan1Quantity.IsNullOrEmpty())
-                errors.Add(new TransactionItemMustAtLeastHave1QuantityError(indexWithLessThan1Quantity));
+                    .ToList() is var indicesWithLessThan1Quantity)
+                foreach (var index in indicesWithLessThan1Quantity)
+                    errors.Add(new TransactionItemMustAtLeastHave1QuantityError
+                    {
+                        Index = index,
+                    });
         }
         else
         {
@@ -238,9 +252,12 @@ public class Transaction
             else if (
                 dto.TransactionItems
                      .SelectIndexWhere(item => item.Quantity < 0)
-                     .ToList() is var indexWithNegativeQuantity &&
-                 !indexWithNegativeQuantity.IsNullOrEmpty())
-                errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity(indexWithNegativeQuantity));
+                     .ToList() is var indicesWithNegativeQuantity )
+                foreach (var index in indicesWithNegativeQuantity)
+                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
+                    {
+                        Index = index,
+                    });
         }
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);

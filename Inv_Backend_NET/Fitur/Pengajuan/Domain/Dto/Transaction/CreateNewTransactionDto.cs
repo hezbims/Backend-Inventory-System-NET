@@ -4,7 +4,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 
-public record CreateNewTransactionDto(
+internal sealed record CreateNewTransactionDto(
     TransactionType TransactionType,
     long TransactionTime,
     int StakeholderId,

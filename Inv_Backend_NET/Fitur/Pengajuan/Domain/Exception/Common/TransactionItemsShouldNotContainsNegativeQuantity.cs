@@ -1,4 +1,6 @@
 ﻿namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
 
-public record TransactionItemsShouldNotContainsNegativeQuantity(
-    List<int> ErrorIndices) : IBaseTransactionDomainError;
+internal sealed class TransactionItemsShouldNotContainsNegativeQuantity : IBaseTransactionDomainError
+{
+    public required int Index { get; init; }
+}

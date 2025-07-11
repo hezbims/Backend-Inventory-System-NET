@@ -127,12 +127,13 @@ public class NonAdminCreateNewTransactionTest
         ));
 
         var errors = result.GetError();
-        TransactionItemMustAtLeastHave1QuantityError error = (TransactionItemMustAtLeastHave1QuantityError) 
-            errors.Single(error => 
-                error is TransactionItemMustAtLeastHave1QuantityError);
-        Assert.Equal(2, error.ErrorIndices.Count);
-        Assert.Contains(1, error.ErrorIndices);
-        Assert.Contains(0, error.ErrorIndices);
+        var lessThan1QuantityErrors = errors.Where(error => 
+                error is TransactionItemMustAtLeastHave1QuantityError)
+            .Cast<TransactionItemMustAtLeastHave1QuantityError>()
+            .ToList();
+        Assert.Equal(2, lessThan1QuantityErrors.Count);
+        Assert.Contains(lessThan1QuantityErrors , e => e.Index == 1);
+        Assert.Contains(lessThan1QuantityErrors , e => e.Index == 0);
     }
     #endregion
 }

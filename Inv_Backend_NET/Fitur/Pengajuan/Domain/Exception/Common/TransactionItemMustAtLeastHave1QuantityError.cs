@@ -1,4 +1,6 @@
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
 
-public record TransactionItemMustAtLeastHave1QuantityError(
-    List<int> ErrorIndices) : IBaseTransactionDomainError;
+internal sealed class TransactionItemMustAtLeastHave1QuantityError : IBaseTransactionDomainError
+{
+    public required int Index { get; init; }
+}

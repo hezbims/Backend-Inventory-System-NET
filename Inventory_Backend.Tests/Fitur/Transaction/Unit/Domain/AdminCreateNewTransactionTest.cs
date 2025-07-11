@@ -173,11 +173,13 @@ public class AdminCreateNewTransactionTest
             AssignedUser: null));
         
         List<IBaseTransactionDomainError> errors = result.GetError();
-        var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single(error => 
-                error is TransactionItemsShouldNotContainsNegativeQuantity);
-        Assert.Equal(2, error.ErrorIndices.Count);
-        Assert.Contains(2, error.ErrorIndices);
-        Assert.Contains(0, error.ErrorIndices);
+        var negativeQuantityErrors =  errors.Where(error => 
+                error is TransactionItemsShouldNotContainsNegativeQuantity)
+                .Cast<TransactionItemsShouldNotContainsNegativeQuantity>()
+                .ToList();
+        Assert.Equal(2, negativeQuantityErrors.Count);
+        Assert.Contains(negativeQuantityErrors , e => e.Index == 2);
+        Assert.Contains(negativeQuantityErrors , e => e.Index == 0);
     }
     #endregion
     

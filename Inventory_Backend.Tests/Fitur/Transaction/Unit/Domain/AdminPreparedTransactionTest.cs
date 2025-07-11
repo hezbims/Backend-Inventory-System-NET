@@ -146,6 +146,6 @@ public class AdminPreparedTransactionTest
             ])).GetError();
 
         var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single();
-        Assert.Contains(0, error.ErrorIndices);
+        Assert.Equal(0, error.Index);
     }
 }

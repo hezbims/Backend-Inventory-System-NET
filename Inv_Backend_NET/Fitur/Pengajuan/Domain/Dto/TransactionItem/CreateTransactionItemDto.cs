@@ -1,10 +1,10 @@
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 
-public record CreateTransactionItemDto(int ProductId, int Quantity, string Notes);
+internal sealed record CreateTransactionItemDto(int ProductId, int Quantity, string Notes);
 
-public static class TransactionItemDtoExtensions
+internal static class TransactionItemDtoExtensions
 {
-    public static List<Entity.TransactionItem> ToTransactionItemEntities(
+    internal static List<Entity.TransactionItem> ToTransactionItemEntities(
         this IEnumerable<CreateTransactionItemDto> items,
         bool isAdminCreation)
     {

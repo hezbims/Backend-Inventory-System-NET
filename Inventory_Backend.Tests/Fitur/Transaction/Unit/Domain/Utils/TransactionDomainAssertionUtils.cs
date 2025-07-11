@@ -8,7 +8,7 @@ using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transact
 
 public static class TransactionDomainAssertionUtils
 {
-    public static void AssertTransactionFullData(
+    internal static void AssertTransactionFullData(
         this Transaction transaction,
         int id, long transactionTime, int stakeholderId,
         TransactionType type, TransactionStatus status, int creatorId,

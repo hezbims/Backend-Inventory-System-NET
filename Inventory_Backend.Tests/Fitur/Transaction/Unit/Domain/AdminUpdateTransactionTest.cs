@@ -167,7 +167,6 @@ public class AdminUpdateTransactionTest
 
         var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single(
             error => error is TransactionItemsShouldNotContainsNegativeQuantity);
-        Assert.Single(error.ErrorIndices);
-        Assert.Contains(0, error.ErrorIndices);
+        Assert.Equal(0, error.Index);
     }
 }

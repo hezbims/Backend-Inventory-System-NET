@@ -5,7 +5,7 @@ namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
 
 using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transaction;
 
-public record TransactionFactory(
+internal sealed record TransactionFactory(
     int Id,
     long TransactionTime,
     int StakeholderId,
@@ -16,7 +16,7 @@ public record TransactionFactory(
     IReadOnlyList<TransactionItemFactory> TransactionItems,
     string Notes)
 {
-    public Transaction Build()
+    internal Transaction Build()
     {
         return new Transaction(
             id: Id,
