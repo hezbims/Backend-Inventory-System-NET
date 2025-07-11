@@ -1,3 +1,5 @@
+using Inventory_Backend_NET.Common.Domain.Exception;
+
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 
-public interface IBaseTransactionDomainError;
+internal interface IBaseTransactionDomainError : IBaseDomainError;
