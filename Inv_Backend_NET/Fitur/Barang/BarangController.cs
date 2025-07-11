@@ -34,7 +34,7 @@ namespace Inventory_Backend_NET.Fitur.Barang
                     IdKategori: idKategori
                 )));
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 return StatusCode(500, new
                 {

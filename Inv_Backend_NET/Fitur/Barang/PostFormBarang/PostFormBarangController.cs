@@ -73,7 +73,7 @@ public class PostFormBarangController : Controller
                 message = "sukses"
             });
         }
-        catch (Exception e)
+        catch (System.Exception e)
         {
             Console.WriteLine(e);
             return StatusCode(500, new

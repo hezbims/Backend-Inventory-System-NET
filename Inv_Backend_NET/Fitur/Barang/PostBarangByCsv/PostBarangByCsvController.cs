@@ -144,7 +144,7 @@ public class PostBarangByCsvController : ControllerBase
             }
             
         }
-        catch (Exception e)
+        catch (System.Exception e)
         {
             Console.WriteLine(e);
             transaction.Rollback();
