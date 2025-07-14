@@ -45,4 +45,22 @@
     <data name="transaction_items_is_null" xml:space="preserve">
         <value>Key json transaction items harus tersedia</value>
     </data>
+    <data name="can_not_cancel_other_user_transaction" xml:space="preserve">
+        <value>Anda tidak dapat membatalkan transaksi milik pengguna lain</value>
+    </data>
+    <data name="can_not_cancel_transaction_with_empty_notes" xml:space="preserve">
+        <value>Tidak dapat membatalkan transaksi tanpa menginputkan catatan</value>
+    </data>
+    <data name="can_not_cancel_rejected_transaction" xml:space="preserve">
+        <value>Transaksi yang sudah ditolak tidak dapat dibatalkan</value>
+    </data>
+    <data name="transaction_can_not_canceled_twice" xml:space="preserve">
+        <value>Tidak dapat membatalkan transaksi berkali-kali</value>
+    </data>
+    <data name="non_admin_can_not_assign_supplier_group" xml:space="preserve">
+        <value>Anda tidak dapat menetapkan transaksi kepada grup pemasok</value>
+    </data>
+    <data name="prepared_quantity_must_filled" xml:space="preserve">
+        <value>Jumlah yang disiapkan pada posisi ke-%s harus diisi</value>
+    </data>
 </root>

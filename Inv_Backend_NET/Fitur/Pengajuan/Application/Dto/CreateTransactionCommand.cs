@@ -14,14 +14,16 @@ internal sealed record CreateTransactionCommand(
 
 internal sealed record CreateTransactionItemCommand(
     int ProductId,
-    int Quantity,
+    int ExpectedQuantity,
+    int? PreparedQuantity,
     string Notes)
 {
     internal CreateTransactionItemDto ToDomainDto()
     {
         return new CreateTransactionItemDto(
             ProductId: ProductId,
-            Quantity: Quantity,
+            ExpectedQuantity: ExpectedQuantity,
+            PreparedQuantity: PreparedQuantity,
             Notes: Notes);
     }
 }

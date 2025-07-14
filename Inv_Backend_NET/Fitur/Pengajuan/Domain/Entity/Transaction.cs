@@ -1,12 +1,11 @@
 using Inventory_Backend_NET.Common.Domain.Dto;
 using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Common.Utils;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CancelTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.ConfirmTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
@@ -20,6 +19,8 @@ namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 
 using CreateTransactionResult = Result<(Transaction, IReadOnlyList<ProductQuantityChangedEvent>), List<IBaseTransactionDomainError>>;
 using PatchTransactionResult = Result<IReadOnlyList<ProductQuantityChangedEvent>, List<IBaseTransactionDomainError>>;
+using CreateTransactionItemResults = List<Result<TransactionItem, List<TransactionItemError>>>;
+
 internal sealed class Transaction
 {
     public int Id { get; private set; }
@@ -32,7 +33,7 @@ internal sealed class Transaction
     public IReadOnlyList<TransactionItem> TransactionItems { get; private set; }
     public string Notes { get; private set; }
 
-    public Transaction(
+    private Transaction(
         int id, TransactionType type, long transactionTime, int stakeholderId,
         TransactionStatus status, int creatorId, int assignedUserId, string notes,
         List<TransactionItem>? transactionItems = null)
@@ -52,35 +53,38 @@ internal sealed class Transaction
     internal static CreateTransactionResult CreateNew(CreateNewTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
+        CreateTransactionItemResults createTransactionItemResults;
+        
         if (!dto.Creator.IsAdmin && dto.TransactionType == TransactionType.In)
             errors.Add(new UserNonAdminShouldNotCreateTransactionOfTypeInError());
         if (dto.TransactionItems.IsNullOrEmpty())
             errors.Add(new TransactionItemsShouldNotBeEmptyError());
         if (!dto.Creator.IsAdmin)
-        {
-            if (dto.TransactionItems
-                .SelectIndexWhere(item => item.Quantity < 1)
-                .ToList() is var indicesWithLessThan1Quantity)
-                foreach (var index in indicesWithLessThan1Quantity)
-                    errors.Add(new TransactionItemMustAtLeastHave1QuantityError
-                    {
-                        Index = index,
-                    });
-        }
+            createTransactionItemResults = dto.TransactionItems
+                .Select((item, index) => TransactionItem.CreateNew(
+                    productId: item.ProductId,
+                    expectedQuantity: item.ExpectedQuantity,
+                    preparedQuantity: null,
+                    notes: item.Notes,
+                    index: index
+                )).ToList();
         else
         {
             if (dto.AssignedUser?.IsAdmin == true && dto.Creator.IsAdmin)
                 errors.Add(new AdminMustNotAssignTransactionToAdminUserError());
-            if (dto.TransactionItems
-                    .SelectIndexWhere(item => item.Quantity < 0)
-                    .ToList() is var indicesWithNegativeQuantity)
-                foreach (var index in indicesWithNegativeQuantity)
-                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
-                    {
-                        Index = index,
-                    });
-                
+            
+            createTransactionItemResults = dto.TransactionItems
+                .Select((item, index) => TransactionItem.CreateNew(
+                    productId: item.ProductId,
+                    expectedQuantity: item.ExpectedQuantity,
+                    preparedQuantity: dto.TransactionType == TransactionType.In ?
+                        item.ExpectedQuantity : item.PreparedQuantity,
+                    notes: item.Notes,
+                    index: index)).ToList();
+
         }
+        errors.AddRange(createTransactionItemResults.GetErrors());
+        
         if (!errors.IsNullOrEmpty())
             return new CreateTransactionResult.Failed(errors);
 
@@ -111,9 +115,8 @@ internal sealed class Transaction
                     status = TransactionStatus.Confirmed;
             }
         }
-        
-        IReadOnlyList<TransactionItem> transactionItems = dto.TransactionItems
-            .ToTransactionItemEntities(isAdminCreation: dto.Creator.IsAdmin);
+
+        IReadOnlyList<TransactionItem> transactionItems = createTransactionItemResults.ToTransactionItems();
         Transaction newlyCreatedTransaction = new Transaction(
             id: 0,
             type: dto.TransactionType,
@@ -132,22 +135,23 @@ internal sealed class Transaction
     public PatchTransactionResult PrepareTransaction(PrepareTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
+        CreateTransactionItemResults createTransactionItemResults = [];
+        
         if (!dto.Preparator.IsAdmin)
             errors.Add(new UserNonAdminShouldNotPrepareTransactionError());
         if (this.Status != TransactionStatus.Waiting)
             errors.Add(new OnlyWaitingTransactionCanBePreparedError());
         if (dto.TransactionItems.Count != TransactionItems.Count)
             errors.Add(new TransactionItemsSizeMustBeSameError());
-        else if (
-            dto.TransactionItems
-                .SelectIndexWhere(item => item.PreparedQuantity < 0)
-                .ToList() is var negativeItems)
-                foreach (var index in negativeItems)
-                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
-                    {
-                        Index = index,
-                    });        
-            
+        else
+            createTransactionItemResults = dto.TransactionItems.Select((item, index) =>
+                TransactionItem.CreateNew(
+                    productId: TransactionItems[index].ProductId,
+                    expectedQuantity: TransactionItems[index].ExpectedQuantity,
+                    preparedQuantity: item.PreparedQuantity,
+                    notes: TransactionItems[index].Notes,
+                    index: index)).ToList();
+        errors.AddRange(createTransactionItemResults.GetErrors());
         
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
@@ -156,12 +160,7 @@ internal sealed class Transaction
         Notes = dto.Notes;
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
-            TransactionItems.Select((item, index) => new TransactionItem(
-                id: item.Id,
-                productId: item.ProductId,
-                expectedQuantity: item.ExpectedQuantity,
-                preparedQuantity: dto.TransactionItems[index].PreparedQuantity,
-                notes: item.Notes)).ToList(),
+            newTransactionItems: createTransactionItemResults.ToTransactionItems(),
             hasSideEffects: true);
         
         return new PatchTransactionResult.Succeed(sideEffects);
@@ -197,23 +196,25 @@ internal sealed class Transaction
                 new NonAdminIsNotAllowedToRejectTransactionError()]);
         
         List<IBaseTransactionDomainError> errors = [];
+        CreateTransactionItemResults createTransactionItemResults = TransactionItems.Select((item, index) => 
+            TransactionItem.CreateNew(
+                productId: item.ProductId,
+                expectedQuantity: item.ExpectedQuantity,
+                preparedQuantity: null,
+                notes: item.Notes,
+                index: index)).ToList();
         if (this.Status is not (TransactionStatus.Waiting or TransactionStatus.Prepared))
             errors.Add(new OnlyWaitingAndPreparedTransactionCanBeRejectedError());
         if (dto.Notes.IsNullOrEmpty())
             errors.Add(new RejectionNotesMustNotBeEmptyError());
+        errors.AddRange(createTransactionItemResults.GetErrors());
         
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
 
         this.Notes = dto.Notes;
         this.Status = TransactionStatus.Rejected;
-        List<TransactionItem> newTransactionItems = this.TransactionItems.Select(item =>
-            new TransactionItem(
-                id: item.Id,
-                productId: item.ProductId,
-                expectedQuantity: item.ExpectedQuantity,
-                preparedQuantity: null,
-                notes: item.Notes)).ToList();
+        List<TransactionItem> newTransactionItems = createTransactionItemResults.ToTransactionItems();
         
         var sideEffects = ReplaceTransactionItems(newTransactionItems, hasSideEffects: true);
         return new PatchTransactionResult.Succeed(sideEffects);
@@ -222,6 +223,7 @@ internal sealed class Transaction
     public PatchTransactionResult UpdateTransaction(UpdateTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
+        CreateTransactionItemResults createTransactionItemResults = [];
         
         if (!dto.Updater.IsAdmin)
         {
@@ -234,14 +236,15 @@ internal sealed class Transaction
                 errors.Add(new NonAdminCanNotAssignSupplierGroupError());
             if (dto.TransactionItems.IsNullOrEmpty())
                 errors.Add(new TransactionItemsShouldNotBeEmptyError());
-            if (dto.TransactionItems
-                    .SelectIndexWhere(item => item.Quantity <= 0)
-                    .ToList() is var indicesWithLessThan1Quantity)
-                foreach (var index in indicesWithLessThan1Quantity)
-                    errors.Add(new TransactionItemMustAtLeastHave1QuantityError
-                    {
-                        Index = index,
-                    });
+            else
+                createTransactionItemResults = dto.TransactionItems.Select((item, index) =>
+                    TransactionItem.CreateNew(
+                        productId: item.ProductId,
+                        expectedQuantity: item.Quantity,
+                        preparedQuantity: null,
+                        notes: item.Notes,
+                        index: index
+                    )).ToList();
         }
         else
         {
@@ -249,16 +252,17 @@ internal sealed class Transaction
                 errors.Add(new AdminCanOnlyUpdatePreparedTransaction());
             if (dto.TransactionItems.Count != TransactionItems.Count)
                 errors.Add(new TransactionItemsSizeMustBeSameError());
-            else if (
-                dto.TransactionItems
-                     .SelectIndexWhere(item => item.Quantity < 0)
-                     .ToList() is var indicesWithNegativeQuantity )
-                foreach (var index in indicesWithNegativeQuantity)
-                    errors.Add(new TransactionItemsShouldNotContainsNegativeQuantity
-                    {
-                        Index = index,
-                    });
+            else
+                createTransactionItemResults = dto.TransactionItems.Select((item, index) =>
+                    TransactionItem.CreateNew(
+                        productId: TransactionItems[index].ProductId,
+                        expectedQuantity: TransactionItems[index].ExpectedQuantity,
+                        preparedQuantity: item.Quantity,
+                        notes: TransactionItems[index].Notes,
+                        index: index)).ToList();
         }
+        errors.AddRange(createTransactionItemResults.GetErrors());
+        
         if (!errors.IsNullOrEmpty())
             return new PatchTransactionResult.Failed(errors);
 
@@ -271,27 +275,8 @@ internal sealed class Transaction
         Notes = dto.Notes;
 
         List<ProductQuantityChangedEvent> sideEffects = ReplaceTransactionItems(
-            newTransactionItems: dto.TransactionItems.Select((request, index) =>
-            {
-                // kalau updater adalah admin, maka expected quantity tetap sama
-                // kalau updater adalah non admin, maka expected quantity bakalan mengikuti sesuai request
-                int expectedQuantity = dto.Updater.IsAdmin ? TransactionItems[index].ExpectedQuantity : request.Quantity;
-                
-                // kalau updater adalah admin, maka prepared quantity akan berubah mengikuti sesuai request
-                // kalau updater adalah non admin, maka prepared quantity pasti null (karena transaction pasti di waiting)
-                int? preparedQuantity = dto.Updater.IsAdmin ? request.Quantity : null;
-                
-                int productId = dto.Updater.IsAdmin ? TransactionItems[index].ProductId : request.ProductId!.Value;
-                
-                string notes = dto.Updater.IsAdmin ? TransactionItems[index].Notes : request.Notes!;
-
-                return TransactionItem.CreateNew(
-                    productId: productId,
-                    expectedQuantity: expectedQuantity,
-                    preparedQuantity: preparedQuantity,
-                    notes: notes
-                );
-            }).ToList(), hasSideEffects: dto.Updater.IsAdmin); // Side effect hanya ketika admin update prepared transaction
+            newTransactionItems: createTransactionItemResults.ToTransactionItems(),
+            hasSideEffects: dto.Updater.IsAdmin); // Side effect hanya ketika admin update prepared transaction
         
         return new PatchTransactionResult.Succeed(sideEffects);
     }

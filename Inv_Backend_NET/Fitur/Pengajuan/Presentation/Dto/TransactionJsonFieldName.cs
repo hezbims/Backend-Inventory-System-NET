@@ -7,5 +7,6 @@ public abstract class TransactionJsonFieldName
     public const string TransactionType = "transaction_type";
     public const string ProductId = "product_id";
     public const string ExpectedQuantity = "expected_quantity";
+    public const string PreparedQuantity = "prepared_quantity";
     public const string TransactionItems = "transaction_items";
 }

@@ -3,6 +3,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
@@ -26,8 +27,8 @@ public class NonAdminCreateNewTransactionTest
             Creator: _nonAdmin,
             Notes: "seharusnya gk ada side effect",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+                new CreateTransactionItemDto(ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: 2, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
             ]
         ));
 
@@ -40,8 +41,8 @@ public class NonAdminCreateNewTransactionTest
     {
         IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-            new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+            new (ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: 234324, Notes: ""),
+            new (ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: TransactionType.Out,
@@ -63,13 +64,12 @@ public class NonAdminCreateNewTransactionTest
             creatorId: _nonAdmin.Id, 
             assignedUserId: _nonAdmin.Id,
             notes: "non-admin ngebuat",
-            transactionItems: transactionItems.Select(item =>
+            transactionItems: [
                 new TransactionItemAssertionDto(
-                    ProductId: item.ProductId,
-                    ExpectedQuantity: item.Quantity,
-                    PreparedQuantity: null,
-                    Notes: item.Notes)
-            ).ToList());
+                    ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: null, Notes: ""),
+                new TransactionItemAssertionDto(
+                    ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin"),
+            ]);
     }
     #endregion
 
@@ -84,8 +84,8 @@ public class NonAdminCreateNewTransactionTest
             Creator: _nonAdmin,
             Notes: "seharusnya gagal",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
+                new CreateTransactionItemDto(ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: null, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
             ]
         ));
 
@@ -120,16 +120,16 @@ public class NonAdminCreateNewTransactionTest
             Notes: "seharusnya enggak bisa",
             TransactionItems: 
             [
-                new CreateTransactionItemDto(ProductId: 3, Quantity: 0, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 4, Quantity: -1, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 5, Quantity: 5, Notes: "Yang ini valid"),
+                new CreateTransactionItemDto(ProductId: 3, ExpectedQuantity: 0, PreparedQuantity: 23234, Notes: ""),
+                new CreateTransactionItemDto(ProductId: 4, ExpectedQuantity: -1, PreparedQuantity: null,Notes: ""),
+                new CreateTransactionItemDto(ProductId: 5, ExpectedQuantity: 5, PreparedQuantity: 47289347, Notes: "Yang ini valid"),
             ]
         ));
 
         var errors = result.GetError();
         var lessThan1QuantityErrors = errors.Where(error => 
-                error is TransactionItemMustAtLeastHave1QuantityError)
-            .Cast<TransactionItemMustAtLeastHave1QuantityError>()
+                error is ExpectedQuantityMustGreaterThanZeroError)
+            .Cast<ExpectedQuantityMustGreaterThanZeroError>()
             .ToList();
         Assert.Equal(2, lessThan1QuantityErrors.Count);
         Assert.Contains(lessThan1QuantityErrors , e => e.Index == 1);

@@ -45,4 +45,22 @@
     <data name="transaction_items_is_null" xml:space="preserve">
         <value>Transaction items json key doesn't exists</value>
     </data>
+    <data name="can_not_cancel_other_user_transaction" xml:space="preserve">
+        <value>You can't cancel other user transaction</value>
+    </data>
+    <data name="can_not_cancel_transaction_with_empty_notes" xml:space="preserve">
+        <value>Can't cancel transaction with empty notes</value>
+    </data>
+    <data name="can_not_cancel_rejected_transaction" xml:space="preserve">
+        <value>Can't cancel rejected transaction</value>
+    </data>
+    <data name="transaction_can_not_canceled_twice" xml:space="preserve">
+        <value>Transaction can't canceled multiple times</value>
+    </data>
+    <data name="non_admin_can_not_assign_supplier_group" xml:space="preserve">
+        <value>You can't assign transaction to supplier group</value>
+    </data>
+    <data name="prepared_quantity_must_filled" xml:space="preserve">
+        <value>Prepared quantity at %s-th position must filled</value>
+    </data>
 </root>

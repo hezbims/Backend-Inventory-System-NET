@@ -1,6 +1,11 @@
+using Inventory_Backend_NET.Common.Domain.Dto;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
+
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 
-public class TransactionItem
+using CreateResult = Result<TransactionItem, List<TransactionItemError>>;
+
+internal sealed class TransactionItem
 {
     public int Id { get; private init; }
     public int ProductId { get; private init; }
@@ -8,7 +13,7 @@ public class TransactionItem
     public int? PreparedQuantity { get; private init; }
     public string Notes { get; private init; }
 
-    public TransactionItem(
+    private TransactionItem(
         int productId,
         int expectedQuantity,
         int? preparedQuantity,
@@ -22,14 +27,25 @@ public class TransactionItem
         Notes = notes;
     }
 
-    public static TransactionItem CreateNew(
-        int productId, int expectedQuantity, int? preparedQuantity, string notes)
+    internal static CreateResult CreateNew(
+        int productId, int expectedQuantity, int? preparedQuantity, string notes, int index)
     {
-        return new TransactionItem(
+        List<TransactionItemError> errors = [];
+        if (expectedQuantity <= 0)
+            errors.Add(new ExpectedQuantityMustGreaterThanZeroError(index));
+        if (preparedQuantity < 0)
+            errors.Add(new PreparedQuantityMustNotNegativeError(index));
+        if (errors.Count == 0 && preparedQuantity > expectedQuantity)
+            errors.Add(new PreparedQuantityCantBeGreaterThanExpectedQuantityError(index));
+        
+        if (errors.Count != 0)
+            return new CreateResult.Failed(errors);
+        
+        return new CreateResult.Succeed(new TransactionItem(
             id: 0, 
             productId: productId,
             expectedQuantity: expectedQuantity,
             preparedQuantity: preparedQuantity,
-            notes: notes);
+            notes: notes));
     }
 }

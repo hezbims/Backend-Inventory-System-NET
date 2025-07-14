@@ -5,6 +5,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CreateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
@@ -19,19 +20,17 @@ public class AdminCreateNewTransactionTest
     private readonly UserDto _assignedNonAdminUser = new UserDto(Id: 64, IsAdmin: false);
     
     #region Positive Case
-    [Theory]
-    [InlineData(TransactionType.In)]
-    [InlineData(TransactionType.Out)]
-    public void ShouldResultingInCorrectSideEffects(TransactionType transactionType)
+    [Fact]
+    public void ShouldResultingInCorrectSideEffects_When_Transaction_Type_Is_OUT()
     {
         IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new (ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
-            new (ProductId: 24, Quantity: 3, Notes: ""),
-            new (ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
+            new (ProductId: 23, ExpectedQuantity: 6, PreparedQuantity: 5, Notes: "Kuambil 5"),
+            new (ProductId: 24, ExpectedQuantity: 3, PreparedQuantity: 3, Notes: ""),
+            new (ProductId: 25, ExpectedQuantity: 8, PreparedQuantity: 7, Notes: "Humm.. 😐"),
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: transactionType, 
+            TransactionType: TransactionType.Out, 
             StakeholderId: 1,
             TransactionTime: 12,
             Creator: _userAdmin,
@@ -40,77 +39,174 @@ public class AdminCreateNewTransactionTest
         
         IReadOnlyList<ProductQuantityChangedEvent> sideEffects = result.GetData().Item2;
 
-        sideEffects.AssertAll(expectedEvents: 
-            transactionItems.Select(item =>
-                new ProductQuantityChangedEventAssertionDto(
-                    ProductId: item.ProductId,
-                    Quantity: item.Quantity,
-                    Type: transactionType
-                )
-            ).ToList());
+        sideEffects.AssertAll(expectedEvents: [
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 23, Quantity: 5, TransactionType.Out),
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 24, Quantity: 3, TransactionType.Out),
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 25, Quantity: 7, TransactionType.Out),
+        ]);
+    }
+    
+    [Fact]
+    public void ShouldResultingInCorrectSideEffects_When_Transaction_Type_Is_IN()
+    {
+        IReadOnlyList<CreateTransactionItemDto> transactionItems =
+        [
+            new (ProductId: 23, ExpectedQuantity: 6, PreparedQuantity: 5, Notes: "Kuambil 5"),
+            new (ProductId: 24, ExpectedQuantity: 3, PreparedQuantity: 3, Notes: ""),
+            new (ProductId: 25, ExpectedQuantity: 8, PreparedQuantity: 7, Notes: "Humm.. 😐"),
+        ];
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.In, 
+            StakeholderId: 1,
+            TransactionTime: 12,
+            Creator: _userAdmin,
+            Notes: "Ini buatan admin",
+            TransactionItems: transactionItems));
+        
+        IReadOnlyList<ProductQuantityChangedEvent> sideEffects = result.GetData().Item2;
+
+        sideEffects.AssertAll(expectedEvents: [
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 23, Quantity: 6, TransactionType.In),
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 24, Quantity: 3, TransactionType.In),
+            new ProductQuantityChangedEventAssertionDto(
+                ProductId: 25, Quantity: 8, TransactionType.In),
+        ]);
     }
 
-    [Theory]
-    [InlineData(TransactionType.In, true)]
-    [InlineData(TransactionType.In, false)]
-    [InlineData(TransactionType.Out, true)]
-    [InlineData(TransactionType.Out, false)]
-    public void ShouldCreateCorrectTransactionData(
-        TransactionType transactionType,
-        bool useAssignedUser)
+    
+    /// <summary>
+    /// Status harus confirmed dan assigned user harus admin
+    /// </summary>
+    [Fact]
+    public void Should_Create_Correct_Transaction_Data_When_Assigned_User_Is_Not_Exists_And_Transaction_Type_Is_OUT()
     {
         IReadOnlyList<CreateTransactionItemDto> transactionItems = [
-            new CreateTransactionItemDto(ProductId: 25, Quantity: 7, Notes: "Humm.. 😐")];
+            new(
+                ProductId: 25, 
+                ExpectedQuantity: 8,
+                PreparedQuantity: 7, 
+                Notes: "Humm.. 😐")];
         
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: transactionType,
+            TransactionType: TransactionType.Out,
             StakeholderId: 1,
             TransactionTime: 12,
             Creator: _userAdmin,
             TransactionItems: transactionItems,
             Notes: "Ini buatan admin",
-            AssignedUser: useAssignedUser ? _assignedNonAdminUser : null));
+            AssignedUser: null));
 
         Transaction transaction = result.GetData().Item1;
-        int expectedAssignedUserId;
-        TransactionStatus expectedTransactionStatus;
-        if (!useAssignedUser)
-        {
-            expectedAssignedUserId = transaction.CreatorId;
-            expectedTransactionStatus = TransactionStatus.Confirmed;
-        }
-        else
-        {
-            // assigned user must be same as creator when transaction type is IN
-            if (transactionType == TransactionType.In)
-            {
-               expectedAssignedUserId = transaction.CreatorId;
-               expectedTransactionStatus = TransactionStatus.Confirmed;
-            }
-            else
-            {
-                expectedAssignedUserId = _assignedNonAdminUser.Id;
-                expectedTransactionStatus = TransactionStatus.Prepared;
-            }
-        }
         
         transaction.AssertTransactionFullData(
             id: 0, 
             transactionTime: 12,
             stakeholderId: 1, 
-            type: transactionType,
+            type: TransactionType.Out,
             creatorId: _userAdmin.Id, 
-            assignedUserId: expectedAssignedUserId,
-            status: expectedTransactionStatus,
+            assignedUserId: _userAdmin.Id,
+            status: TransactionStatus.Confirmed,
             notes: "Ini buatan admin",
-            transactionItems: transactionItems.Select(item =>
+            transactionItems: [
                 new TransactionItemAssertionDto(
-                    ProductId: item.ProductId,
-                    ExpectedQuantity: item.Quantity,
-                    PreparedQuantity: item.Quantity,
-                    Notes: item.Notes
+                    ProductId: 25,
+                    ExpectedQuantity: 8,
+                    PreparedQuantity:  7,
+                    Notes: "Humm.. 😐"
                 )
-            ).ToList());
+            ]);
+    }
+    
+    
+    /// <summary>
+    /// Status harus confirmed dan assigned user harus balik ke creatornya lagi, selain itu prepared quantitynya bakal ikut expected quantity
+    /// </summary>
+    [Fact]
+    public void ShouldCreateCorrectTransactionData_When_Assigned_User_Is_Non_Admin_And_Transaction_Type_Is_In()
+    {
+        IReadOnlyList<CreateTransactionItemDto> transactionItems = [
+            new(
+                ProductId: 25, 
+                ExpectedQuantity: 8,
+                PreparedQuantity: 7, 
+                Notes: "Humm.. 😐")];
+        
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.In,
+            StakeholderId: 1,
+            TransactionTime: 12,
+            Creator: _userAdmin,
+            TransactionItems: transactionItems,
+            Notes: "Ini buatan admin",
+            AssignedUser: _assignedNonAdminUser));
+
+        Transaction transaction = result.GetData().Item1;
+        
+        transaction.AssertTransactionFullData(
+            id: 0, 
+            transactionTime: 12,
+            stakeholderId: 1, 
+            type: TransactionType.In,
+            creatorId: _userAdmin.Id, 
+            assignedUserId: _userAdmin.Id,
+            status: TransactionStatus.Confirmed,
+            notes: "Ini buatan admin",
+            transactionItems: [
+                new TransactionItemAssertionDto(
+                    ProductId: 25,
+                    ExpectedQuantity: 8,
+                    PreparedQuantity: 8,
+                    Notes: "Humm.. 😐"
+                )
+            ]);
+    }
+    
+    /// <summary>
+    /// Status harus prepared dan assigned user harus terassign non-admin
+    /// </summary>
+    [Fact]
+    public void ShouldCreateCorrectTransactionData_When_Assigned_User_Is_Non_Admin_And_Transaction_Type_Is_Out()
+    {
+        IReadOnlyList<CreateTransactionItemDto> transactionItems = [
+            new(
+                ProductId: 25, 
+                ExpectedQuantity: 8,
+                PreparedQuantity: 7, 
+                Notes: "Humm.. 😐")];
+        
+        var result = Transaction.CreateNew(new CreateNewTransactionDto(
+            TransactionType: TransactionType.Out,
+            StakeholderId: 1,
+            TransactionTime: 12,
+            Creator: _userAdmin,
+            TransactionItems: transactionItems,
+            Notes: "Ini buatan admin",
+            AssignedUser: _assignedNonAdminUser));
+
+        Transaction transaction = result.GetData().Item1;
+        
+        transaction.AssertTransactionFullData(
+            id: 0, 
+            transactionTime: 12,
+            stakeholderId: 1, 
+            type: TransactionType.Out,
+            creatorId: _userAdmin.Id, 
+            assignedUserId: _assignedNonAdminUser.Id,
+            status: TransactionStatus.Prepared,
+            notes: "Ini buatan admin",
+            transactionItems: [
+                new TransactionItemAssertionDto(
+                    ProductId: 25,
+                    ExpectedQuantity: 8,
+                    PreparedQuantity: 7,
+                    Notes: "Humm.. 😐"
+                )
+            ]);
     }
     #endregion
 
@@ -120,9 +216,9 @@ public class AdminCreateNewTransactionTest
     {
         IReadOnlyList<CreateTransactionItemDto> transactionItems =
         [
-            new (ProductId: 23, Quantity: 5, Notes: "Kuambil 5"),
-            new (ProductId: 24, Quantity: 3, Notes: ""),
-            new (ProductId: 25, Quantity: 7, Notes: "Humm.. 😐"),
+            new (ProductId: 23, ExpectedQuantity: 5, PreparedQuantity: 5, Notes: "Kuambil 5"),
+            new (ProductId: 24, ExpectedQuantity: 3, PreparedQuantity: 3, Notes: ""),
+            new (ProductId: 25, ExpectedQuantity: 7, PreparedQuantity: 7, Notes: "Humm.. 😐"),
         ];
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: TransactionType.Out, 
@@ -156,7 +252,7 @@ public class AdminCreateNewTransactionTest
     }
 
     [Fact]
-    public void Should_Not_Create_Transaction_Item_With_Negative_Quantity()
+    public void Should_Not_Create_Transaction_Item_With_Negative_Prepared_Quantity()
     {
         var result = Transaction.CreateNew(new CreateNewTransactionDto(
             TransactionType: TransactionType.Out,
@@ -164,9 +260,9 @@ public class AdminCreateNewTransactionTest
             TransactionTime: 12,
             Creator: _userAdmin,
             TransactionItems: [
-                new (ProductId: 3, Quantity: -1, Notes: "test"),
-                new (ProductId: 4, Quantity: 0, Notes: "test"),
-                new (ProductId: 5, Quantity: -2, Notes: "test"),
+                new (ProductId: 3, ExpectedQuantity: -1, PreparedQuantity: -1, Notes: "test"),
+                new (ProductId: 4, ExpectedQuantity: 0, PreparedQuantity: 0, Notes: "test"),
+                new (ProductId: 5, ExpectedQuantity: -2, PreparedQuantity: -2, Notes: "test"),
                 
             ],
             Notes: "seharusnya ini gk bisa",
@@ -174,8 +270,8 @@ public class AdminCreateNewTransactionTest
         
         List<IBaseTransactionDomainError> errors = result.GetError();
         var negativeQuantityErrors =  errors.Where(error => 
-                error is TransactionItemsShouldNotContainsNegativeQuantity)
-                .Cast<TransactionItemsShouldNotContainsNegativeQuantity>()
+                error is PreparedQuantityMustNotNegativeError)
+                .Cast<PreparedQuantityMustNotNegativeError>()
                 .ToList();
         Assert.Equal(2, negativeQuantityErrors.Count);
         Assert.Contains(negativeQuantityErrors , e => e.Index == 2);

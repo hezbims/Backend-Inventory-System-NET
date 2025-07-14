@@ -3,9 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Constants;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
+using Inventory_Backend_NET.Fitur.Pengajuan.Application.Dto;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Presentation.Dto;
@@ -14,7 +12,7 @@ using TransType = Common.Domain.ValueObject.TransactionType;
 using Key =  TransactionJsonFieldName;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public class PostTransactionRequestDto : IValidatableObject
+public sealed class PostTransactionRequestBody : IValidatableObject
 {
     [JsonIgnore]
     private UserCreator? Creator { get; set; } // late assign from http context
@@ -40,19 +38,7 @@ public class PostTransactionRequestDto : IValidatableObject
     public string? Notes { get; set; }
     
     [JsonPropertyName(Key.TransactionItems)]
-    public IList<TransactionItem>? TransactionItems { get; set; } // minimal satu biji
-
-    public class TransactionItem
-    {
-        [JsonPropertyName(Key.ProductId)]
-        public int? ProductId { get; set; } // required
-        
-        [JsonPropertyName(Key.ExpectedQuantity)]
-        public int? ExpectedQuantity { get; set; } // required
-        
-        [JsonPropertyName("notes")]
-        public string? Notes { get; set; }
-    }
+    public IList<PostTransactionItemReqeustBody>? TransactionItems { get; set; } // minimal satu biji
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -104,14 +90,21 @@ public class PostTransactionRequestDto : IValidatableObject
                     yield return new ValidationResult(
                         String.Format(Resources.Transaction.expected_quantity_is_not_filled, index),
                         [MyConstants.WrongContractErrorKey]);
+                
+                if (TransactionType == "OUT" && 
+                    Creator!.IsAdmin && 
+                    transactionItem.PreparedQuantity is null)
+                    yield return new ValidationResult(
+                        String.Format(Resources.Transaction.prepared_quantity_must_filled, index),
+                        [MyConstants.WrongContractErrorKey]);
                 index++;
             }
         }
     }
 
-    public record UserCreator(int CreatorId, bool IsAdmin);
+    private sealed record UserCreator(int CreatorId, bool IsAdmin);
 
-    public CreateNewTransactionDto ToDomainDto()
+    internal CreateTransactionCommand ToApplicationDto()
     {
         var transactionType = TransactionType switch
         {
@@ -123,17 +116,35 @@ public class PostTransactionRequestDto : IValidatableObject
                 // ReSharper disable once LocalizableElement
                 "Transaction type was not 'IN' or 'OUT'"),
         };
-        return new CreateNewTransactionDto(
-            TransactionType: transactionType,
+        return new CreateTransactionCommand(
+            Type: transactionType,
             TransactionTime: this.TransactionTime!.Value,
-            StakeholderId: this.GroupId!.Value,
-            Creator: new UserDto(Id: Creator!.CreatorId, IsAdmin: Creator!.IsAdmin),
+            GroupId: this.GroupId!.Value,
+            CreatorId: Creator!.CreatorId,
             Notes: this.Notes ?? string.Empty,
+            AssignedUserId: this.AssignedUserId!.Value,
             TransactionItems: TransactionItems!.Select(item => 
-                new CreateTransactionItemDto(
+                new CreateTransactionItemCommand(
                     ProductId: item.ProductId!.Value, 
-                    Quantity: item.ExpectedQuantity!.Value, 
+                    ExpectedQuantity: item.ExpectedQuantity!.Value,
+                    PreparedQuantity: item.PreparedQuantity,
                     Notes: item.Notes ?? string.Empty)).ToList()
             );
     }
+}
+
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+public sealed class PostTransactionItemReqeustBody
+{
+    [JsonPropertyName(Key.ProductId)]
+    public int? ProductId { get; set; } // required
+        
+    [JsonPropertyName(Key.ExpectedQuantity)]
+    public int? ExpectedQuantity { get; set; } // required
+    
+    [JsonPropertyName(Key.PreparedQuantity)]
+    public int? PreparedQuantity { get; set; } // required kalau admin OUT
+        
+    [JsonPropertyName("notes")]
+    public string? Notes { get; set; }
 }

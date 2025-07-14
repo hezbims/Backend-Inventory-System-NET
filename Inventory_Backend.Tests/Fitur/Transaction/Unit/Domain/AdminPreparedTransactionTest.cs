@@ -2,8 +2,7 @@
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
@@ -22,17 +21,20 @@ public class AdminPreparedTransactionTest
     {
         _adminUser = new UserDto(IsAdmin: true, Id: 1);
         _nonAdminUser = new UserDto(IsAdmin: false, Id: 2);
-        _transaction = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out, 
+        _transaction = new TransactionFactory(
+            Id: 1,
+            Type: TransactionType.Out,
+            Status: TransactionStatus.Waiting,
             TransactionTime: 25,
             StakeholderId: 2,
-            Creator: _nonAdminUser,
+            CreatorId: _nonAdminUser.Id,
+            AssignedUserId: _nonAdminUser.Id,
             Notes: "Saya ambil 15 menit sebelum istirahat",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 2, Quantity: 3, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 3, Quantity: 4, Notes: "ini notes"),
+                new TransactionItemFactory(Id: 1, ProductId: 2, ExpectedQuantity: 3, PreparedQuantity: null, Notes: ""),
+                new TransactionItemFactory(Id: 2, ProductId: 3, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "ini notes"),
             ]
-        )).GetData().Item1;
+        ).Build();
     }
 
     [Fact]
@@ -63,7 +65,7 @@ public class AdminPreparedTransactionTest
             ]));
         
         _transaction.AssertTransactionFullData(
-            id: 0, 
+            id: 1, 
             transactionTime: 25,
             stakeholderId: 2, 
             type: TransactionType.Out,
@@ -86,25 +88,25 @@ public class AdminPreparedTransactionTest
     public void Admin_Should_Not_Be_Able_Prepare_Transaction_With_Status_Other_Than_Waiting(
         TransactionStatus status)
     {
-        Transaction nonWaitingTransaction = new Transaction(
-            id: 1,
-            type: TransactionType.Out,
-            transactionTime: 25_000_000L,
-            stakeholderId: 2,
-            status: status,
-            creatorId: _nonAdminUser.Id,
-            assignedUserId: _nonAdminUser.Id,
-            notes: "Semuanya dikemas dalam karung",
-            transactionItems: 
+        Transaction nonWaitingTransaction = new TransactionFactory(
+            Id: 1,
+            Type: TransactionType.Out,
+            TransactionTime: 25_000_000L,
+            StakeholderId: 2,
+            Status: status,
+            CreatorId: _nonAdminUser.Id,
+            AssignedUserId: _nonAdminUser.Id,
+            Notes: "Semuanya dikemas dalam karung",
+            TransactionItems: 
             [
-                new TransactionItem(
-                    productId: 2, 
-                    expectedQuantity: 12,
-                    preparedQuantity: status == TransactionStatus.Prepared ? 12 : null,
-                    notes: "", 
-                    id: 4)
+                new TransactionItemFactory(
+                    ProductId: 2, 
+                    ExpectedQuantity: 12,
+                    PreparedQuantity: status == TransactionStatus.Prepared ? 12 : null,
+                    Notes: "", 
+                    Id: 4)
             ]
-        );
+        ).Build();
 
         var errors = nonWaitingTransaction.PrepareTransaction(new PrepareTransactionDto(
             Preparator: _adminUser,
@@ -145,7 +147,7 @@ public class AdminPreparedTransactionTest
                 new PrepareTransactionItemDto(PreparedQuantity: 0),
             ])).GetError();
 
-        var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single();
+        var error = (PreparedQuantityMustNotNegativeError) errors.Single();
         Assert.Equal(0, error.Index);
     }
 }

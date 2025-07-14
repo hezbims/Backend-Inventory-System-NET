@@ -1,4 +1,6 @@
+using System.Reflection;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 
 namespace Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
@@ -18,23 +20,33 @@ internal sealed record TransactionFactory(
 {
     internal Transaction Build()
     {
-        return new Transaction(
-            id: Id,
-            type: Type,
-            transactionTime: TransactionTime,
-            stakeholderId: StakeholderId,
-            status: Status,
-            creatorId: CreatorId,
-            assignedUserId: AssignedUserId,
-            notes: Notes,
-            transactionItems: TransactionItems.Select(item =>
-            {
-                if (Status is TransactionStatus.Waiting or TransactionStatus.Rejected)
-                    return (item with
-                    {
-                        PreparedQuantity = null,
-                    }).Build();
-                return item.Build();
-            }).ToList());
+        var transactionConstructor = typeof(Transaction).GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            [
+                typeof(int), 
+                typeof(TransactionType), 
+                typeof(long), 
+                typeof(int),
+                typeof(TransactionStatus), 
+                typeof(int), 
+                typeof(int), 
+                typeof(string),
+                typeof(List<TransactionItem>)
+            ], 
+            null
+        )!;
+
+        return (Transaction) transactionConstructor.Invoke([
+            Id, 
+            Type, 
+            TransactionTime, 
+            StakeholderId,
+            Status, 
+            CreatorId, 
+            AssignedUserId, 
+            Notes,
+            TransactionItems.Select(item => item.Build(Status)).ToList(),
+        ]);
     }
 }

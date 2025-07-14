@@ -60,6 +60,33 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat membatalkan transaksi milik pengguna lain.
+        /// </summary>
+        internal static string can_not_cancel_other_user_transaction {
+            get {
+                return ResourceManager.GetString("can_not_cancel_other_user_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaksi yang sudah ditolak tidak dapat dibatalkan.
+        /// </summary>
+        internal static string can_not_cancel_rejected_transaction {
+            get {
+                return ResourceManager.GetString("can_not_cancel_rejected_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tidak dapat membatalkan transaksi tanpa menginputkan catatan.
+        /// </summary>
+        internal static string can_not_cancel_transaction_with_empty_notes {
+            get {
+                return ResourceManager.GetString("can_not_cancel_transaction_with_empty_notes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Terjadi error aplikasi. &apos;Creator&apos; tidak terisi.
         /// </summary>
         internal static string creator_is_empty {
@@ -83,6 +110,33 @@ namespace Inventory_Backend_NET.Resources {
         internal static string group_id_must_filled {
             get {
                 return ResourceManager.GetString("group_id_must_filled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat menetapkan transaksi kepada grup pemasok.
+        /// </summary>
+        internal static string non_admin_can_not_assign_supplier_group {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_assign_supplier_group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jumlah yang disiapkan pada posisi ke-%s harus diisi.
+        /// </summary>
+        internal static string prepared_quantity_must_filled {
+            get {
+                return ResourceManager.GetString("prepared_quantity_must_filled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tidak dapat membatalkan transaksi berkali-kali.
+        /// </summary>
+        internal static string transaction_can_not_canceled_twice {
+            get {
+                return ResourceManager.GetString("transaction_can_not_canceled_twice", resourceCulture);
             }
         }
         

@@ -4,8 +4,8 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Group;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
 using Inventory_Backend.Tests.Fitur.Transaction.Unit.Domain.Utils;
@@ -25,17 +25,22 @@ public class NonAdminUpdateTransactionTest
         _nonAdminSecondary = new UserDto(IsAdmin: false, Id: 2);
         _nonAdminPrimary = new UserDto(IsAdmin: false, Id: 1);
         _nonAdminSecondary = new UserDto(IsAdmin: false, Id: 2);
-        _waitingTransaction = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out,
+        _waitingTransaction = new TransactionFactory(
+            Id: 1,
+            Type: TransactionType.Out,
             TransactionTime: 2,
             StakeholderId: 3,
-            Creator: _nonAdminPrimary,
+            CreatorId: _nonAdminPrimary.Id,
+            AssignedUserId: _nonAdminPrimary.Id,
             Notes: "Sebelum di update",
+            Status: TransactionStatus.Waiting,
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 1, Quantity: 3, Notes: "Tolong ini dijadikan 2 karung"),
-                new CreateTransactionItemDto(ProductId: 2, Quantity: 2, Notes: "Tolong ini diplastikin ya"),
+                new TransactionItemFactory(
+                    Id: 1, ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: null, Notes: "Tolong ini dijadikan 2 karung"),
+                new TransactionItemFactory(
+                    Id: 2, ProductId: 2, ExpectedQuantity: 2, PreparedQuantity: null, Notes: "Tolong ini diplastikin ya"),
             ]
-        )).GetData().Item1;
+        ).Build();
     }
     
     [Fact]
@@ -53,7 +58,7 @@ public class NonAdminUpdateTransactionTest
             ]));
         
         _waitingTransaction.AssertTransactionFullData(
-            id: 0,
+            id: 1,
             transactionTime: 200,
             stakeholderId: 99,
             type: TransactionType.Out,
@@ -91,23 +96,23 @@ public class NonAdminUpdateTransactionTest
     public void Non_Admin_Must_Not_Be_Able_Update_Transaction_That_Has_Status_Other_Than_Waiting(
         TransactionStatus transactionStatus)
     {
-        Transaction transaction = new Transaction(
-            id: 24,
-            type: TransactionType.Out,
-            transactionTime: 25,
-            stakeholderId: 99,
-            status: transactionStatus,
-            creatorId: _nonAdminPrimary.Id,
-            assignedUserId: _nonAdminPrimary.Id,
-            notes: "",
-            transactionItems: [
-                new TransactionItem(
-                    productId: 23, 
-                    expectedQuantity: 4, 
-                    preparedQuantity: transactionStatus == TransactionStatus.Canceled ? null : 3,
-                    notes: "",
-                    id: 34)
-            ]);
+        Transaction transaction = new TransactionFactory(
+            Id: 24,
+            Type: TransactionType.Out,
+            TransactionTime: 25,
+            StakeholderId: 99,
+            Status: transactionStatus,
+            CreatorId: _nonAdminPrimary.Id,
+            AssignedUserId: _nonAdminPrimary.Id,
+            Notes: "",
+            TransactionItems: [
+                new TransactionItemFactory(
+                    ProductId: 23, 
+                    ExpectedQuantity: 4, 
+                    PreparedQuantity: transactionStatus == TransactionStatus.Canceled ? null : 3,
+                    Notes: "",
+                    Id: 34)
+            ]).Build();
 
         var errors = transaction.UpdateTransaction(new UpdateTransactionDto(
             TransactionTime: 32,
@@ -132,10 +137,10 @@ public class NonAdminUpdateTransactionTest
             Creator: _nonAdminSecondary,
             Notes: "Punya secondary non-admin",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 3, Quantity: 34, Notes: "")
+                new CreateTransactionItemDto(ProductId: 3, ExpectedQuantity: 34, PreparedQuantity: 234, Notes: "")
             ])).GetData().Item1;
 
-        transaction.UpdateTransaction(new UpdateTransactionDto(
+        var errors = transaction.UpdateTransaction(new UpdateTransactionDto(
             TransactionTime: 23,
             Group: new GroupDto(Id: 31, IsSupplier: false),
             Updater: _nonAdminPrimary,
@@ -144,7 +149,9 @@ public class NonAdminUpdateTransactionTest
             [
                 new UpdateTransactionItemDto(ProductId: 3, Quantity: 56, Notes: ""),
             ]
-        ));
+        )).GetError();
+        
+        Assert.Contains(errors, error => error is NonAdminCanOnlyUpdateTheirOwnTransactionError);
     }
 
     [Fact]
@@ -192,8 +199,8 @@ public class NonAdminUpdateTransactionTest
             ])).GetError();
 
         var lessThan1QuantityErrors = errors.Where(error => 
-            error is TransactionItemMustAtLeastHave1QuantityError)
-            .Cast<TransactionItemMustAtLeastHave1QuantityError>()
+            error is ExpectedQuantityMustGreaterThanZeroError)
+            .Cast<ExpectedQuantityMustGreaterThanZeroError>()
             .ToList();
         
         Assert.Contains(lessThan1QuantityErrors, e => e.Index == 1);

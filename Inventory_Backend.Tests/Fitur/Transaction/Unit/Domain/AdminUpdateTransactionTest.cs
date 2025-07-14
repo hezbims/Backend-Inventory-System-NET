@@ -4,8 +4,7 @@ using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Group;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.PrepareTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.UpdateTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.ValueObject;
@@ -18,22 +17,22 @@ using Transaction = Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity.Transact
 public class AdminUpdateTransactionTest
 {
     private readonly UserDto _admin = new(Id: 23, IsAdmin: true);
-    private readonly Transaction _preparedTransaction = new(
-        id: 25,
-        transactionTime: 25_000_000L,
-        stakeholderId: 24,
-        type: TransactionType.Out,
-        status: TransactionStatus.Prepared,
-        creatorId: 55,
-        assignedUserId: 55,
-        notes: "",
-        transactionItems:  [
-            new TransactionItem(
-                productId: 4, expectedQuantity: 5, preparedQuantity: 3, notes: ""),
-            new TransactionItem(
-                productId: 5, expectedQuantity: 1, preparedQuantity: 1, notes: "kode-738")
+    private readonly Transaction _preparedTransaction = new TransactionFactory(
+        Id: 25,
+        TransactionTime: 25_000_000L,
+        StakeholderId: 24,
+        Type: TransactionType.Out,
+        Status: TransactionStatus.Prepared,
+        CreatorId: 55,
+        AssignedUserId: 55,
+        Notes: "",
+        TransactionItems:  [
+            new TransactionItemFactory(
+                ProductId: 4, ExpectedQuantity: 5, PreparedQuantity: 3, Notes: "", Id: 1),
+            new TransactionItemFactory(
+                ProductId: 5, ExpectedQuantity: 1, PreparedQuantity: 1, Notes: "kode-738", Id: 2)
         ]
-    );
+    ).Build();
 
     [Fact]
     public void Admin_Should_Be_Able_To_Update_Prepared_Transaction_Resulting_In_Correct_Transaction_Data()
@@ -79,9 +78,9 @@ public class AdminUpdateTransactionTest
                 TransactionItems:
                 [
                     new UpdateTransactionItemDto(
-                        ProductId: null, Quantity: 1, Notes: null),
+                        ProductId: 0, Quantity: 1, Notes: ""),
                     new UpdateTransactionItemDto(
-                        ProductId: null, Quantity: 0, Notes: null)
+                        ProductId: 0, Quantity: 0, Notes: "")
                 ])).GetData();
         
         Assert.Equal(3 , sideEffects.Count);
@@ -102,22 +101,22 @@ public class AdminUpdateTransactionTest
     public void Admin_Should_Not_Be_Able_To_Update_Prepared_Transaction_With_Status_Other_Than_Prepared(
         TransactionStatus status)
     {
-        Transaction nonPreparedTransaction = new Transaction(
-            id: 98,
-            type: TransactionType.Out,
-            stakeholderId: 98,
-            transactionTime: 23_987_897_999L,
-            status: status,
-            creatorId: 79,
-            assignedUserId: 403,
-            notes: "",
-            transactionItems:
+        Transaction nonPreparedTransaction = new TransactionFactory(
+            Id: 98,
+            Type: TransactionType.Out,
+            StakeholderId: 98,
+            TransactionTime: 23_987_897_999L,
+            Status: status,
+            CreatorId: 79,
+            AssignedUserId: 403,
+            Notes: "",
+            TransactionItems:
             [
-                new TransactionItem(
-                    productId: 4, expectedQuantity: 5, preparedQuantity: 3, notes: ""),
-                new TransactionItem(
-                    productId: 5, expectedQuantity: 1, preparedQuantity: 1, notes: "kode-738")
-            ]);
+                new TransactionItemFactory(
+                    ProductId: 4, ExpectedQuantity: 5, PreparedQuantity: 3, Notes: "", Id: 234),
+                new TransactionItemFactory(
+                    ProductId: 5, ExpectedQuantity: 1, PreparedQuantity: 1, Notes: "kode-738", Id: 976)
+            ]).Build();
 
         var errors = nonPreparedTransaction.UpdateTransaction(new UpdateTransactionDto(
             TransactionTime: null,
@@ -127,9 +126,9 @@ public class AdminUpdateTransactionTest
             TransactionItems:
             [
                 new UpdateTransactionItemDto(
-                    ProductId: null, Quantity: 3, Notes: null),
+                    ProductId: 0, Quantity: 3, Notes: ""),
                 new UpdateTransactionItemDto(
-                    ProductId: null, Quantity: 1, Notes: null)
+                    ProductId: 0, Quantity: 1, Notes: "")
             ])).GetError();
 
         Assert.Contains(errors, error => error is AdminCanOnlyUpdatePreparedTransaction);
@@ -160,13 +159,13 @@ public class AdminUpdateTransactionTest
             TransactionItems:
             [
                 new UpdateTransactionItemDto(
-                    ProductId: null, Quantity: -1, Notes: null),
+                    ProductId: 0, Quantity: -1, Notes: ""),
                 new UpdateTransactionItemDto(
-                    ProductId: null, Quantity: 0, Notes: null)
+                    ProductId: 0, Quantity: 0, Notes: "")
             ])).GetError();
 
-        var error = (TransactionItemsShouldNotContainsNegativeQuantity) errors.Single(
-            error => error is TransactionItemsShouldNotContainsNegativeQuantity);
+        var error = (PreparedQuantityMustNotNegativeError) errors.Single(
+            error => error is PreparedQuantityMustNotNegativeError);
         Assert.Equal(0, error.Index);
     }
 }
