@@ -18,12 +18,20 @@ internal sealed record CreateTransactionItemCommand(
     int? PreparedQuantity,
     string Notes)
 {
-    internal CreateTransactionItemDto ToDomainDto()
+    internal CreateOutTypeTransactionItemDto ToCreateOutTypeDomainDto()
     {
-        return new CreateTransactionItemDto(
+        return new CreateOutTypeTransactionItemDto(
             ProductId: ProductId,
             ExpectedQuantity: ExpectedQuantity,
             PreparedQuantity: PreparedQuantity,
+            Notes: Notes);
+    }
+
+    internal CreateInTypeTransactionItemDto ToCreateInTypeDomainDto()
+    {
+        return new CreateInTypeTransactionItemDto(
+            ProductId: ProductId,
+            Quantity: ExpectedQuantity,
             Notes: Notes);
     }
 }

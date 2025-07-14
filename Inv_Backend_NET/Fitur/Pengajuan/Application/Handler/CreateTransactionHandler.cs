@@ -1,12 +1,13 @@
 ﻿using System.Data;
 using Inventory_Backend_NET.Common.Domain.Exception;
+using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur.Autentikasi.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Barang.Exception;
 using Inventory_Backend_NET.Fitur.Barang.Handler;
 using Inventory_Backend_NET.Fitur.Pengajuan.Application.Dto;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction.Create;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Entity;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Group;
@@ -68,15 +69,30 @@ internal sealed class CreateTransactionHandler(
             if (errors.Any())
                 return errors;
 
-            var createTransactionResult = Transaction.CreateNew(new CreateNewTransactionDto(
-                TransactionType : command.Type,
-                TransactionTime : command.TransactionTime,
-                StakeholderId: command.GroupId,
-                Creator: new UserDto(Id: creator!.Id, IsAdmin: creator.IsAdmin),
-                Notes: command.Notes,
-                TransactionItems: command.TransactionItems.Select(item => item.ToDomainDto()).ToList(),
-                AssignedUser: assignedUser == null ? null : 
-                    new UserDto(Id: assignedUser.Id, IsAdmin: assignedUser.IsAdmin)));
+            var createTransactionResult = command.Type switch
+            {
+                TransactionType.In => 
+                    Transaction.CreateInTypeTransaction(new CreateInTypeTransactionDto(
+                        TransactionTime : command.TransactionTime,
+                        StakeholderId: group!.Id,
+                        Creator: new UserDto(Id: creator!.Id, IsAdmin: creator.IsAdmin),
+                        Notes: command.Notes,
+                        TransactionItems: command.TransactionItems.Select(item => 
+                            item.ToCreateInTypeDomainDto()).ToList()
+                    )),
+                TransactionType.Out =>
+                    Transaction.CreateOutTypeTransaction(new CreateOutTypeTransactionDto(
+                        TransactionTime : command.TransactionTime,
+                        StakeholderId: group!.Id,
+                        Creator: new UserDto(Id: creator!.Id, IsAdmin: creator.IsAdmin),
+                        Notes: command.Notes,
+                        TransactionItems: command.TransactionItems.Select(item => 
+                            item.ToCreateOutTypeDomainDto()).ToList(),
+                        AssignedUser: assignedUser == null ? null : 
+                            new UserDto(Id: assignedUser.Id, IsAdmin: assignedUser.IsAdmin)                        
+                    )),
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             if (createTransactionResult.IsFailed())
             {

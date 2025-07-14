@@ -2,6 +2,7 @@ using Inventory_Backend_NET.Common.Domain.Dto;
 using Inventory_Backend_NET.Common.Domain.Event;
 using Inventory_Backend_NET.Common.Domain.ValueObject;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction.Create;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.CancelTransaction;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
@@ -49,82 +50,88 @@ internal sealed class Transaction
         TransactionItems = transactionItems ?? [];
     }
 
-
-    internal static CreateTransactionResult CreateNew(CreateNewTransactionDto dto)
+    internal static CreateTransactionResult CreateInTypeTransaction(
+        CreateInTypeTransactionDto dto)
     {
         List<IBaseTransactionDomainError> errors = [];
-        CreateTransactionItemResults createTransactionItemResults;
+        CreateTransactionItemResults createTransactionItemResults = dto.TransactionItems
+            .Select((item, index) => TransactionItem.CreateNew(
+                productId: item.ProductId,
+                expectedQuantity: item.Quantity,
+                preparedQuantity: item.Quantity,
+                notes: item.Notes,
+                index: index
+            )).ToList();
         
-        if (!dto.Creator.IsAdmin && dto.TransactionType == TransactionType.In)
-            errors.Add(new UserNonAdminShouldNotCreateTransactionOfTypeInError());
-        if (dto.TransactionItems.IsNullOrEmpty())
+        if (dto.TransactionItems.Count == 0)
             errors.Add(new TransactionItemsShouldNotBeEmptyError());
         if (!dto.Creator.IsAdmin)
-            createTransactionItemResults = dto.TransactionItems
-                .Select((item, index) => TransactionItem.CreateNew(
-                    productId: item.ProductId,
-                    expectedQuantity: item.ExpectedQuantity,
-                    preparedQuantity: null,
-                    notes: item.Notes,
-                    index: index
-                )).ToList();
-        else
-        {
-            if (dto.AssignedUser?.IsAdmin == true && dto.Creator.IsAdmin)
-                errors.Add(new AdminMustNotAssignTransactionToAdminUserError());
-            
-            createTransactionItemResults = dto.TransactionItems
-                .Select((item, index) => TransactionItem.CreateNew(
-                    productId: item.ProductId,
-                    expectedQuantity: item.ExpectedQuantity,
-                    preparedQuantity: dto.TransactionType == TransactionType.In ?
-                        item.ExpectedQuantity : item.PreparedQuantity,
-                    notes: item.Notes,
-                    index: index)).ToList();
-
-        }
+            errors.Add(new UserNonAdminShouldNotCreateTransactionOfTypeInError());
         errors.AddRange(createTransactionItemResults.GetErrors());
         
-        if (!errors.IsNullOrEmpty())
+        if (errors.Count != 0)
             return new CreateTransactionResult.Failed(errors);
-
-        int assigendUserId;
-        // only admin can assign a transaction to another user when transaction type is out
-        if (dto is
-            {
-                TransactionType: TransactionType.Out, 
-                AssignedUser: not null, 
-                Creator.IsAdmin: true
-            })
-            assigendUserId = dto.AssignedUser.Id;
-        else
-            assigendUserId = dto.Creator.Id;
-        
-        TransactionStatus status;
-        if (!dto.Creator.IsAdmin)
-            status = TransactionStatus.Waiting;
-        else
-        {
-            if (dto.TransactionType == TransactionType.In)
-                status = TransactionStatus.Confirmed;
-            else
-            {
-                if (dto.AssignedUser?.IsAdmin == false)
-                    status = TransactionStatus.Prepared;
-                else
-                    status = TransactionStatus.Confirmed;
-            }
-        }
 
         IReadOnlyList<TransactionItem> transactionItems = createTransactionItemResults.ToTransactionItems();
         Transaction newlyCreatedTransaction = new Transaction(
             id: 0,
-            type: dto.TransactionType,
+            type: TransactionType.In,
+            transactionTime: dto.TransactionTime,
+            stakeholderId: dto.StakeholderId,
+            status: TransactionStatus.Confirmed,
+            creatorId: dto.Creator.Id,
+            assignedUserId: dto.Creator.Id,
+            notes: dto.Notes);
+        List<ProductQuantityChangedEvent> sideEffects = newlyCreatedTransaction
+            .ReplaceTransactionItems(transactionItems, hasSideEffects: dto.Creator.IsAdmin);
+        
+        return new CreateTransactionResult.Succeed((newlyCreatedTransaction, sideEffects));
+    }
+    
+    internal static CreateTransactionResult CreateOutTypeTransaction(
+        CreateOutTypeTransactionDto dto)
+    {
+        List<IBaseTransactionDomainError> errors = [];
+        CreateTransactionItemResults createTransactionItemResults = dto.TransactionItems
+            .Select((item, index) => TransactionItem.CreateNew(
+                productId: item.ProductId,
+                expectedQuantity: item.ExpectedQuantity,
+                preparedQuantity: dto.Creator.IsAdmin  ? item.PreparedQuantity : null,
+                notes: item.Notes,
+                index: index
+            )).ToList();
+        
+        if (dto.TransactionItems.Count == 0)
+            errors.Add(new TransactionItemsShouldNotBeEmptyError());
+        if (dto.AssignedUser?.IsAdmin == true)
+            errors.Add(new AdminMustNotAssignTransactionToAdminUserError());
+        errors.AddRange(createTransactionItemResults.GetErrors());
+
+        if (errors.Count != 0)
+            return new CreateTransactionResult.Failed(errors);
+        
+        int assignedUserId;
+        TransactionStatus status;
+        if (dto.Creator.IsAdmin)
+        {
+            assignedUserId = dto.AssignedUser?.Id ?? dto.Creator.Id;
+            status = dto.AssignedUser == null ? TransactionStatus.Confirmed : TransactionStatus.Prepared;
+        }
+        else
+        {
+            assignedUserId = dto.Creator.Id;
+            status = TransactionStatus.Waiting;
+        }
+        
+        IReadOnlyList<TransactionItem> transactionItems = createTransactionItemResults.ToTransactionItems();
+        Transaction newlyCreatedTransaction = new Transaction(
+            id: 0,
+            type: TransactionType.Out,
             transactionTime: dto.TransactionTime,
             stakeholderId: dto.StakeholderId,
             status: status,
             creatorId: dto.Creator.Id,
-            assignedUserId: assigendUserId,
+            assignedUserId: assignedUserId,
             notes: dto.Notes);
         List<ProductQuantityChangedEvent> sideEffects = newlyCreatedTransaction
             .ReplaceTransactionItems(transactionItems, hasSideEffects: dto.Creator.IsAdmin);

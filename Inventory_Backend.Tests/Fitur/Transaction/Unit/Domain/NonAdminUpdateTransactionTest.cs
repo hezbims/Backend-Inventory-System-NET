@@ -130,15 +130,19 @@ public class NonAdminUpdateTransactionTest
     [Fact]
     public void Non_Admin_Must_Not_Be_Able_To_Update_Other_User_Transaction()
     {
-        Transaction transaction = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out,
+        Transaction transaction = new TransactionFactory(
+            Id: 1,
+            Status: TransactionStatus.Waiting,
+            Type: TransactionType.Out,
             TransactionTime: 21,
             StakeholderId: 99,
-            Creator: _nonAdminSecondary,
+            CreatorId: _nonAdminSecondary.Id,
+            AssignedUserId: _nonAdminSecondary.Id,
             Notes: "Punya secondary non-admin",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 3, ExpectedQuantity: 34, PreparedQuantity: 234, Notes: "")
-            ])).GetData().Item1;
+                new TransactionItemFactory(
+                    Id: 1, ProductId: 3, ExpectedQuantity: 34, PreparedQuantity: 234, Notes: "")
+            ]).Build();
 
         var errors = transaction.UpdateTransaction(new UpdateTransactionDto(
             TransactionTime: 23,

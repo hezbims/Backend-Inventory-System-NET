@@ -1,5 +1,5 @@
 ﻿using Inventory_Backend_NET.Common.Domain.ValueObject;
-using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction;
+using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.Transaction.Create;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.TransactionItem;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Dto.User;
 using Inventory_Backend_NET.Fitur.Pengajuan.Domain.Exception.Common;
@@ -20,16 +20,16 @@ public class NonAdminCreateNewTransactionTest
     [Fact]
     public void ShouldNotHaveSideEffects()
     {
-        var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out,
+        var result = Transaction.CreateOutTypeTransaction(new CreateOutTypeTransactionDto(
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
             Notes: "seharusnya gk ada side effect",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: 2, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
-            ]
+                new CreateOutTypeTransactionItemDto(ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: 2, Notes: ""),
+                new CreateOutTypeTransactionItemDto(ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
+            ],
+            AssignedUser: null
         ));
 
         var data = result.GetData();
@@ -39,18 +39,18 @@ public class NonAdminCreateNewTransactionTest
     [Fact]  
     public void TransactionDataShouldCreatedCorrectly()
     {
-        IReadOnlyList<CreateTransactionItemDto> transactionItems =
+        IReadOnlyList<CreateOutTypeTransactionItemDto> transactionItems =
         [
             new (ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: 234324, Notes: ""),
             new (ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
         ];
-        var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out,
+        var result = Transaction.CreateOutTypeTransaction(new CreateOutTypeTransactionDto(
             TransactionTime: 1_000_200L,
             StakeholderId: 1,
             Creator: _nonAdmin,
             Notes: "non-admin ngebuat",
-            TransactionItems: transactionItems
+            TransactionItems: transactionItems,
+            AssignedUser: null
         ));
 
         var data = result.GetData();
@@ -77,15 +77,14 @@ public class NonAdminCreateNewTransactionTest
     [Fact]
     public void ShouldNotCreateInTypeTransaction()
     {
-        var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.In,
+        var result = Transaction.CreateInTypeTransaction(new CreateInTypeTransactionDto(
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
             Notes: "seharusnya gagal",
             TransactionItems: [
-                new CreateTransactionItemDto(ProductId: 1, ExpectedQuantity: 3, PreparedQuantity: null, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 2, ExpectedQuantity: 4, PreparedQuantity: null, Notes: "Tolong diplastikin")
+                new CreateInTypeTransactionItemDto(ProductId: 1, Quantity: 3, Notes: ""),
+                new CreateInTypeTransactionItemDto(ProductId: 2, Quantity: 4, Notes: "Tolong diplastikin")
             ]
         ));
 
@@ -96,13 +95,13 @@ public class NonAdminCreateNewTransactionTest
     [Fact]
     public void ShouldNotCreateTransactionWithEmptyTransactionItems()
     {
-        var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.In,
+        var result = Transaction.CreateOutTypeTransaction(new CreateOutTypeTransactionDto(
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
             Notes: "seharusnya enggak bisa",
-            TransactionItems: []
+            TransactionItems: [],
+            AssignedUser: null
         ));
 
         var errors = result.GetError();
@@ -110,20 +109,20 @@ public class NonAdminCreateNewTransactionTest
     }
 
     [Fact]
-    public void Must_Not_Create_Transaction_Item_With_Less_Than_1_Quantity()
+    public void Must_Not_Create_Transaction_Item_With_Expected_Quantity_Less_Than_1()
     {
-        var result = Transaction.CreateNew(new CreateNewTransactionDto(
-            TransactionType: TransactionType.Out,
+        var result = Transaction.CreateOutTypeTransaction(new CreateOutTypeTransactionDto(
             TransactionTime: 0L,
             StakeholderId: 1,
             Creator: _nonAdmin,
             Notes: "seharusnya enggak bisa",
             TransactionItems: 
             [
-                new CreateTransactionItemDto(ProductId: 3, ExpectedQuantity: 0, PreparedQuantity: 23234, Notes: ""),
-                new CreateTransactionItemDto(ProductId: 4, ExpectedQuantity: -1, PreparedQuantity: null,Notes: ""),
-                new CreateTransactionItemDto(ProductId: 5, ExpectedQuantity: 5, PreparedQuantity: 47289347, Notes: "Yang ini valid"),
-            ]
+                new CreateOutTypeTransactionItemDto(ProductId: 3, ExpectedQuantity: 0, PreparedQuantity: 23234, Notes: ""),
+                new CreateOutTypeTransactionItemDto(ProductId: 4, ExpectedQuantity: -1, PreparedQuantity: null,Notes: ""),
+                new CreateOutTypeTransactionItemDto(ProductId: 5, ExpectedQuantity: 5, PreparedQuantity: 47289347, Notes: "Yang ini valid"),
+            ],
+            AssignedUser: null
         ));
 
         var errors = result.GetError();
