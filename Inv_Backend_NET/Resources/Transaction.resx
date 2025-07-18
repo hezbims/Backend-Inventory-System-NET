@@ -63,4 +63,58 @@
     <data name="prepared_quantity_must_filled" xml:space="preserve">
         <value>Prepared quantity at %s-th position must filled</value>
     </data>
+    <data name="transaction_items_size_must_be_same" xml:space="preserve">
+        <value>The amount of items must be same as previous</value>
+    </data>
+    <data name="transaction_item_expected_quantity_must_be_positive" xml:space="preserve">
+        <value>Expected quantity must greater than 0</value>
+    </data>
+    <data name="transaction_item_prepared_quantity_must_not_be_negative" xml:space="preserve">
+        <value>Prepared quantity must not be negative number</value>
+    </data>
+    <data name="transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity" xml:space="preserve">
+        <value>Prepared quantity can't be greater than expected quantity</value>
+    </data>
+    <data name="admin_can_not_confirm_transaction" xml:space="preserve">
+        <value>Admin can't confirm a transaction</value>
+    </data>
+    <data name="non_admin_can_not_confirm_other_user_transaction" xml:space="preserve">
+        <value>You can't confirm other user transaction</value>
+    </data>
+    <data name="non_admin_can_only_confirm_prepared_transaction" xml:space="preserve">
+        <value>You can only confirm transaction with status 'prepared'</value>
+    </data>
+    <data name="admin_can_not_assign_to_other_admin" xml:space="preserve">
+        <value>You can't assign transaction to other admin</value>
+    </data>
+    <data name="non_admin_can_not_create_transaction_of_type_in" xml:space="preserve">
+        <value>You can't create transaction of type 'Stock-In'</value>
+    </data>
+    <data name="group_id_not_found" xml:space="preserve">
+        <value>Group with id '%s' is not found.</value>
+    </data>
+    <data name="only_waiting_transaction_can_be_prepared" xml:space="preserve">
+        <value>Only transaction with status 'waiting' can be prepared</value>
+    </data>
+    <data name="non_admin_can_not_prepare_transaction" xml:space="preserve">
+        <value>You are not authorized to prepare transaction</value>
+    </data>
+    <data name="non_admin_can_not_reject_transaction" xml:space="preserve">
+        <value>You are not authorized to reject a transaction</value>
+    </data>
+    <data name="only_waiting_and_prepared_transaction_can_be_rejected" xml:space="preserve">
+        <value>You can only reject a transaction with status 'waiting' or 'prepared'</value>
+    </data>
+    <data name="rejection_notes_must_not_be_empty" xml:space="preserve">
+        <value>Notes can't be empty when you reject the transaction</value>
+    </data>
+    <data name="admin_can_only_updated_prepared_transaction" xml:space="preserve">
+        <value>You can only update a transaction with status 'prepared'</value>
+    </data>
+    <data name="non_admin_can_only_update_waiting_transaction" xml:space="preserve">
+        <value>You can only update a transaction with status 'waiting'</value>
+    </data>
+    <data name="non_admin_can_only_update_their_own_transaction" xml:space="preserve">
+        <value>You can't update a transaction from other user.</value>
+    </data>
 </root>

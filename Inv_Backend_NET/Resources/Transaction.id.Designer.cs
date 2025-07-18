@@ -60,6 +60,33 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat menyerahkan transaksi pada user admin.
+        /// </summary>
+        internal static string admin_can_not_assign_to_other_admin {
+            get {
+                return ResourceManager.GetString("admin_can_not_assign_to_other_admin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Admin tidak boleh mengkonfirmasi transaksi.
+        /// </summary>
+        internal static string admin_can_not_confirm_transaction {
+            get {
+                return ResourceManager.GetString("admin_can_not_confirm_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda hanya dapat memperbarui transaksi dengan status &apos;sudah siap&apos;.
+        /// </summary>
+        internal static string admin_can_only_updated_prepared_transaction {
+            get {
+                return ResourceManager.GetString("admin_can_only_updated_prepared_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Anda tidak dapat membatalkan transaksi milik pengguna lain.
         /// </summary>
         internal static string can_not_cancel_other_user_transaction {
@@ -114,11 +141,101 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Grup  dengan id &apos;%s&apos; tidak ditemukan..
+        /// </summary>
+        internal static string group_id_not_found {
+            get {
+                return ResourceManager.GetString("group_id_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Anda tidak dapat menetapkan transaksi kepada grup pemasok.
         /// </summary>
         internal static string non_admin_can_not_assign_supplier_group {
             get {
                 return ResourceManager.GetString("non_admin_can_not_assign_supplier_group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat mengkonfirmasi transaksi milik pengguna lain.
+        /// </summary>
+        internal static string non_admin_can_not_confirm_other_user_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_confirm_other_user_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat membuat transaksi bertipe &apos;Stock-masuk&apos;.
+        /// </summary>
+        internal static string non_admin_can_not_create_transaction_of_type_in {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_create_transaction_of_type_in", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak berhak untuk menyiapkan sebuah transaksi.
+        /// </summary>
+        internal static string non_admin_can_not_prepare_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_prepare_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak berhak untuk menolak sebuah transaksi.
+        /// </summary>
+        internal static string non_admin_can_not_reject_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_reject_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda hanya dapat mengkonfirmasi transaksi dengan status &apos;sudah siap&apos;.
+        /// </summary>
+        internal static string non_admin_can_only_confirm_prepared_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_confirm_prepared_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda tidak dapat memperbaharui data transaksi milik user lain..
+        /// </summary>
+        internal static string non_admin_can_only_update_their_own_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_update_their_own_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda hanya dapat memperbaharui data transaksi yang statusnya &apos;menunggu&apos;.
+        /// </summary>
+        internal static string non_admin_can_only_update_waiting_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_update_waiting_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anda hanya dapat menolak transaksi yang statusnya &apos;menunggu&apos; atau &apos;sudah siap&apos;.
+        /// </summary>
+        internal static string only_waiting_and_prepared_transaction_can_be_rejected {
+            get {
+                return ResourceManager.GetString("only_waiting_and_prepared_transaction_can_be_rejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hanya transaksi dengan status &apos;menungu&apos; bisa disiapkan.
+        /// </summary>
+        internal static string only_waiting_transaction_can_be_prepared {
+            get {
+                return ResourceManager.GetString("only_waiting_transaction_can_be_prepared", resourceCulture);
             }
         }
         
@@ -132,11 +249,47 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Catatan tidak boleh kosong ketika anda menolak sebuah transaksi.
+        /// </summary>
+        internal static string rejection_notes_must_not_be_empty {
+            get {
+                return ResourceManager.GetString("rejection_notes_must_not_be_empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tidak dapat membatalkan transaksi berkali-kali.
         /// </summary>
         internal static string transaction_can_not_canceled_twice {
             get {
                 return ResourceManager.GetString("transaction_can_not_canceled_twice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jumlah yang diharapkan harus lebih dari 0.
+        /// </summary>
+        internal static string transaction_item_expected_quantity_must_be_positive {
+            get {
+                return ResourceManager.GetString("transaction_item_expected_quantity_must_be_positive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jumlah yang disiapkan tidak boleh lebih dari jumlah yang diharapkan.
+        /// </summary>
+        internal static string transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity {
+            get {
+                return ResourceManager.GetString("transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jumlah yang disiapkan tidak boleh bilangan negatif.
+        /// </summary>
+        internal static string transaction_item_prepared_quantity_must_not_be_negative {
+            get {
+                return ResourceManager.GetString("transaction_item_prepared_quantity_must_not_be_negative", resourceCulture);
             }
         }
         
@@ -164,6 +317,15 @@ namespace Inventory_Backend_NET.Resources {
         internal static string transaction_items_must_have_1_item {
             get {
                 return ResourceManager.GetString("transaction_items_must_have_1_item", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jumlah item harus sama dengan sebelumnya.
+        /// </summary>
+        internal static string transaction_items_size_must_be_same {
+            get {
+                return ResourceManager.GetString("transaction_items_size_must_be_same", resourceCulture);
             }
         }
         

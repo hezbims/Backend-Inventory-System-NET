@@ -1,3 +1,4 @@
+using Inventory_Backend_NET.Common.Presentation.Service;
 using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Interceptor;
 using Inventory_Backend_NET.Fitur._Constants;
@@ -5,6 +6,7 @@ using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Barang._Dependency;
 using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Fitur.Pengajuan._Dependency;
+using Inventory_Backend_NET.Startup.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
@@ -17,6 +19,7 @@ public static class PrepareDependencyInjection
 {
     public static WebApplicationBuilder PrepareDependencyInjectionServices(this WebApplicationBuilder builder)
     {
+        // Add All subdomain dependency
         builder.Services.AddBarangDependency();
         builder.Services.AddPengajuanDependency();
         
@@ -26,6 +29,7 @@ public static class PrepareDependencyInjection
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IMyLogger>(new MyDevLogger());
+        builder.Services.AddSingleton<IAllDomainErrorTranslator, AllDomainErrorTranslatorImpl>();
 
 
         builder.Services.AddControllers(options =>

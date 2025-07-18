@@ -60,6 +60,33 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t assign transaction to other admin.
+        /// </summary>
+        internal static string admin_can_not_assign_to_other_admin {
+            get {
+                return ResourceManager.GetString("admin_can_not_assign_to_other_admin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Admin can&apos;t confirm a transaction.
+        /// </summary>
+        internal static string admin_can_not_confirm_transaction {
+            get {
+                return ResourceManager.GetString("admin_can_not_confirm_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can only update a transaction with status &apos;prepared&apos;.
+        /// </summary>
+        internal static string admin_can_only_updated_prepared_transaction {
+            get {
+                return ResourceManager.GetString("admin_can_only_updated_prepared_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You can&apos;t cancel other user transaction.
         /// </summary>
         internal static string can_not_cancel_other_user_transaction {
@@ -114,11 +141,101 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Group with id &apos;%s&apos; is not found..
+        /// </summary>
+        internal static string group_id_not_found {
+            get {
+                return ResourceManager.GetString("group_id_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You can&apos;t assign transaction to supplier group.
         /// </summary>
         internal static string non_admin_can_not_assign_supplier_group {
             get {
                 return ResourceManager.GetString("non_admin_can_not_assign_supplier_group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t confirm other user transaction.
+        /// </summary>
+        internal static string non_admin_can_not_confirm_other_user_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_confirm_other_user_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t create transaction of type &apos;Stock-In&apos;.
+        /// </summary>
+        internal static string non_admin_can_not_create_transaction_of_type_in {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_create_transaction_of_type_in", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are not authorized to prepare transaction.
+        /// </summary>
+        internal static string non_admin_can_not_prepare_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_prepare_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are not authorized to reject a transaction.
+        /// </summary>
+        internal static string non_admin_can_not_reject_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_not_reject_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can only confirm transaction with status &apos;prepared&apos;.
+        /// </summary>
+        internal static string non_admin_can_only_confirm_prepared_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_confirm_prepared_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t update a transaction from other user..
+        /// </summary>
+        internal static string non_admin_can_only_update_their_own_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_update_their_own_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can only update a transaction with status &apos;waiting&apos;.
+        /// </summary>
+        internal static string non_admin_can_only_update_waiting_transaction {
+            get {
+                return ResourceManager.GetString("non_admin_can_only_update_waiting_transaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can only reject a transaction with status &apos;waiting&apos; or &apos;prepared&apos;.
+        /// </summary>
+        internal static string only_waiting_and_prepared_transaction_can_be_rejected {
+            get {
+                return ResourceManager.GetString("only_waiting_and_prepared_transaction_can_be_rejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only transaction with status &apos;waiting&apos; can be prepared.
+        /// </summary>
+        internal static string only_waiting_transaction_can_be_prepared {
+            get {
+                return ResourceManager.GetString("only_waiting_transaction_can_be_prepared", resourceCulture);
             }
         }
         
@@ -132,11 +249,47 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Notes can&apos;t be empty when you reject the transaction.
+        /// </summary>
+        internal static string rejection_notes_must_not_be_empty {
+            get {
+                return ResourceManager.GetString("rejection_notes_must_not_be_empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transaction can&apos;t canceled multiple times.
         /// </summary>
         internal static string transaction_can_not_canceled_twice {
             get {
                 return ResourceManager.GetString("transaction_can_not_canceled_twice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expected quantity must greater than 0.
+        /// </summary>
+        internal static string transaction_item_expected_quantity_must_be_positive {
+            get {
+                return ResourceManager.GetString("transaction_item_expected_quantity_must_be_positive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prepared quantity can&apos;t be greater than expected quantity.
+        /// </summary>
+        internal static string transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity {
+            get {
+                return ResourceManager.GetString("transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prepared quantity must not be negative number.
+        /// </summary>
+        internal static string transaction_item_prepared_quantity_must_not_be_negative {
+            get {
+                return ResourceManager.GetString("transaction_item_prepared_quantity_must_not_be_negative", resourceCulture);
             }
         }
         
@@ -164,6 +317,15 @@ namespace Inventory_Backend_NET.Resources {
         internal static string transaction_items_must_have_1_item {
             get {
                 return ResourceManager.GetString("transaction_items_must_have_1_item", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The amount of items must be same as previous.
+        /// </summary>
+        internal static string transaction_items_size_must_be_same {
+            get {
+                return ResourceManager.GetString("transaction_items_size_must_be_same", resourceCulture);
             }
         }
         

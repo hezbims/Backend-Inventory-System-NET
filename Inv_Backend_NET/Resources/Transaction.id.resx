@@ -63,4 +63,58 @@
     <data name="prepared_quantity_must_filled" xml:space="preserve">
         <value>Jumlah yang disiapkan pada posisi ke-%s harus diisi</value>
     </data>
+    <data name="transaction_items_size_must_be_same" xml:space="preserve">
+        <value>Jumlah item harus sama dengan sebelumnya</value>
+    </data>
+    <data name="transaction_item_expected_quantity_must_be_positive" xml:space="preserve">
+        <value>Jumlah yang diharapkan harus lebih dari 0</value>
+    </data>
+    <data name="transaction_item_prepared_quantity_must_not_be_negative" xml:space="preserve">
+        <value>Jumlah yang disiapkan tidak boleh bilangan negatif</value>
+    </data>
+    <data name="transaction_item_prepared_quantity_cant_be_greater_than_expected_quantity" xml:space="preserve">
+        <value>Jumlah yang disiapkan tidak boleh lebih dari jumlah yang diharapkan</value>
+    </data>
+    <data name="admin_can_not_confirm_transaction" xml:space="preserve">
+        <value>Admin tidak boleh mengkonfirmasi transaksi</value>
+    </data>
+    <data name="non_admin_can_not_confirm_other_user_transaction" xml:space="preserve">
+        <value>Anda tidak dapat mengkonfirmasi transaksi milik pengguna lain</value>
+    </data>
+    <data name="non_admin_can_only_confirm_prepared_transaction" xml:space="preserve">
+        <value>Anda hanya dapat mengkonfirmasi transaksi dengan status 'sudah siap'</value>
+    </data>
+    <data name="admin_can_not_assign_to_other_admin" xml:space="preserve">
+        <value>Anda tidak dapat menyerahkan transaksi pada user admin</value>
+    </data>
+    <data name="non_admin_can_not_create_transaction_of_type_in" xml:space="preserve">
+        <value>Anda tidak dapat membuat transaksi bertipe 'Stock-masuk'</value>
+    </data>
+    <data name="group_id_not_found" xml:space="preserve">
+        <value>Grup  dengan id '%s' tidak ditemukan.</value>
+    </data>
+    <data name="only_waiting_transaction_can_be_prepared" xml:space="preserve">
+        <value>Hanya transaksi dengan status 'menungu' bisa disiapkan</value>
+    </data>
+    <data name="non_admin_can_not_prepare_transaction" xml:space="preserve">
+        <value>Anda tidak berhak untuk menyiapkan sebuah transaksi</value>
+    </data>
+    <data name="non_admin_can_not_reject_transaction" xml:space="preserve">
+        <value>Anda tidak berhak untuk menolak sebuah transaksi</value>
+    </data>
+    <data name="only_waiting_and_prepared_transaction_can_be_rejected" xml:space="preserve">
+        <value>Anda hanya dapat menolak transaksi yang statusnya 'menunggu' atau 'sudah siap'</value>
+    </data>
+    <data name="rejection_notes_must_not_be_empty" xml:space="preserve">
+        <value>Catatan tidak boleh kosong ketika anda menolak sebuah transaksi</value>
+    </data>
+    <data name="admin_can_only_updated_prepared_transaction" xml:space="preserve">
+        <value>Anda hanya dapat memperbarui transaksi dengan status 'sudah siap'</value>
+    </data>
+    <data name="non_admin_can_only_update_waiting_transaction" xml:space="preserve">
+        <value>Anda hanya dapat memperbaharui data transaksi yang statusnya 'menunggu'</value>
+    </data>
+    <data name="non_admin_can_only_update_their_own_transaction" xml:space="preserve">
+        <value>Anda tidak dapat memperbaharui data transaksi milik user lain.</value>
+    </data>
 </root>
