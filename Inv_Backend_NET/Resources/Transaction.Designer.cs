@@ -141,7 +141,7 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Group with id &apos;%s&apos; is not found..
+        ///   Looks up a localized string similar to Group with id &apos;{0}&apos; is not found..
         /// </summary>
         internal static string group_id_not_found {
             get {
@@ -240,7 +240,7 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Prepared quantity at %s-th position must filled.
+        ///   Looks up a localized string similar to Prepared quantity at {0}-th position must filled.
         /// </summary>
         internal static string prepared_quantity_must_filled {
             get {

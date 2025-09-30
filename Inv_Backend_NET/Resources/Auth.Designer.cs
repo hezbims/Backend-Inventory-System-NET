@@ -60,7 +60,7 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User with id &apos;%d&apos; is not found..
+        ///   Looks up a localized string similar to User with id &apos;{0}&apos; is not found..
         /// </summary>
         internal static string user_id_not_found {
             get {

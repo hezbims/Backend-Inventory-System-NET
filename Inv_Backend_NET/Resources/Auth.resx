@@ -19,6 +19,6 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="user_id_not_found" xml:space="preserve">
-        <value>User with id '%d' is not found.</value>
+        <value>User with id '{0}' is not found.</value>
     </data>
 </root>

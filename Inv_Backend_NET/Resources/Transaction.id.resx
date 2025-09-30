@@ -61,7 +61,7 @@
         <value>Anda tidak dapat menetapkan transaksi kepada grup pemasok</value>
     </data>
     <data name="prepared_quantity_must_filled" xml:space="preserve">
-        <value>Jumlah yang disiapkan pada posisi ke-%s harus diisi</value>
+        <value>Jumlah yang disiapkan pada posisi ke-{0} harus diisi</value>
     </data>
     <data name="transaction_items_size_must_be_same" xml:space="preserve">
         <value>Jumlah item harus sama dengan sebelumnya</value>
@@ -91,7 +91,7 @@
         <value>Anda tidak dapat membuat transaksi bertipe 'Stock-masuk'</value>
     </data>
     <data name="group_id_not_found" xml:space="preserve">
-        <value>Grup  dengan id '%s' tidak ditemukan.</value>
+        <value>Grup  dengan id '{0}' tidak ditemukan.</value>
     </data>
     <data name="only_waiting_transaction_can_be_prepared" xml:space="preserve">
         <value>Hanya transaksi dengan status 'menungu' bisa disiapkan</value>

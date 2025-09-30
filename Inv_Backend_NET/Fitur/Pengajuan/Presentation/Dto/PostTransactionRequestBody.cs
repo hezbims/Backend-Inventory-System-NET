@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using Inventory_Backend_NET.Database.Models;
-using Inventory_Backend_NET.Fitur._Constants;
+using Inventory_Backend_NET.Common.Presentation.Model;
 using Inventory_Backend_NET.Fitur.Pengajuan.Application.Dto;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Inventory_Backend_NET.Fitur.Pengajuan.Presentation.Dto;
 
@@ -12,14 +9,14 @@ using TransType = Common.Domain.ValueObject.TransactionType;
 using Key =  TransactionJsonFieldName;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public sealed class PostTransactionRequestBody : IValidatableObject
+internal sealed class PostTransactionRequestBody : IMyCustomValidatableObject
 {
     [JsonIgnore]
     private UserCreator? Creator { get; set; } // late assign from http context
 
-    public void SetUserCreator(User user)
+    public void SetUserCreator(bool isAdmin, int id)
     {
-        Creator = new UserCreator(IsAdmin: user.IsAdmin, CreatorId: user.Id);
+        Creator = new UserCreator(CreatorId: id, IsAdmin: isAdmin);
     }
 
     [JsonPropertyName("assigend_user_id")]
@@ -39,67 +36,68 @@ public sealed class PostTransactionRequestBody : IValidatableObject
     
     [JsonPropertyName(Key.TransactionItems)]
     public IList<PostTransactionItemReqeustBody>? TransactionItems { get; set; } // minimal satu biji
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    
+    public bool TryValidate(out List<MyValidationError> errors)
     {
+        errors = [];
+        
         if (Creator is null)
-            yield return new ValidationResult(
-                Resources.Transaction.creator_is_empty, 
-                 [ MyConstants.WrongContractErrorKey ]);
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_CREATOR_IS_EMPTY",
+                Message: Resources.Transaction.creator_is_empty));
 
         if (TransactionTime is null)
-            yield return new ValidationResult(
-                Resources.Transaction.transaction_time_must_filled,
-                [ Key.TransactionTime ]);
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_TIME_IS_EMPTY",
+                Message: Resources.Transaction.transaction_time_must_filled));
 
         if (GroupId is null)
-            yield return new ValidationResult(
-                Resources.Transaction.group_id_must_filled,
-                [ Key.GroupId ]);
-
-        if (Creator?.IsAdmin == true)
-        {
-            if (TransactionType is null) 
-                yield return new ValidationResult(
-                    Resources.Transaction.transaction_type_must_filled,
-                    [Key.TransactionType]);
-            else if (TransactionType != "IN" && TransactionType != "OUT")
-                yield return new ValidationResult(
-                    Resources.Transaction.transaction_type_must_be_in_or_out,
-                    [MyConstants.WrongContractErrorKey]);
-        }
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_GROUP_ID_IS_EMPTY",
+                Message: Resources.Transaction.group_id_must_filled));
+        
+        if (TransactionType is null) 
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_TYPE_IS_EMPTY",
+                Message: Resources.Transaction.transaction_type_must_filled));
+        else if (TransactionType != "IN" && TransactionType != "OUT")
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANASCTION_TYPE_IS_INVALID",
+                Message: Resources.Transaction.transaction_type_must_be_in_or_out));
 
         if (TransactionItems == null)
-            yield return new ValidationResult(
-                Resources.Transaction.transaction_items_is_null,
-                [MyConstants.WrongContractErrorKey]);
-        else if (TransactionItems.IsNullOrEmpty())
-            yield return new ValidationResult(
-                Resources.Transaction.transaction_items_must_have_1_item,
-                [Key.TransactionItems]);
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_ITEMS_KEY_IS_NOT_EXIST",
+                Resources.Transaction.transaction_items_is_null));
+        else if (TransactionItems.Count == 0)
+            errors.Add(new MyValidationError(
+                Code: "PRES_TRANSACTION_ITEM_IS_EMPTY",
+                Message: Resources.Transaction.transaction_items_must_have_1_item));
         else
         {
             int index = 0;
             foreach (var transactionItem in TransactionItems!)
             {
                 if (transactionItem.ProductId is null)
-                    yield return new ValidationResult(
-                        String.Format(Resources.Transaction.transaction_item_product_id_is_not_filled, index),
-                        [MyConstants.WrongContractErrorKey]);
+                    errors.Add(new MyValidationError(
+                        Code: "PRES_TRANSACTION_ITEM_PRODUCT_ID_IS_EMPTY",
+                        Message: String.Format(Resources.Transaction.transaction_item_product_id_is_not_filled, index)));
                 if (transactionItem.ExpectedQuantity is null)
-                    yield return new ValidationResult(
-                        String.Format(Resources.Transaction.expected_quantity_is_not_filled, index),
-                        [MyConstants.WrongContractErrorKey]);
+                    errors.Add(new MyValidationError(
+                        Code: "PRES_TRANSACTION_ITEM_EXPECTED_QUANTITY_MUST_EXIST",
+                        Message: String.Format(Resources.Transaction.expected_quantity_is_not_filled, index)));
                 
                 if (TransactionType == "OUT" && 
                     Creator!.IsAdmin && 
                     transactionItem.PreparedQuantity is null)
-                    yield return new ValidationResult(
-                        String.Format(Resources.Transaction.prepared_quantity_must_filled, index),
-                        [MyConstants.WrongContractErrorKey]);
+                    errors.Add(new MyValidationError(
+                        Code: "PRES_TRANSACTION_ITEM_PREPARED_QUANTITY_MUST_EXIST",
+                        Message: String.Format(Resources.Transaction.prepared_quantity_must_filled, index)));
                 index++;
             }
         }
+        
+        return errors.Count == 0;
     }
 
     private sealed record UserCreator(int CreatorId, bool IsAdmin);
@@ -134,7 +132,7 @@ public sealed class PostTransactionRequestBody : IValidatableObject
 }
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public sealed class PostTransactionItemReqeustBody
+internal sealed class PostTransactionItemReqeustBody
 {
     [JsonPropertyName(Key.ProductId)]
     public int? ProductId { get; set; } // required

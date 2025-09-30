@@ -23,9 +23,10 @@ internal sealed class TransactionController(
         if (user == null)
             return Unauthorized();
         
-        request.SetUserCreator(user);
-        if (!request.TryValidate(out var validationResults))
-            return this.ValidationProblem(validationResults);
+        request.SetUserCreator(isAdmin: user.IsAdmin, id: user.Id);
+        throw new NotImplementedException();
+        // if (!request.TryValidate(out var validationResults))
+        //     return this.ValidationProblem(validationResults);
         
         // var errors = await createTransactionHandler.Handle(
         //     request.ToApplicationDto(), cancellationToken);

@@ -61,7 +61,7 @@
         <value>You can't assign transaction to supplier group</value>
     </data>
     <data name="prepared_quantity_must_filled" xml:space="preserve">
-        <value>Prepared quantity at %s-th position must filled</value>
+        <value>Prepared quantity at {0}-th position must filled</value>
     </data>
     <data name="transaction_items_size_must_be_same" xml:space="preserve">
         <value>The amount of items must be same as previous</value>
@@ -91,7 +91,7 @@
         <value>You can't create transaction of type 'Stock-In'</value>
     </data>
     <data name="group_id_not_found" xml:space="preserve">
-        <value>Group with id '%s' is not found.</value>
+        <value>Group with id '{0}' is not found.</value>
     </data>
     <data name="only_waiting_transaction_can_be_prepared" xml:space="preserve">
         <value>Only transaction with status 'waiting' can be prepared</value>

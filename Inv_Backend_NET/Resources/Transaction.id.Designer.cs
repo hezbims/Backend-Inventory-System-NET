@@ -141,7 +141,7 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Grup  dengan id &apos;%s&apos; tidak ditemukan..
+        ///   Looks up a localized string similar to Grup  dengan id &apos;{0}&apos; tidak ditemukan..
         /// </summary>
         internal static string group_id_not_found {
             get {
@@ -240,7 +240,7 @@ namespace Inventory_Backend_NET.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Jumlah yang disiapkan pada posisi ke-%s harus diisi.
+        ///   Looks up a localized string similar to Jumlah yang disiapkan pada posisi ke-{0} harus diisi.
         /// </summary>
         internal static string prepared_quantity_must_filled {
             get {
