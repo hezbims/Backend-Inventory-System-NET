@@ -14,7 +14,7 @@ public static class PrepareSeederHandler
         string[] args
     )
     {
-        if (!app.Environment.IsDevelopment()) return false;
+        if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Local")) return false;
         
         var containsSeederKeyword = false;
         using var scope = app.Services.CreateScope();
