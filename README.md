@@ -1,26 +1,40 @@
-# Main App Setup
-1. Create a new file called `appsettings.Local.json` in the `Inventory_Backend_NET` folder.
-2. Here is the structure of `appsettings.Local.json` :
+## Run The App
+Make sure you are running the app from linux environement with `docker compose` and `.NET SDK` installed.
+
+
+If you are using Windows OS, download the WSL and move this project to linux file system to avoid performance drawback. 
+You can also use remote development tools such as Rider WSL Remote Development tools or Jetbrains Gateway to develop this app in WSL environement.
+
+Here is the steps to run the app :
+1. Run this command in the terminal on the root of project :
+    ```
+    docker compose up -d   
+    ```
+
+2. Wait for the SQL Server container to successfully running. You can check it using this command :
+    ```
+    docker exec -it inventory-system-local-sql-server /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "Strongpwd123_"
+    ```
+    The container is successfully running if the resulting output is like this :
+    ```
+    1>
+    ```
+
+3. After that, you can run the app using `dotnet run` in the `Inv_Backend_NET` folder, or you can also use your favorite IDE to run the app.
+
+4. If you are using Windows, you can check the URL of the linux subsystem that is used to run this app by using this command in the linux terminal :
+    ```
+    hostname -I
+    ```
+
+### Development Data Seeding
+you can run this command in the `Inv_Backend_NET` folder to seed the initial data to the database for development purpose :
+```
+dotnet run refresh test-seeder
 ```
 
-```
-3. Then set the environement variable `ASPNETCORE_ENVIRONMENT` to value `Local`. In linux, you can set it in `~/.bashrc` by adding this line :
-```
-export ASPNETCORE_ENVIRONMENT=Local
-```
 
-# Test Automation Setup
-To run the automated tests, you must install docker in your local machine.
-
-### For Windows
-for windows, you must install WSL to be able to run docker. Run this command on the powershell :
-```
-
-```
-
-
-
-# Target Project Structure
+## Target Project Structure
 This is the expected project structure after refactoring. It is generated using [tree.nathanfriend.com](https://tree.nathanfriend.com/)
 ### 1. Main Project Structure
 <!--
