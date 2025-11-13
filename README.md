@@ -151,3 +151,5 @@ Inventory_Backend.Tests
     ├── Authentication
     └── Main_Setup
 ```
+Integration testing currently utilize XUnit `Collection Fixture`. The container will be run once 
+within all Integration Test using `TestWebAppFactory.cs`.
