@@ -43,6 +43,8 @@ public class CompleteTestSeeder : IDisposable
         var createdAt = TestTimeProvider.Instance.GetUtcNow();
         foreach (var statusPengajuan in statusPengajuanEntries)
         {
+            string kodeTransaksi = getKodeTransaksi.Run(
+                dateCreatedAt: createdAt, pengaju: group);
             _db.Pengajuans.Add(
                 new Pengajuan(
                     pengaju: group,
@@ -50,11 +52,10 @@ public class CompleteTestSeeder : IDisposable
                     user: nonAdmin,
                     createdAt: createdAt.ToUnixTimeMilliseconds(),
                     updatedAt: createdAt.ToUnixTimeMilliseconds(),
-                    kodeTransaksi: getKodeTransaksi.Run(
-                        dateCreatedAt: createdAt, pengaju: group),
+                    kodeTransaksi: kodeTransaksi,
                     barangAjuans: new List<BarangAjuan>
                     {
-                        new BarangAjuan(
+                        new(
                             barang: listBarang.First(),
                             quantity: 1,
                             keterangan: null)

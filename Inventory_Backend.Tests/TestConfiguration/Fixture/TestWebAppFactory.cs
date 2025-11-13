@@ -4,6 +4,7 @@ using Inventory_Backend_NET.Database;
 using Inventory_Backend_NET.Database.Models;
 using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Seeder;
+using Inventory_Backend_NET.Startup;
 using Inventory_Backend.Tests.Fitur._Preparation;
 using Inventory_Backend.Tests.Seeder;
 using Inventory_Backend.Tests.TestConfiguration.Logging;
@@ -13,9 +14,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Testcontainers.MsSql;
 using Xunit.Abstractions;
 
 namespace Inventory_Backend.Tests.TestConfiguration.Fixture;
@@ -23,6 +27,7 @@ namespace Inventory_Backend.Tests.TestConfiguration.Fixture;
 public class TestWebAppFactory : WebApplicationFactory<Program>
 {
     private IConfiguration? _configuration;
+    private MsSqlContainer? _dbContainer;
 
     public IConfiguration Configuration
     {
@@ -33,6 +38,30 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         var testConfiguration = TestConfig.GetTestConfig();
+
+        _dbContainer = new MsSqlBuilder()
+            .WithImage("mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04")
+            .WithPassword("YourStrong(!)Password")
+            .WithCleanUp(true)
+            .Build();
+        _dbContainer.StartAsync().GetAwaiter().GetResult();
+
+        var baseConnection = _dbContainer.GetConnectionString();
+        var testDatabaseName = "InventoryTestDb";
+
+        using (var connection = new SqlConnection(baseConnection))
+        {
+            connection.Open();
+            using var command = new SqlCommand($"CREATE DATABASE [{testDatabaseName}];", connection);
+            command.ExecuteNonQuery();
+        }
+
+        var connectionStringBuilder = new SqlConnectionStringBuilder(baseConnection)
+        {
+            InitialCatalog = testDatabaseName
+        };
+        var testContainerConnectionString = connectionStringBuilder.ConnectionString;
+
         builder
             .UseConfiguration(testConfiguration)
             .ConfigureAppConfiguration(configurationBuilder =>
@@ -42,6 +71,9 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
             })
             .ConfigureTestServices(services =>
             {
+                services.Remove(services.First(x => x.ServiceType == typeof(DbContextOptions<MyDbContext>)));
+                services.PrepareMyDbContextWithInterceptor(testContainerConnectionString);
+
                 services
                     .AddSingleton<TimeProvider>(TestTimeProvider.Instance)
                     .AddSeeders()
