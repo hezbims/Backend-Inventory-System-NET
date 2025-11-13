@@ -16,7 +16,6 @@ public class Program
             .PrepareSwaggerWithJwtInputService()
             .PrepareAuthenticationServices()
             .PrepareCorsServices()
-            .PrepareSpaServices()
             .PrepareMonitongServices()
             .PrepareExceptionHandlingServices();
 
@@ -39,7 +38,6 @@ public class Program
         app.UseAuthorization();
         app.UseExceptionHandler();
         app.MapControllers();
-        app.PrepareSpaServices();
 
 
 

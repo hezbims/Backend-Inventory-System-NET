@@ -28,7 +28,7 @@ public static class MyConstants
 
     public static class AppSettingsKey
     {
-        public const string MyConnectionString = "SQLServerConnection";
+        public const string InventoryDbConnectionString = "Inventory-Db";
     }
     
     public const string DateFormat = "yyyy-MM-dd";

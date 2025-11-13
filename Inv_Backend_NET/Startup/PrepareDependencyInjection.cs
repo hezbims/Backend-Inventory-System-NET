@@ -1,6 +1,4 @@
 using Inventory_Backend_NET.Common.Presentation.Service;
-using Inventory_Backend_NET.Database;
-using Inventory_Backend_NET.Database.Interceptor;
 using Inventory_Backend_NET.Fitur._Constants;
 using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Barang._Dependency;
@@ -10,8 +8,6 @@ using Inventory_Backend_NET.Startup.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Inventory_Backend_NET.Startup;
 
@@ -45,19 +41,12 @@ public static class PrepareDependencyInjection
 
             options.Filters.Add(new AuthorizeFilter(policy)); // 👈 Global AuthGuard
         });
-        
-        builder.Services.AddDbContext<MyDbContext>(
-            optionsAction: (serviceProvider , options) =>
-                options
-                    .UseSqlServer(
-                        builder.Configuration
-                            .GetConnectionString(name: MyConstants.AppSettingsKey.MyConnectionString))
-                    .AddInterceptors(
-                        new UpdateTotalPengajuanByTanggalOnCreatePengajuanInterceptor(
-                            timeProvider: serviceProvider.GetRequiredService<TimeProvider>()),
-                        new UpdateCacheOnPengajuanChangedInterceptor(
-                            memoryCache: serviceProvider.GetRequiredService<IMemoryCache>()))
-        );
+
+        string connectionString = builder
+            .Configuration
+            .GetConnectionString(MyConstants.AppSettingsKey.InventoryDbConnectionString)!;
+
+        builder.Services.PrepareMyDbContextWithInterceptor(connectionString);
 
         return builder;
     }
