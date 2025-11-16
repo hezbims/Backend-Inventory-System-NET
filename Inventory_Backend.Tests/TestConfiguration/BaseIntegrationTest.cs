@@ -24,7 +24,17 @@ public abstract class BaseIntegrationTest
     private IServiceScope? _scope;
 
     private MyDbContext? _dbContext;
-    protected MyDbContext Db => _dbContext ??= _webApp.Get<MyDbContext>();
+
+    protected MyDbContext Db
+    {
+        get
+        {
+            if (_dbContext != null)
+                _dbContext.Dispose();
+            _dbContext = _webApp.Get<MyDbContext>();
+            return _dbContext;
+        }
+    }
     
     
     protected readonly ITestOutputHelper Output;
@@ -68,6 +78,7 @@ public abstract class BaseIntegrationTest
         _adminClient?.Dispose();
         _nonAdminClient?.Dispose();
         _customClient?.Dispose();
+        _dbContext?.Dispose();
         
         _scope = _webApp.Server.Services.CreateScope();
     }

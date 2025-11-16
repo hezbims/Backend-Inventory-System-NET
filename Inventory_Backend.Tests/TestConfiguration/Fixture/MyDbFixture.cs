@@ -34,7 +34,7 @@ public class MyDbFixture
 
         // Set up DbContext with the test connection string
         var options = new DbContextOptionsBuilder<MyDbContext>()
-            .UseSqlServer(configuration.GetConnectionString(MyConstants.AppSettingsKey.MyConnectionString))
+            .UseSqlServer(configuration.GetConnectionString(MyConstants.AppSettingsKey.InventoryDbConnectionString))
             .Options;
 
         return new MyDbContext(options);

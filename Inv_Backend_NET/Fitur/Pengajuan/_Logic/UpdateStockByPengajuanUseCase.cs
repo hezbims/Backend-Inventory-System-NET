@@ -13,6 +13,11 @@ public class UpdateStockByPengajuanUseCase
         _db = db;
     }
 
+    /// <summary>
+    /// Ini hanya dimasukkan ke ChangeTracker, harus jalankan <see cref="DbContext.SaveChanges()"/> untuk menyimpan perubahan.
+    /// </summary>
+    /// <param name="previousPengajuan"></param>
+    /// <param name="currentPengajuan"></param>
     public void By(
         Database.Models.Pengajuan? previousPengajuan, 
         Database.Models.Pengajuan? currentPengajuan)
@@ -41,12 +46,8 @@ public class UpdateStockByPengajuanUseCase
             if (!isPemasukan)
                 quantity *= -1;
 
-            _db.Barangs
-                .Where(barang => barang.Id == barangAjuan.BarangId)
-                .ExecuteUpdate(s =>
-                    s.SetProperty(
-                        barang => barang.CurrentStock,
-                        barang => barang.CurrentStock + quantity));
+            var targetBarang = _db.Barangs.Single(barang => barang.Id == barangAjuan.BarangId);
+            targetBarang.CurrentStock += quantity;
         }
     }
 }
