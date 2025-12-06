@@ -34,7 +34,7 @@ jobs:
           JwtSettings.Audience: frontend-inventory-system
           
       - name: Publish
-        run: dotnet publish Inv_Backend_NET/Inventory_Backend_NET.csproj -C Release --output ./publish --runtime win-x86
+        run: dotnet publish Inv_Backend_NET/Inventory_Backend_NET.csproj --configuration Release --output ./publish --runtime win-x86
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
