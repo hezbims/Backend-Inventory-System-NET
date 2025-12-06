@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <InvariantGlobalization>false</InvariantGlobalization>
     <UserSecretsId>bbfffc45-0ba5-4ea6-ae45-ad3ac664a451</UserSecretsId>
   </PropertyGroup>
