@@ -13,7 +13,7 @@ public class Program
 
         builder
             .PrepareDependencyInjectionServices()
-            .PrepareSwaggerWithJwtInputService()
+            .PrepareSwagger()
             .PrepareAuthenticationServices()
             .PrepareCorsServices()
             .PrepareMonitongServices()
@@ -27,11 +27,11 @@ public class Program
         var containsSeederKeyword = app.HandleSeedingCommandFromCli(args: args);
         if (containsSeederKeyword) return;
 
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsEnvironment("Local"))
         {
-            app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseSwagger();
         app.UseWebSockets();
         app.UseHttpsRedirection();
         app.UseCors();
