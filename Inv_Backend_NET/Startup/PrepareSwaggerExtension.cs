@@ -13,6 +13,9 @@ public static class PrepareSwaggerExtension
 {
     public static WebApplicationBuilder PrepareSwagger(this WebApplicationBuilder builder)
     {
+        // Khusus kalo ngegunain minimal API, agar muncul di swagger
+        builder.Services.AddEndpointsApiExplorer();
+        
         builder.Services.AddSwaggerGen(option =>
         {
             option.SwaggerDoc("v1", new OpenApiInfo

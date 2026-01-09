@@ -20,7 +20,14 @@ Here is the steps to run the app :
     1>
     ```
 
-3. After that, you can run the app using `dotnet run` in the `Inv_Backend_NET` folder, or you can also use your favorite IDE to run the app.
+3. After that, you can go to `Inv_Backend_NET` folder, and then run following commands to run the app :
+   ```sh
+   # Run using default HTTP profile (Local ASPNETCORE_ENVIRONEMENT)
+   dotnet run
+   
+   # Run for E2E Testing
+   dotnet run --launch-profile e2e
+   ```
 
 4. If you are using Windows, you can check the URL of the linux subsystem that is used to run this app by using this command in the linux terminal :
     ```

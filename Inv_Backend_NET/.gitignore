@@ -2,3 +2,4 @@ Cache/
 web/
 
 !appsettings.Local.json
+!appsettings.E2E.json

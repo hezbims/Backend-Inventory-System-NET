@@ -23,6 +23,20 @@ public static class RefreshDatabaseExtension
         db.SaveChanges();
     }
 
+    public static async Task RefreshDatabaseAsync(this MyDbContext db)
+    {
+        var tableNames = TopologicalSortEntities(db)
+            .Select(entity => entity.GetTableName()!);
+        
+        foreach (var table in tableNames)
+        {
+            var query = $"DELETE FROM {table}";
+            await db.Database.ExecuteSqlRawAsync(query);
+        }
+        
+        await db.SaveChangesAsync();
+    }
+
     /// <summary>
     /// Handling foreign key constraint that restrict deletion
     /// </summary>

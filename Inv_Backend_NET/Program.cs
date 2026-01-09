@@ -1,4 +1,5 @@
 using Inventory_Backend_NET.Startup;
+using Inventory_Backend_NET.TestOnlyEndpoint;
 
 namespace Inventory_Backend_NET;
 
@@ -7,10 +8,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        // Khusus kalo ngegunain minimal API, agar muncul di swagger
-        // builder.Services.AddEndpointsApiExplorer();
-
+        
         builder
             .PrepareDependencyInjectionServices()
             .PrepareSwagger()
@@ -27,7 +25,7 @@ public class Program
         var containsSeederKeyword = app.HandleSeedingCommandFromCli(args: args);
         if (containsSeederKeyword) return;
 
-        if (app.Environment.IsEnvironment("Local"))
+        if (app.Environment.IsEnvironment("Local") || app.Environment.IsEnvironment("E2E"))
         {
             app.UseSwaggerUI();
         }
@@ -39,7 +37,8 @@ public class Program
         app.UseExceptionHandler();
         app.MapControllers();
 
-
+        if (app.Environment.IsEnvironment("E2E"))
+            app.MapTestEndpoints();
 
         var config = builder.Configuration;
         app.Run(config["AppUrl"]);
