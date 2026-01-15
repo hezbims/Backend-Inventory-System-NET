@@ -1,3 +1,26 @@
+## Prerequisite
+1. Install the necessary CLI tools :
+   ```sh
+   # The tools to generate OpenAPI Spec (swagger.json) after build is successful
+   dotnet tool restore
+   ```
+   
+2. Set this in the `~/.bashrc`
+   ```sh
+   export INVENTORY_SYSTEM_FE_API_SPEC_DIR=<Path-to-local-inventory-system-project>/api_spec/
+   ```
+   
+   And then refresh the bashrc using command like this :
+   ```sh
+   source ~/.bashrc
+   ```
+   
+3. Now when we want to generate OpenAPI Spec (swagger.json), 
+we can just run this command :
+   ```sh
+   dotnet build
+   ```
+   
 ## Run The App
 Make sure you are running the app from linux environement with `docker compose` and `.NET SDK` installed.
 

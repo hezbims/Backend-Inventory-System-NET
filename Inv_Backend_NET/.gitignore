@@ -1,5 +1,6 @@
 Cache/
 web/
+custom_generated/
 
 !appsettings.Local.json
 !appsettings.E2E.json

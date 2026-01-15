@@ -6,7 +6,30 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
     <UserSecretsId>bbfffc45-0ba5-4ea6-ae45-ad3ac664a451</UserSecretsId>
+
+    <BackendSpecOutputDir>$(ProjectDir)custom_generated/api_spec/</BackendSpecOutputDir>
+    <BackendSpecOutputFile>$(BackendSpecOutputDir)swagger.json</BackendSpecOutputFile>
+    <FronendSpecOutputDir>$(INVENTORY_SYSTEM_FE_API_SPEC_DIR)</FronendSpecOutputDir>
   </PropertyGroup>
+
+  <Target Name="ValidateRequiredEnv" BeforeTargets="Build">
+    <Error
+            Text="Required env var INVENTORY_SYSTEM_FE_API_SPEC_DIR is not set. Export it, e.g.:
+- Linux/macOS: export INVENTORY_SYSTEM_FE_API_SPEC_DIR=/path/to/specs
+- PowerShell:  $env:INVENTORY_SYSTEM_FE_API_SPEC_DIR='C:\path\to\specs'
+- CMD:         set INVENTORY_SYSTEM_FE_API_SPEC_DIR=C:\path\to\specs"
+            Condition="'$(FronendSpecOutputDir)' == ''" />
+  </Target>
+
+  <Target Name="GenerateSwaggerToFeAndBe" AfterTargets="Build">
+    <MakeDir Directories="$(BackendSpecOutputDir)" />
+    
+    <Exec
+            Command="dotnet tool run swagger tofile --output $(BackendSpecOutputFile) $(TargetDir)$(AssemblyName).dll v1"
+            EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor;ASPNETCORE_ENVIRONMENT=OpenAPI-Spec-Gen"/>
+    
+    <Copy SourceFiles="$(BackendSpecOutputFile)" DestinationFolder="$(FronendSpecOutputDir)"/>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="CSVHelper" Version="30.0.1" />
@@ -26,6 +49,7 @@
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
   </ItemGroup>
