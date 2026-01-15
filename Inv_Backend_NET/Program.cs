@@ -1,4 +1,5 @@
 using Inventory_Backend_NET.Startup;
+using Inventory_Backend_NET.Startup.Constant;
 using Inventory_Backend_NET.TestOnlyEndpoint;
 
 namespace Inventory_Backend_NET;
@@ -20,12 +21,13 @@ public class Program
 
 
         var app = builder.Build();
-        app.MigrateDatabases();
+        if (!app.Environment.IsEnvironment(Env.ApiSpecGen))
+            app.MigrateDatabases();
 
         var containsSeederKeyword = app.HandleSeedingCommandFromCli(args: args);
         if (containsSeederKeyword) return;
 
-        if (app.Environment.IsEnvironment("Local") || app.Environment.IsEnvironment("E2E"))
+        if (app.Environment.IsEnvironment(Env.Local) || app.Environment.IsEnvironment(Env.E2E))
         {
             app.UseSwaggerUI();
         }

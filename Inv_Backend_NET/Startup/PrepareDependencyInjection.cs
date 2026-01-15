@@ -4,6 +4,7 @@ using Inventory_Backend_NET.Fitur._Logic.Services;
 using Inventory_Backend_NET.Fitur.Barang._Dependency;
 using Inventory_Backend_NET.Fitur.Logging;
 using Inventory_Backend_NET.Fitur.Pengajuan._Dependency;
+using Inventory_Backend_NET.Startup.Constant;
 using Inventory_Backend_NET.Startup.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -42,11 +43,14 @@ public static class PrepareDependencyInjection
             options.Filters.Add(new AuthorizeFilter(policy)); // 👈 Global AuthGuard
         });
 
-        string connectionString = builder
-            .Configuration
-            .GetConnectionString(MyConstants.AppSettingsKey.InventoryDbConnectionString)!;
+        if (!builder.Environment.IsEnvironment(Env.ApiSpecGen))
+        {
+            string connectionString = builder
+                .Configuration
+                .GetConnectionString(MyConstants.AppSettingsKey.InventoryDbConnectionString)!;
 
-        builder.Services.PrepareMyDbContextWithInterceptor(connectionString);
+            builder.Services.PrepareMyDbContextWithInterceptor(connectionString);
+        }
 
         return builder;
     }
