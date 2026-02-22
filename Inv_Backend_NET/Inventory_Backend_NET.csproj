@@ -9,7 +9,7 @@
 
     <BackendSpecOutputDir>$(ProjectDir)custom_generated/api_spec/</BackendSpecOutputDir>
     <BackendSpecOutputFile>$(BackendSpecOutputDir)swagger.json</BackendSpecOutputFile>
-    <FronendSpecOutputDir>$(INVENTORY_SYSTEM_FE_API_SPEC_DIR)</FronendSpecOutputDir>
+    <FrontendSpecOutputDir>$([System.Environment]::GetEnvironmentVariable('INVENTORY_SYSTEM_FE_API_SPEC_DIR'))</FrontendSpecOutputDir>
   </PropertyGroup>
 
   <Target Name="ValidateRequiredEnv" BeforeTargets="Build">
@@ -18,7 +18,7 @@
 - Linux/macOS: export INVENTORY_SYSTEM_FE_API_SPEC_DIR=/path/to/specs
 - PowerShell:  $env:INVENTORY_SYSTEM_FE_API_SPEC_DIR='C:\path\to\specs'
 - CMD:         set INVENTORY_SYSTEM_FE_API_SPEC_DIR=C:\path\to\specs"
-            Condition="'$(FronendSpecOutputDir)' == ''" />
+            Condition="'$(FrontendSpecOutputDir)' == ''" />
   </Target>
 
   <Target Name="GenerateSwaggerToFeAndBe" AfterTargets="Build">
@@ -28,7 +28,7 @@
             Command="dotnet tool run swagger tofile --output $(BackendSpecOutputFile) $(TargetDir)$(AssemblyName).dll v1"
             EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor;ASPNETCORE_ENVIRONMENT=OpenAPI-Spec-Gen"/>
     
-    <Copy SourceFiles="$(BackendSpecOutputFile)" DestinationFolder="$(FronendSpecOutputDir)"/>
+    <Copy SourceFiles="$(BackendSpecOutputFile)" DestinationFolder="$(FrontendSpecOutputDir)"/>
   </Target>
 
   <ItemGroup>
